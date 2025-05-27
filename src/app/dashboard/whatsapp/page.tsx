@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2, RefreshCcw, LogOut, MessageSquare, CheckCircle, XCircle } from "lucide-react";
+import { Loader2, RefreshCcw, LogOut, MessageSquare, CheckCircle, XCircle, Info } from "lucide-react";
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +29,8 @@ export default function WhatsappPage() {
     message: "",
   });
   const [qrCode, setQrCode] = useState("");
+  const [qrLoading, setQrLoading] = useState(false);
+  const [qrError, setQrError] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -58,6 +60,7 @@ export default function WhatsappPage() {
       } else {
         // Jika terhubung, hapus QR code
         setQrCode("");
+        setQrError("");
       }
     } catch (error) {
       console.error("Error fetching status:", error);
@@ -73,13 +76,31 @@ export default function WhatsappPage() {
 
   const fetchQrCode = async () => {
     try {
+      setQrLoading(true);
+      setQrError("");
+      
       const response = await getQrCode();
       if (response && response.qrCode) {
         setQrCode(response.qrCode);
+      } else if (response && response.status === "success") {
+        setQrCode("");
+        setQrError("QR code tidak tersedia. Kemungkinan backend sudah terhubung.");
+      } else {
+        setQrCode("");
+        setQrError("QR code belum siap. Coba lagi dalam beberapa saat.");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching QR code:", error);
-      // QR code mungkin belum tersedia, jadi tidak perlu menampilkan error
+      setQrCode("");
+      
+      // Tangani pesan error secara khusus
+      if (error.message && error.message.includes("QR code tidak tersedia")) {
+        setQrError("QR code tidak tersedia. WhatsApp mungkin sudah terhubung atau sedang mempersiapkan koneksi.");
+      } else {
+        setQrError("Gagal memuat QR code. Coba reset koneksi atau mulai sesi baru.");
+      }
+    } finally {
+      setQrLoading(false);
     }
   };
 
@@ -96,6 +117,8 @@ export default function WhatsappPage() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
+    setQrError("");
+    
     try {
       await resetConnection();
       toast({
@@ -125,6 +148,8 @@ export default function WhatsappPage() {
     }
     
     setRefreshing(true);
+    setQrError("");
+    
     try {
       await logoutSession();
       toast({
@@ -149,6 +174,8 @@ export default function WhatsappPage() {
 
   const handleStart = async () => {
     setRefreshing(true);
+    setQrError("");
+    
     try {
       await startAllSessions();
       toast({
@@ -171,6 +198,69 @@ export default function WhatsappPage() {
     }
   };
 
+  const getStatusDisplay = () => {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center py-6">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <span>Memuat status...</span>
+        </div>
+      );
+    }
+
+    // Status terhubung
+    if (status.connected) {
+      return (
+        <div className="space-y-4">
+          <div className="flex items-center">
+            <span className="mr-2 font-medium">Status:</span>
+            <div className="flex items-center">
+              <CheckCircle className="mr-1 h-4 w-4 text-green-500" />
+              <span className="text-green-600">Terhubung</span>
+            </div>
+          </div>
+          <div>
+            <span className="mr-2 font-medium">State:</span>
+            <span>{status.state}</span>
+          </div>
+          {status.message && (
+            <div>
+              <span className="mr-2 font-medium">Pesan:</span>
+              <span>{status.message}</span>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Status tidak terhubung
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center">
+          <span className="mr-2 font-medium">Status:</span>
+          <div className="flex items-center">
+            <XCircle className="mr-1 h-4 w-4 text-red-500" />
+            <span className="text-red-600">Terputus</span>
+          </div>
+        </div>
+        <div>
+          <span className="mr-2 font-medium">State:</span>
+          <span>{status.state}</span>
+        </div>
+        {status.message && (
+          <div>
+            <span className="mr-2 font-medium">Pesan:</span>
+            <span>{status.message}</span>
+          </div>
+        )}
+        <div className="mt-2 text-sm text-yellow-600">
+          <Info className="inline-block h-4 w-4 mr-1" />
+          <span>Silakan klik tombol "Mulai Sesi" untuk memulai koneksi WhatsApp</span>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <DashboardLayout>
       <div className="mb-8">
@@ -189,41 +279,7 @@ export default function WhatsappPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <div className="flex items-center justify-center py-6">
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                <span>Memuat status...</span>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="flex items-center">
-                  <span className="mr-2 font-medium">Status:</span>
-                  <div className="flex items-center">
-                    {status.connected ? (
-                      <>
-                        <CheckCircle className="mr-1 h-4 w-4 text-green-500" />
-                        <span className="text-green-600">Terhubung</span>
-                      </>
-                    ) : (
-                      <>
-                        <XCircle className="mr-1 h-4 w-4 text-red-500" />
-                        <span className="text-red-600">Terputus</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <span className="mr-2 font-medium">State:</span>
-                  <span>{status.state}</span>
-                </div>
-                {status.message && (
-                  <div>
-                    <span className="mr-2 font-medium">Pesan:</span>
-                    <span>{status.message}</span>
-                  </div>
-                )}
-              </div>
-            )}
+            {getStatusDisplay()}
           </CardContent>
           <CardFooter className="flex justify-between">
             <Button onClick={handleRefresh} disabled={refreshing}>
@@ -248,15 +304,28 @@ export default function WhatsappPage() {
           </CardFooter>
         </Card>
 
-        {!status.connected && qrCode && (
-          <Card>
-            <CardHeader>
-              <CardTitle>QR Code</CardTitle>
-              <CardDescription>
-                Scan QR code ini dengan WhatsApp di ponsel Anda untuk menghubungkan
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex justify-center">
+        <Card>
+          <CardHeader>
+            <CardTitle>QR Code</CardTitle>
+            <CardDescription>
+              Scan QR code dengan WhatsApp di ponsel untuk menghubungkan
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex justify-center">
+            {status.connected ? (
+              <div className="flex flex-col items-center justify-center py-6 text-center">
+                <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
+                <h3 className="text-lg font-medium">WhatsApp Terhubung</h3>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Anda sudah terhubung ke WhatsApp. Tidak perlu memindai QR code.
+                </p>
+              </div>
+            ) : qrLoading ? (
+              <div className="flex flex-col items-center justify-center py-6">
+                <Loader2 className="h-16 w-16 animate-spin mb-4 text-blue-500" />
+                <p className="text-sm text-center">Memuat QR code...</p>
+              </div>
+            ) : qrCode ? (
               <div className="overflow-hidden rounded-md border p-1">
                 <img
                   src={qrCode}
@@ -266,12 +335,30 @@ export default function WhatsappPage() {
                   className="aspect-square h-auto w-full max-w-sm object-cover"
                 />
               </div>
-            </CardContent>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-6 text-center">
+                <Info className="h-16 w-16 text-yellow-500 mb-4" />
+                <h3 className="text-lg font-medium">QR Code Tidak Tersedia</h3>
+                <p className="text-sm text-muted-foreground mt-2">
+                  {qrError || "QR code tidak dapat dimuat. Coba reset koneksi dan mulai sesi baru."}
+                </p>
+                <Button 
+                  className="mt-4" 
+                  variant="outline" 
+                  onClick={handleStart}
+                  disabled={refreshing}
+                >
+                  Mulai Sesi Baru
+                </Button>
+              </div>
+            )}
+          </CardContent>
+          {qrCode && (
             <CardFooter className="text-center text-sm text-muted-foreground">
               QR code akan kedaluwarsa dalam beberapa menit. Jika kedaluwarsa, klik tombol Reset Koneksi.
             </CardFooter>
-          </Card>
-        )}
+          )}
+        </Card>
       </div>
     </DashboardLayout>
   );
