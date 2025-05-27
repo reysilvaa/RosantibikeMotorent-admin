@@ -34,11 +34,30 @@ export default function WhatsappPage() {
 
   const fetchStatus = async () => {
     try {
-      const response = await getStatus();
-      setStatus(response);
+      // Ambil status koneksi dari endpoint status
+      const statusResponse = await getStatus();
       
-      if (!response.connected) {
+      // Ambil status sesi yang lebih detail dari endpoint session-status
+      const sessionResponse = await getSessionStatus();
+      
+      // Gabungkan informasi dari kedua endpoint untuk status yang lebih akurat
+      const mergedStatus = {
+        connected: statusResponse.connected || 
+                  (sessionResponse?.data?.status === 'CONNECTED' || 
+                   sessionResponse?.data?.state === 'CONNECTED'),
+        state: sessionResponse?.data?.state || statusResponse.state || 'UNKNOWN',
+        message: sessionResponse?.data?.message || statusResponse.message || '',
+      };
+      
+      console.log('Status from backend:', mergedStatus);
+      setStatus(mergedStatus);
+      
+      // Jika tidak terhubung dan tidak mengambil QR code, coba ambil
+      if (!mergedStatus.connected) {
         fetchQrCode();
+      } else {
+        // Jika terhubung, hapus QR code
+        setQrCode("");
       }
     } catch (error) {
       console.error("Error fetching status:", error);
