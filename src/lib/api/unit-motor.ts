@@ -15,7 +15,10 @@ export const getUnitMotor = async (filter: FilterUnitMotor = {}): Promise<Pagina
       params: filter,
     });
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
     throw new Error('Gagal mendapatkan data unit motor');
   }
 };
@@ -30,7 +33,10 @@ export const getUnitMotorDetail = async (id: string): Promise<UnitMotor> => {
       },
     });
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
     throw new Error('Gagal mendapatkan detail unit motor');
   }
 };
@@ -50,7 +56,10 @@ export const createUnitMotor = async (data: {
       },
     });
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
     throw new Error('Gagal membuat unit motor baru');
   }
 };
@@ -74,7 +83,10 @@ export const updateUnitMotor = async (
       },
     });
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
     throw new Error('Gagal mengupdate unit motor');
   }
 };
@@ -89,7 +101,10 @@ export const deleteUnitMotor = async (id: string): Promise<UnitMotor> => {
       },
     });
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
     throw new Error('Gagal menghapus unit motor');
   }
 }; 

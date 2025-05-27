@@ -5,6 +5,7 @@ import { JenisMotor } from './jenis-motor';
 export enum StatusTransaksi {
   BOOKING = 'BOOKING',
   BERJALAN = 'BERJALAN',
+  AKTIF = 'AKTIF',
   SELESAI = 'SELESAI',
   BATAL = 'BATAL',
   OVERDUE = 'OVERDUE',
@@ -14,22 +15,22 @@ export enum StatusTransaksi {
 export interface Transaksi {
   id: string;
   namaPenyewa: string;
-  noHP: string;
-  alamat: string;
+  noWhatsapp: string;
+  alamat?: string;
   tanggalMulai: string;
   tanggalSelesai: string;
-  totalHarga: number;
+  totalBiaya: number;
   status: StatusTransaksi;
   createdAt: string;
   updatedAt: string;
-  unitMotorId: string;
-  unitMotor?: UnitMotor;
-  jenisMotor?: JenisMotor;
-  fasilitas?: {
-    id: string;
-    nama: string;
-    harga: number;
-  }[];
+  unitId: string;
+  biayaDenda: string;
+  helm: number;
+  jamMulai: string;
+  jamSelesai: string;
+  jasHujan: number;
+  unitMotor: UnitMotor;
+  jenis?: JenisMotor;
 }
 
 // Interface untuk filter transaksi

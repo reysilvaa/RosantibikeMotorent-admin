@@ -3,9 +3,9 @@ import { JenisMotor } from './jenis-motor';
 // Interface untuk unit motor
 export interface UnitMotor {
   id: string;
-  plat: string;
-  tahunPembuatan: string;
-  hargaSewa: number;
+  platNomor: string;
+  tahunPembuatan: number;
+  hargaSewa: string;
   status: string;
   createdAt: string;
   updatedAt: string;

@@ -28,6 +28,7 @@ const StatusBadge = ({ status }: { status: StatusTransaksi }) => {
       case StatusTransaksi.SELESAI:
         return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
       case StatusTransaksi.BERJALAN:
+      case StatusTransaksi.AKTIF:
         return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
       case StatusTransaksi.BOOKING:
         return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
@@ -79,8 +80,8 @@ export default function TransaksiPage() {
 
       const response = await getTransaksi(params);
       setTransaksi(response.data);
-      setTotalData(response.meta.total);
-      setTotalPages(Math.ceil(response.meta.total / limit));
+      setTotalData(response.meta.totalItems || 0);
+      setTotalPages(Math.ceil((response.meta.totalItems || 0) / limit));
       setCurrentPage(page);
     } catch (error) {
       console.error("Gagal mengambil data transaksi:", error);
@@ -190,16 +191,16 @@ export default function TransaksiPage() {
               </Button>
               <Button
                 variant={
-                  statusFilter === StatusTransaksi.BERJALAN
+                  statusFilter === StatusTransaksi.AKTIF
                     ? "default"
                     : "outline"
                 }
                 size="sm"
                 onClick={() =>
-                  handleStatusFilterChange(StatusTransaksi.BERJALAN)
+                  handleStatusFilterChange(StatusTransaksi.AKTIF)
                 }
               >
-                Berjalan
+                Aktif
               </Button>
               <Button
                 variant={
@@ -267,13 +268,13 @@ export default function TransaksiPage() {
                             <td className="px-4 py-3 font-medium">
                               {item.namaPenyewa}
                               <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                                {item.noHP}
+                                {item.noWhatsapp}
                               </div>
                             </td>
                             <td className="px-4 py-3">
-                              {item.unitMotor?.JenisMotor?.nama || "-"}
+                              {item.unitMotor?.JenisMotor?.merk || "-"} {item.unitMotor?.JenisMotor?.model || ""}
                               <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                                {item.unitMotor?.plat || "-"}
+                                {item.unitMotor?.platNomor || "-"}
                               </div>
                             </td>
                             <td className="px-4 py-3">
@@ -286,7 +287,7 @@ export default function TransaksiPage() {
                               <StatusBadge status={item.status} />
                             </td>
                             <td className="px-4 py-3 font-medium">
-                              {formatRupiah(item.totalHarga)}
+                              {formatRupiah(item.totalBiaya)}
                             </td>
                             <td className="px-4 py-3 text-right">
                               <Button

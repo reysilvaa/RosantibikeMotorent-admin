@@ -57,9 +57,9 @@ export default function JenisMotorPage() {
     
     const filtered = jenisMotor.filter(
       (jenis) =>
-        jenis.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
         jenis.merk.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        jenis.model.toLowerCase().includes(searchQuery.toLowerCase())
+        jenis.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        `${jenis.merk} ${jenis.model}`.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredData(filtered);
   };
@@ -192,7 +192,7 @@ export default function JenisMotorPage() {
                         )}
                       </div>
                       <CardContent className="p-4">
-                        <h3 className="font-semibold">{jenis.nama}</h3>
+                        <h3 className="font-semibold">{jenis.merk} {jenis.model}</h3>
                         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
                           {jenis.cc} CC
                         </p>

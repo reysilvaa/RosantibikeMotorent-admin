@@ -11,7 +11,7 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
-import { getUnitMotor, deleteUnitMotor } from "@/lib/unit-motor";
+import { getUnitMotor, deleteUnitMotor, UnitMotor } from "@/lib/unit-motor";
 import { formatRupiah } from "@/lib/utils";
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,9 @@ const StatusBadge = ({ status }: { status: string }) => {
         return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
       case "DISEWA":
         return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
-      case "PERBAIKAN":
+      case "DIPESAN":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
+      case "OVERDUE":
         return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
       default:
         return "bg-neutral-100 text-neutral-800 dark:bg-neutral-900/30 dark:text-neutral-400";
@@ -76,8 +78,8 @@ export default function UnitMotorPage() {
 
       const response = await getUnitMotor(params);
       setUnitMotors(response.data);
-      setTotalData(response.meta.total);
-      setTotalPages(Math.ceil(response.meta.total / limit));
+      setTotalData(response.meta.totalItems);
+      setTotalPages(response.meta.totalPages);
       setCurrentPage(page);
     } catch (error) {
       console.error("Gagal mengambil data unit motor:", error);
@@ -230,11 +232,18 @@ export default function UnitMotorPage() {
                 Disewa
               </Button>
               <Button
-                variant={statusFilter === "PERBAIKAN" ? "default" : "outline"}
+                variant={statusFilter === "DIPESAN" ? "default" : "outline"}
                 size="sm"
-                onClick={() => handleStatusFilterChange("PERBAIKAN")}
+                onClick={() => handleStatusFilterChange("DIPESAN")}
               >
-                Perbaikan
+                Dipesan
+              </Button>
+              <Button
+                variant={statusFilter === "OVERDUE" ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleStatusFilterChange("OVERDUE")}
+              >
+                Overdue
               </Button>
             </div>
 
@@ -261,23 +270,23 @@ export default function UnitMotorPage() {
                     </thead>
                     <tbody>
                       {unitMotors.length > 0 ? (
-                        unitMotors.map((unit) => (
+                        unitMotors.map((unitMotor: UnitMotor) => (
                           <tr
-                            key={unit.id}
+                            key={unitMotor.id}
                             className="border-b text-sm dark:border-neutral-800"
                           >
                             <td className="px-4 py-3 font-medium">
-                              {unit.plat}
+                              {unitMotor.platNomor}
                             </td>
                             <td className="px-4 py-3">
-                              {unit.jenisMotor?.nama || "-"}
+                              {unitMotor.JenisMotor?.merk || "-"} {unitMotor.JenisMotor?.model || ""}
                             </td>
-                            <td className="px-4 py-3">{unit.tahunPembuatan}</td>
+                            <td className="px-4 py-3">{unitMotor.tahunPembuatan}</td>
                             <td className="px-4 py-3">
-                              {formatRupiah(unit.hargaSewa)}
+                              {formatRupiah(unitMotor.hargaSewa)}
                             </td>
                             <td className="px-4 py-3">
-                              <StatusBadge status={unit.status} />
+                              <StatusBadge status={unitMotor.status} />
                             </td>
                             <td className="px-4 py-3 text-right">
                               <div className="flex justify-end gap-2">
@@ -285,7 +294,7 @@ export default function UnitMotorPage() {
                                   variant="outline"
                                   size="sm"
                                   className="h-8 w-8 p-0"
-                                  onClick={() => handleDetail(unit.id)}
+                                  onClick={() => handleDetail(unitMotor.id)}
                                 >
                                   <Settings className="h-4 w-4" />
                                   <span className="sr-only">Detail</span>

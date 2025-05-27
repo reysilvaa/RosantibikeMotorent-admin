@@ -18,7 +18,7 @@ import {
   ClipboardCheck,
   Clock8,
 } from "lucide-react";
-import { getTransaksiDetail, selesaikanTransaksi } from "@/lib/transaksi";
+import { getTransaksiDetail, selesaikanTransaksi, Transaksi } from "@/lib/transaksi";
 import { formatRupiah, formatTanggal, formatTanggalWaktu } from "@/lib/utils";
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { Button } from "@/components/ui/button";
@@ -28,15 +28,17 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
-  const [transaksi, setTransaksi] = useState<any>(null);
+  const [transaksi, setTransaksi] = useState<Transaksi | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const { id } = params;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await getTransaksiDetail(params.id);
+        const data = await getTransaksiDetail(id);
         setTransaksi(data);
       } catch (error) {
         console.error("Gagal mengambil data transaksi:", error);
@@ -47,7 +49,7 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
     };
 
     fetchData();
-  }, [params.id]);
+  }, [id]);
 
   const handleBack = () => {
     router.push("/dashboard/transaksi");
@@ -56,9 +58,9 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
   const handleSelesaikan = async () => {
     try {
       setProcessing(true);
-      await selesaikanTransaksi(params.id);
+      await selesaikanTransaksi(id);
       // Refresh data
-      const data = await getTransaksiDetail(params.id);
+      const data = await getTransaksiDetail(id);
       setTransaksi(data);
       setSuccess("Transaksi berhasil diselesaikan");
     } catch (error) {
@@ -84,6 +86,17 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
         return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
       default:
         return "bg-neutral-100 text-neutral-800 dark:bg-neutral-900/30 dark:text-neutral-400";
+    }
+  };
+
+  // Fungsi untuk memformat tanggal dengan aman
+  const safeDateFormat = (dateString: string | null | undefined, formatter: Function) => {
+    if (!dateString) return "-";
+    try {
+      return formatter(dateString);
+    } catch (error) {
+      console.error("Format tanggal error:", error);
+      return "-";
     }
   };
 
@@ -170,7 +183,7 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
                   <Phone className="mr-2 h-4 w-4" />
                   <span>Nomor Telepon</span>
                 </div>
-                <p className="text-lg font-medium">{transaksi?.noHP}</p>
+                <p className="text-lg font-medium">{transaksi?.noWhatsapp}</p>
               </div>
 
               <div className="space-y-1">
@@ -196,7 +209,7 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
                 <p>
                   <span
                     className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${getStatusBadgeClass(
-                      transaksi?.status
+                      transaksi?.status ?? ''
                     )}`}
                   >
                     {transaksi?.status}
@@ -210,7 +223,7 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
                   <span>Tanggal Mulai</span>
                 </div>
                 <p className="text-lg font-medium">
-                  {formatTanggal(transaksi?.tanggalMulai)}
+                  {safeDateFormat(transaksi?.tanggalMulai, formatTanggal)}
                 </p>
               </div>
 
@@ -220,7 +233,7 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
                   <span>Tanggal Selesai</span>
                 </div>
                 <p className="text-lg font-medium">
-                  {formatTanggal(transaksi?.tanggalSelesai)}
+                  {safeDateFormat(transaksi?.tanggalSelesai, formatTanggal)}
                 </p>
               </div>
 
@@ -230,7 +243,7 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
                   <span>Total Harga</span>
                 </div>
                 <p className="text-xl font-bold text-primary">
-                  {formatRupiah(transaksi?.totalHarga)}
+                  {formatRupiah(transaksi?.totalBiaya)}
                 </p>
               </div>
             </CardContent>
@@ -251,9 +264,8 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
                       <span>Jenis Motor</span>
                     </div>
                     <p className="text-lg font-medium">
-                      {transaksi?.unitMotor?.jenisMotor?.merk}{" "}
-                      {transaksi?.unitMotor?.jenisMotor?.model} (
-                      {transaksi?.unitMotor?.jenisMotor?.cc} CC)
+                      {transaksi?.unitMotor?.JenisMotor?.merk} (
+                      {transaksi?.unitMotor?.JenisMotor?.cc} CC)
                     </p>
                   </div>
 
@@ -263,7 +275,7 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
                       <span>Plat Nomor</span>
                     </div>
                     <p className="text-lg font-medium">
-                      {transaksi?.unitMotor?.plat}
+                      {transaksi?.unitMotor?.platNomor}
                     </p>
                   </div>
 
@@ -285,25 +297,33 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
             )}
           </CardContent>
         </Card>
-
-        {transaksi?.fasilitas && transaksi.fasilitas.length > 0 && (
+        {(transaksi?.helm || transaksi?.jasHujan) && (
           <Card>
             <CardHeader>
               <CardTitle>Fasilitas Tambahan</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {transaksi.fasilitas.map((item: any, index: number) => (
+                {transaksi?.helm > 0 && (
                   <div
-                    key={item.id || index}
                     className="flex items-center justify-between rounded-lg border p-3"
                   >
-                    <span>{item.nama}</span>
+                    <span>Helm ({transaksi.helm} unit)</span>
                     <span className="font-medium text-primary">
-                      {formatRupiah(item.harga)}
+                      {formatRupiah("10000")}
                     </span>
                   </div>
-                ))}
+                )}
+                {transaksi?.jasHujan > 0 && (
+                  <div
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
+                    <span>Jas Hujan ({transaksi.jasHujan} unit)</span>
+                    <span className="font-medium text-primary">
+                      {formatRupiah("5000")}
+                    </span>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -322,7 +342,7 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
                 <div>
                   <p className="font-medium">Transaksi Dibuat</p>
                   <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                    {formatTanggalWaktu(transaksi?.createdAt)}
+                    {safeDateFormat(transaksi?.createdAt, formatTanggalWaktu)}
                   </p>
                 </div>
               </div>
@@ -335,7 +355,7 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
                   <div>
                     <p className="font-medium">Transaksi Selesai</p>
                     <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                      {formatTanggalWaktu(transaksi?.updatedAt)}
+                      {safeDateFormat(transaksi?.updatedAt, formatTanggalWaktu)}
                     </p>
                   </div>
                 </div>
@@ -349,7 +369,7 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
                   <div>
                     <p className="font-medium">Transaksi Overdue</p>
                     <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                      {formatTanggalWaktu(transaksi?.updatedAt)}
+                      {safeDateFormat(transaksi?.updatedAt, formatTanggalWaktu)}
                     </p>
                   </div>
                 </div>

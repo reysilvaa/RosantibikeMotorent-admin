@@ -152,7 +152,7 @@ export default function DashboardPage() {
         );
         
         const pendapatanBulanIni = transaksiSelesaiBulanIni.reduce(
-          (total, transaksi) => total + transaksi.totalHarga,
+          (total, transaksi) => total + Number(transaksi.totalBiaya),
           0
         );
         
@@ -165,7 +165,8 @@ export default function DashboardPage() {
         const transaksiPending = resTransaksi.data.filter(
           (transaksi) =>
             transaksi.status === StatusTransaksi.BOOKING ||
-            transaksi.status === StatusTransaksi.BERJALAN
+            transaksi.status === StatusTransaksi.BERJALAN ||
+            transaksi.status === StatusTransaksi.AKTIF
         ).length;
         
         // Data untuk chart transaksi per bulan
@@ -192,7 +193,8 @@ export default function DashboardPage() {
         const motorStatus = {
           TERSEDIA: 0,
           DISEWA: 0,
-          PERBAIKAN: 0,
+          DIPESAN: 0,
+          OVERDUE: 0,
         };
         
         resUnitMotor.data.forEach((motor) => {
@@ -209,11 +211,25 @@ export default function DashboardPage() {
         );
         
         setStatistik({
-          totalTransaksi: resTransaksi.meta.total,
+          totalTransaksi: resTransaksi.meta.totalItems,
           pendapatanBulanIni,
           motorTersedia,
           transaksiPending,
-          dataTransaksi: resTransaksi.data.slice(0, 5),
+          dataTransaksi: resTransaksi.data.slice(0, 5).map(transaksi => ({
+            id: transaksi.id,
+            namaPenyewa: transaksi.namaPenyewa,
+            noHP: transaksi.noWhatsapp,
+            tanggalMulai: transaksi.tanggalMulai,
+            tanggalSelesai: transaksi.tanggalSelesai,
+            status: transaksi.status,
+            totalHarga: Number(transaksi.totalBiaya),
+            unitMotor: transaksi.unitMotor ? {
+              plat: transaksi.unitMotor.platNomor,
+              jenisMotor: transaksi.unitMotor.JenisMotor ? {
+                nama: `${transaksi.unitMotor.JenisMotor?.merk} ${transaksi.unitMotor.JenisMotor?.model}`
+              } : undefined
+            } : undefined
+          })),
           dataTransaksiBulan,
           dataStatusMotor,
         });
@@ -401,6 +417,8 @@ export default function DashboardPage() {
                                     ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
                                     : transaksi.status === StatusTransaksi.BATAL
                                     ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                                    : transaksi.status === StatusTransaksi.OVERDUE
+                                    ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400" 
                                     : "bg-neutral-100 text-neutral-800 dark:bg-neutral-900/30 dark:text-neutral-400"
                                 }`}
                               >

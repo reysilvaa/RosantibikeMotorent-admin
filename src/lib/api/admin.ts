@@ -8,7 +8,10 @@ export const loginAdmin = async (credentials: LoginCredentials): Promise<LoginRe
   try {
     const response = await axios.post(`${API_URL}/auth/login`, credentials);
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
     throw new Error('Username atau password salah');
   }
 };
@@ -23,7 +26,10 @@ export const getAdmins = async (): Promise<Admin[]> => {
       },
     });
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
     throw new Error('Gagal mendapatkan daftar admin');
   }
 };
@@ -38,7 +44,10 @@ export const createAdmin = async (data: { username: string; password: string; na
       },
     });
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
     throw new Error('Gagal membuat admin baru');
   }
 };
@@ -53,7 +62,10 @@ export const updateAdmin = async (id: string, data: { username?: string; passwor
       },
     });
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
     throw new Error('Gagal mengupdate admin');
   }
 };
@@ -68,7 +80,10 @@ export const deleteAdmin = async (id: string): Promise<Admin> => {
       },
     });
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
     throw new Error('Gagal menghapus admin');
   }
 }; 

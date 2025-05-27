@@ -15,7 +15,10 @@ export const getTransaksi = async (filter: FilterTransaksi = {}): Promise<Pagina
       params: filter,
     });
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
     throw new Error('Gagal mendapatkan data transaksi');
   }
 };
@@ -30,7 +33,10 @@ export const getTransaksiDetail = async (id: string): Promise<Transaksi> => {
       },
     });
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
     throw new Error('Gagal mendapatkan detail transaksi');
   }
 };
@@ -45,7 +51,10 @@ export const selesaikanTransaksi = async (id: string): Promise<Transaksi> => {
       },
     });
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
     throw new Error('Gagal menyelesaikan transaksi');
   }
 };
@@ -61,7 +70,10 @@ export const getLaporanDenda = async (startDate: string, endDate: string): Promi
       params: { startDate, endDate },
     });
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
     throw new Error('Gagal mendapatkan laporan denda');
   }
 };
@@ -77,7 +89,10 @@ export const getLaporanFasilitas = async (startDate: string, endDate: string): P
       params: { startDate, endDate },
     });
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
     throw new Error('Gagal mendapatkan laporan fasilitas');
   }
 }; 

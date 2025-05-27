@@ -234,7 +234,7 @@ export default function TambahUnitMotorPage() {
                       ) : (
                         jenisMotorOptions.map((jenis) => (
                           <SelectItem key={jenis.id} value={jenis.id}>
-                            {jenis.merk} {jenis.model} ({jenis.cc} CC)
+                            {jenis.merk} ({jenis.cc} CC)
                           </SelectItem>
                         ))
                       )}
