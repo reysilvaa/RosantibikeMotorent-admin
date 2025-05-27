@@ -7,7 +7,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Format angka ke format rupiah
-export function formatRupiah(angka: number): string {
+export function formatRupiah(angka: number | null | undefined): string {
+  if (angka === null || angka === undefined || isNaN(angka)) {
+    return "Rp0";
+  }
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
@@ -16,7 +19,10 @@ export function formatRupiah(angka: number): string {
 }
 
 // Format input angka ke format rupiah (tanpa simbol mata uang)
-export function formatRupiahInput(angka: number): string {
+export function formatRupiahInput(angka: number | null | undefined): string {
+  if (angka === null || angka === undefined || isNaN(angka)) {
+    return "0";
+  }
   return new Intl.NumberFormat("id-ID", {
     style: "decimal",
     minimumFractionDigits: 0,

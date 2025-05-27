@@ -13,7 +13,7 @@ import {
   Filter,
   ArrowUpDown,
 } from "lucide-react";
-import { getTransaksi, StatusTransaksi, FilterTransaksi } from "@/lib/transaksi";
+import { getTransaksi, StatusTransaksi, FilterTransaksi, Transaksi } from "@/lib/transaksi";
 import { formatRupiah, formatTanggal } from "@/lib/utils";
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,7 +52,7 @@ const StatusBadge = ({ status }: { status: StatusTransaksi }) => {
 export default function TransaksiPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [transaksi, setTransaksi] = useState<any[]>([]);
+  const [transaksi, setTransaksi] = useState<Transaksi[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusTransaksi | "">("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -271,7 +271,7 @@ export default function TransaksiPage() {
                               </div>
                             </td>
                             <td className="px-4 py-3">
-                              {item.unitMotor?.jenisMotor?.nama || "-"}
+                              {item.unitMotor?.JenisMotor?.nama || "-"}
                               <div className="text-xs text-neutral-500 dark:text-neutral-400">
                                 {item.unitMotor?.plat || "-"}
                               </div>
