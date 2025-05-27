@@ -147,27 +147,94 @@ export const deleteBlogPost = async (id: string) => {
 
 // WhatsApp API
 export const getWhatsAppStatus = async () => {
-  return await apiGet("/whatsapp/status");
+  try {
+    const response = await apiGet("/whatsapp/status");
+    // Normalisasi format respons
+    return {
+      connected: response.connected || 
+                 response.status === 'success' || 
+                 response.data?.connected || 
+                 response.data?.status === 'CONNECTED',
+      state: response.state || response.data?.state || 'UNKNOWN',
+      message: response.message || response.data?.message || '',
+    };
+  } catch (error) {
+    console.error("Error fetching WhatsApp status:", error);
+    return {
+      connected: false,
+      state: 'ERROR',
+      message: error instanceof Error ? error.message : 'Gagal mengambil status WhatsApp',
+    };
+  }
 };
 
 export const getWhatsAppSessionStatus = async () => {
-  return await apiGet("/whatsapp/session-status");
+  try {
+    return await apiGet("/whatsapp/session-status");
+  } catch (error) {
+    console.error("Error fetching WhatsApp session status:", error);
+    return {
+      status: 'error',
+      data: {
+        status: 'ERROR',
+        message: error instanceof Error ? error.message : 'Gagal mengambil status sesi WhatsApp',
+      }
+    };
+  }
 };
 
 export const getWhatsAppQrCode = async () => {
-  return await apiGet("/whatsapp/qr-code");
+  try {
+    const response = await apiGet("/whatsapp/qr-code");
+    return response;
+  } catch (error) {
+    console.error("Error fetching WhatsApp QR code:", error);
+    // Jika error adalah karena QR code tidak tersedia (404), kita tangani secara khusus
+    if (error instanceof Error && 
+        (error.message.includes('QR code tidak tersedia') || 
+         error.message.includes('tidak tersedia') || 
+         error.message.includes('Not Found'))) {
+      return {
+        status: 'info',
+        message: 'QR code tidak tersedia. WhatsApp mungkin sudah terhubung atau belum siap.',
+      };
+    }
+    return {
+      status: 'error',
+      message: error instanceof Error ? error.message : 'Gagal mengambil QR code WhatsApp',
+    };
+  }
 };
 
 export const resetWhatsAppConnection = async () => {
-  return await apiPost("/whatsapp/reset", {});
+  try {
+    return await apiPost("/whatsapp/reset", {});
+  } catch (error) {
+    console.error("Error resetting WhatsApp connection:", error);
+    throw error;
+  }
 };
 
 export const logoutWhatsAppSession = async () => {
-  return await apiPost("/whatsapp/logout", {});
+  try {
+    return await apiPost("/whatsapp/logout", {});
+  } catch (error) {
+    console.error("Error logging out WhatsApp session:", error);
+    throw error;
+  }
 };
 
 export const startAllWhatsAppSessions = async () => {
-  return await apiPost("/whatsapp/start-all", {});
+  try {
+    return await apiPost("/whatsapp/start-all", {});
+  } catch (error) {
+    console.error("Error starting WhatsApp sessions:", error);
+    // Jika terjadi error "Invalid response format", tambahkan pesan yang lebih jelas
+    if (error instanceof Error && error.message.includes('Invalid response format')) {
+      throw new Error("Format respons dari server WhatsApp tidak valid. Kemungkinan ada masalah pada layanan WhatsApp backend.");
+    }
+    throw error;
+  }
 };
 
 export const getAllWhatsAppSessions = async () => {

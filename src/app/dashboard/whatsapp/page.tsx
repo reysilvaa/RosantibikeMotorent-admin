@@ -187,15 +187,61 @@ export default function WhatsappPage() {
         fetchStatus();
         setRefreshing(false);
       }, 3000);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error starting session:", error);
+      let errorMessage = "Gagal memulai sesi WhatsApp";
+      
+      // Cek pesan error khusus
+      if (error.message && error.message.includes("Invalid response format")) {
+        errorMessage = "Format respons dari server WhatsApp tidak valid. Kemungkinan ada masalah dengan layanan WhatsApp. Silakan coba lagi nanti.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Error",
-        description: "Gagal memulai sesi WhatsApp",
+        description: errorMessage,
         variant: "destructive",
       });
       setRefreshing(false);
     }
+  };
+
+  // Helper untuk menampilkan pesan bantuan berdasarkan state
+  const getHelpMessage = () => {
+    // Jika ada error spesifik dengan format respons
+    if (status.message && status.message.includes("Invalid response format")) {
+      return (
+        <div className="mt-4 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800 border border-yellow-200">
+          <h4 className="font-medium">Masalah dengan layanan WhatsApp</h4>
+          <p className="mt-1">
+            Server WhatsApp mengalami masalah format respons yang tidak valid. 
+            Ini biasanya terjadi ketika ada perubahan pada API WhatsApp 
+            atau masalah dengan layanan WhatsApp pihak ketiga.
+          </p>
+          <p className="mt-2">
+            Solusi yang dapat dicoba:
+          </p>
+          <ul className="mt-1 list-disc pl-5">
+            <li>Reset koneksi dan coba mulai sesi baru</li>
+            <li>Pastikan layanan WhatsApp di server sedang berjalan</li>
+            <li>Hubungi administrator sistem untuk memeriksa log backend</li>
+          </ul>
+        </div>
+      );
+    }
+    
+    // Jika status disconnected
+    if (!status.connected) {
+      return (
+        <div className="mt-2 text-sm text-yellow-600">
+          <Info className="inline-block h-4 w-4 mr-1" />
+          <span>Silakan klik tombol "Mulai Sesi" untuk memulai koneksi WhatsApp</span>
+        </div>
+      );
+    }
+    
+    return null;
   };
 
   const getStatusDisplay = () => {
@@ -253,10 +299,7 @@ export default function WhatsappPage() {
             <span>{status.message}</span>
           </div>
         )}
-        <div className="mt-2 text-sm text-yellow-600">
-          <Info className="inline-block h-4 w-4 mr-1" />
-          <span>Silakan klik tombol "Mulai Sesi" untuk memulai koneksi WhatsApp</span>
-        </div>
+        {getHelpMessage()}
       </div>
     );
   };
