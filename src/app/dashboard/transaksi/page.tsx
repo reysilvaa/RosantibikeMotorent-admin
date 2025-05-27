@@ -260,41 +260,47 @@ export default function TransaksiPage() {
                     </thead>
                     <tbody>
                       {transaksi.length > 0 ? (
-                        transaksi.map((item) => (
+                        transaksi.map((transaksi: Transaksi) => (
                           <tr
-                            key={item.id}
+                            key={transaksi.id}
                             className="border-b text-sm dark:border-neutral-800"
                           >
                             <td className="px-4 py-3 font-medium">
-                              {item.namaPenyewa}
+                              {transaksi.namaPenyewa}
                               <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                                {item.noWhatsapp}
+                                {transaksi.noWhatsapp}
                               </div>
                             </td>
                             <td className="px-4 py-3">
-                              {item.unitMotor?.JenisMotor?.merk || "-"} {item.unitMotor?.JenisMotor?.model || ""}
+                              {transaksi.unitMotor?.jenis?.merk || "-"} {transaksi.unitMotor?.jenis?.model || ""}
                               <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                                {item.unitMotor?.platNomor || "-"}
+                                {transaksi.unitMotor?.platNomor || "-"}
                               </div>
                             </td>
                             <td className="px-4 py-3">
-                              {formatTanggal(item.tanggalMulai)}
+                              {formatTanggal(transaksi.tanggalMulai)}
+                              <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                                {transaksi.jamMulai}
+                              </div>
                             </td>
                             <td className="px-4 py-3">
-                              {formatTanggal(item.tanggalSelesai)}
+                              {formatTanggal(transaksi.tanggalSelesai)}
+                              <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                                {transaksi.jamSelesai}
+                              </div>
                             </td>
                             <td className="px-4 py-3">
-                              <StatusBadge status={item.status} />
+                              <StatusBadge status={transaksi.status} />
                             </td>
                             <td className="px-4 py-3 font-medium">
-                              {formatRupiah(item.totalBiaya)}
+                              {formatRupiah(transaksi.totalBiaya)}
                             </td>
                             <td className="px-4 py-3 text-right">
                               <Button
                                 variant="outline"
                                 size="sm"
                                 className="h-8 w-8 p-0"
-                                onClick={() => handleDetailClick(item.id)}
+                                onClick={() => handleDetailClick(transaksi.id)}
                               >
                                 <ExternalLink className="h-4 w-4" />
                                 <span className="sr-only">Detail</span>

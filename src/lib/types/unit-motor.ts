@@ -9,7 +9,7 @@ export interface UnitMotor {
   status: string;
   createdAt: string;
   updatedAt: string;
-  JenisMotor?: JenisMotor;
+  jenis?: JenisMotor;
 }
 
 // Interface untuk filter unit motor
@@ -18,5 +18,5 @@ export interface FilterUnitMotor {
   limit?: number;
   search?: string;
   status?: string;
-  JenisMotor?: JenisMotor;
+  jenis?: JenisMotor;
 } 

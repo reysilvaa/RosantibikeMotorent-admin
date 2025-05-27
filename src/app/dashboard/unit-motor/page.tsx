@@ -279,7 +279,7 @@ export default function UnitMotorPage() {
                               {unitMotor.platNomor}
                             </td>
                             <td className="px-4 py-3">
-                              {unitMotor.JenisMotor?.merk || "-"} {unitMotor.JenisMotor?.model || ""}
+                              {unitMotor.jenis?.merk || "-"} {unitMotor.jenis?.model || ""}
                             </td>
                             <td className="px-4 py-3">{unitMotor.tahunPembuatan}</td>
                             <td className="px-4 py-3">

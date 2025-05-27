@@ -225,8 +225,8 @@ export default function DashboardPage() {
             totalHarga: Number(transaksi.totalBiaya),
             unitMotor: transaksi.unitMotor ? {
               plat: transaksi.unitMotor.platNomor,
-              jenisMotor: transaksi.unitMotor.JenisMotor ? {
-                nama: `${transaksi.unitMotor.JenisMotor?.merk} ${transaksi.unitMotor.JenisMotor?.model}`
+              jenisMotor: transaksi.unitMotor.jenis ? {
+                nama: `${transaksi.unitMotor.jenis?.merk} ${transaksi.unitMotor.jenis?.model}`
               } : undefined
             } : undefined
           })),
