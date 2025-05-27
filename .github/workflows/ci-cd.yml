@@ -51,6 +51,23 @@ jobs:
         run: pnpm build
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+
+      - name: Create deployment package
+        run: |
+          mkdir -p deployment
+          cp -r .next deployment/
+          cp -r public deployment/ || true
+          cp package.json deployment/
+          cp pnpm-lock.yaml deployment/
+          cp next.config.ts deployment/
+          tar -czf deployment.tar.gz deployment
+          
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: admin-frontend-build
+          path: deployment.tar.gz
+          retention-days: 1
           
   deploy:
     needs: build-test
@@ -58,7 +75,22 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: admin-frontend-build
+
       - name: Deploy to production
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "deployment.tar.gz"
+          target: "/tmp"
+
+      - name: Setup deployment
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -66,8 +98,19 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /path/to/admin-frontend
-            git pull
-            pnpm install --frozen-lockfile
-            pnpm build
-            pm2 restart admin-frontend 
+            rm -rf /var/www/rosantibike/admin-deploy-temp || true
+            mkdir -p /var/www/rosantibike/admin-deploy-temp
+            tar -xzf /tmp/deployment.tar.gz -C /var/www/rosantibike/admin-deploy-temp
+            cd /var/www/rosantibike/admin-deploy-temp/deployment
+            pnpm install --prod
+            
+            # Backup current version and swap with new version
+            if [ -d "/var/www/rosantibike/admin" ]; then
+              mv /var/www/rosantibike/admin /var/www/rosantibike/backups/admin-backup-$(date +%Y%m%d%H%M%S)
+            fi
+            
+            mkdir -p /var/www/rosantibike/admin
+            cp -r ./* /var/www/rosantibike/admin/
+            
+            # Restart service
+            pm2 restart admin-frontend
