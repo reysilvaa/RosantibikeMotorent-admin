@@ -58,16 +58,60 @@ export const getJenisMotorBySlug = async (slug: string): Promise<JenisMotor> => 
 };
 
 // Fungsi untuk membuat jenis motor baru
-export const createJenisMotor = async (data: FormData): Promise<JenisMotor> => {
+export const createJenisMotor = async (data: FormData | any): Promise<JenisMotor> => {
   try {
     const token = getToken();
-    const response = await axios.post(`${API_URL}/jenis-motor`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data.data;
+    
+    // Ambil nilai cc dari FormData dan konversi ke number untuk JSON
+    let jsonData: any = {};
+    
+    // Periksa apakah menggunakan FormData atau objek biasa
+    if (data instanceof FormData) {
+      // Ambil semua data dari FormData
+      for (const [key, value] of data.entries()) {
+        // Khusus untuk cc, konversi ke number
+        if (key === 'cc') {
+          jsonData[key] = parseInt(value.toString(), 10);
+        } else {
+          jsonData[key] = value;
+        }
+      }
+      
+      // Jika ada file, gunakan FormData
+      if (data.has('file')) {
+        // Gunakan FormData API langsung
+        const response = await axios.post(`${API_URL}/jenis-motor`, data, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        return response.data.data;
+      }
+      
+      // Jika tidak ada file, gunakan JSON API
+      const response = await axios.post(`${API_URL}/jenis-motor`, jsonData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data.data;
+    } else {
+      // Jika data bukan FormData, kirim sebagai JSON
+      // Pastikan cc adalah number
+      if (typeof data.cc === 'string') {
+        data.cc = parseInt(data.cc, 10);
+      }
+      
+      const response = await axios.post(`${API_URL}/jenis-motor`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data.data;
+    }
   } catch (error: any) {
     if (error.response && error.response.data && error.response.data.message) {
       throw new Error(error.response.data.message);

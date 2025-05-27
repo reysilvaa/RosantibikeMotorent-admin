@@ -21,6 +21,16 @@ export default function TambahJenisMotorPage() {
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  
+  // Fungsi untuk menghasilkan slug dari merk dan model
+  const generateSlug = (merk: string, model: string): string => {
+    return `${merk} ${model}`
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '') // Hapus karakter khusus
+      .replace(/\s+/g, '-')     // Ganti spasi dengan tanda -
+      .replace(/-+/g, '-')      // Hindari tanda - berulang
+      .trim();                  // Hapus spasi di awal dan akhir
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -64,18 +74,35 @@ export default function TambahJenisMotorPage() {
       setLoading(true);
       setError("");
       
-      // Buat FormData untuk upload
-      const submitData = new FormData();
-      submitData.append("merk", formData.merk);
-      submitData.append("model", formData.model);
-      submitData.append("cc", formData.cc);
+      // Konversi cc ke number
+      const ccNumber = parseInt(formData.cc, 10);
       
       if (selectedFile) {
+        // Jika ada file, gunakan FormData
+        const submitData = new FormData();
+        submitData.append("merk", formData.merk);
+        submitData.append("model", formData.model);
+        submitData.append("cc", ccNumber.toString());
+        
+        // Buat slug otomatis dari merk dan model
+        const slug = generateSlug(formData.merk, formData.model);
+        submitData.append("slug", slug);
         submitData.append("file", selectedFile);
+        
+        // Kirim data ke server
+        await createJenisMotor(submitData);
+      } else {
+        // Jika tidak ada file, kirim data sebagai JSON (lebih aman untuk tipe data)
+        const jsonData = {
+          merk: formData.merk,
+          model: formData.model,
+          cc: ccNumber, // Kirim sebagai number, bukan string
+          slug: generateSlug(formData.merk, formData.model)
+        };
+        
+        // Kirim data ke server
+        await createJenisMotor(jsonData);
       }
-      
-      // Kirim data ke server
-      await createJenisMotor(submitData);
       
       setSuccess("Jenis motor berhasil ditambahkan");
       
@@ -93,9 +120,9 @@ export default function TambahJenisMotorPage() {
         router.push("/dashboard/jenis-motor");
       }, 2000);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error("Gagal menambahkan jenis motor:", error);
-      setError("Gagal menambahkan jenis motor. Silakan coba lagi.");
+      setError(`Gagal membuat jenis motor: ${error.message}`);
     } finally {
       setLoading(false);
     }
