@@ -95,4 +95,24 @@ export const getLaporanFasilitas = async (startDate: string, endDate: string): P
     }
     throw new Error('Gagal mendapatkan laporan fasilitas');
   }
+};
+
+// Fungsi untuk membuat transaksi baru
+export const createTransaksi = async (data: {
+  transaksi: Transaksi;
+}): Promise<Transaksi> => {
+  try {
+    const token = getToken();
+    const response = await axios.post(`${API_URL}/transaksi`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data.data;
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Gagal membuat transaksi baru');
+  }
 }; 

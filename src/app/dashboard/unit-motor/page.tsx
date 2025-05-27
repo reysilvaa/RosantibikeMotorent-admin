@@ -77,13 +77,28 @@ export default function UnitMotorPage() {
       }
 
       const response = await getUnitMotor(params);
-      setUnitMotors(response.data);
-      setTotalData(response.meta.totalItems);
-      setTotalPages(response.meta.totalPages);
+      
+      if (response && response.data) {
+        setUnitMotors(response.data);
+      } else {
+        setUnitMotors([]);
+      }
+      
+      if (response && response.meta) {
+        setTotalData(response.meta.totalItems || 0);
+        setTotalPages(response.meta.totalPages || 1);
+      } else {
+        setTotalData(0);
+        setTotalPages(1);
+      }
+      
       setCurrentPage(page);
     } catch (error) {
       console.error("Gagal mengambil data unit motor:", error);
       setError("Gagal mengambil data unit motor");
+      setUnitMotors([]);
+      setTotalData(0);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }

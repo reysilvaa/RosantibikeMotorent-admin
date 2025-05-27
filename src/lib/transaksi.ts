@@ -3,7 +3,8 @@ export {
   getTransaksiDetail,
   selesaikanTransaksi,
   getLaporanDenda,
-  getLaporanFasilitas
+  getLaporanFasilitas,
+  createTransaksi
 } from './api/transaksi';
 
 export {
