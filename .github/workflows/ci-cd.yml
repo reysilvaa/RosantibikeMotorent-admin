@@ -60,6 +60,7 @@ jobs:
           cp package.json deployment/
           cp pnpm-lock.yaml deployment/
           cp next.config.ts deployment/
+          cp ecosystem.config.js deployment/
           tar -czf deployment.tar.gz deployment
           
       - name: Upload build artifact
@@ -112,5 +113,13 @@ jobs:
             mkdir -p /var/www/rosantibike/admin
             cp -r ./* /var/www/rosantibike/admin/
             
-            # Restart service
-            pm2 restart admin-frontend
+            # Salin ecosystem config ke direktori deployment
+            cp -f /var/www/rosantibike/admin-deploy-temp/deployment/ecosystem.config.js /var/www/rosantibike/admin/
+            
+            # Restart atau buat proses PM2 jika belum ada
+            cd /var/www/rosantibike/admin
+            if pm2 list | grep -q "admin-frontend"; then
+              pm2 restart admin-frontend --update-env
+            else
+              pm2 start ecosystem.config.js
+            fi
