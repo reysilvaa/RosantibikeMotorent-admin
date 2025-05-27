@@ -13,6 +13,7 @@ import {
   X,
   FileText,
   Tags,
+  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isAuthenticated, getAdminData } from "@/lib/utils";
@@ -125,6 +126,18 @@ const SidebarNav = ({ isOpen, toggleSidebar }: SidebarNavProps) => {
           href="/dashboard/unit-motor"
           icon={<Bike />}
           title="Unit Motor"
+          isOpen={isOpen}
+        />
+        <SidebarNavItem
+          href="/dashboard/blog"
+          icon={<FileText />}
+          title="Blog"
+          isOpen={isOpen}
+        />
+        <SidebarNavItem
+          href="/dashboard/whatsapp"
+          icon={<MessageSquare />}
+          title="WhatsApp"
           isOpen={isOpen}
         />
         <SidebarNavItem

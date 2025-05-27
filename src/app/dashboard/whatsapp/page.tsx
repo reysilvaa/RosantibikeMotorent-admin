@@ -1,0 +1,259 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Loader2, RefreshCcw, LogOut, MessageSquare, CheckCircle, XCircle } from "lucide-react";
+import DashboardLayout from "@/components/layout/dashboard-layout";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { toast } from "@/components/ui/use-toast";
+import { 
+  getStatus, 
+  getSessionStatus, 
+  getQrCode, 
+  resetConnection, 
+  logoutSession, 
+  startAllSessions 
+} from "@/lib/whatsapp";
+
+export default function WhatsappPage() {
+  const [status, setStatus] = useState({
+    connected: false,
+    state: "DISCONNECTED",
+    message: "",
+  });
+  const [qrCode, setQrCode] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchStatus = async () => {
+    try {
+      const response = await getStatus();
+      setStatus(response);
+      
+      if (!response.connected) {
+        fetchQrCode();
+      }
+    } catch (error) {
+      console.error("Error fetching status:", error);
+      toast({
+        title: "Error",
+        description: "Gagal mengambil status WhatsApp",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchQrCode = async () => {
+    try {
+      const response = await getQrCode();
+      if (response && response.qrCode) {
+        setQrCode(response.qrCode);
+      }
+    } catch (error) {
+      console.error("Error fetching QR code:", error);
+      // QR code mungkin belum tersedia, jadi tidak perlu menampilkan error
+    }
+  };
+
+  useEffect(() => {
+    fetchStatus();
+    
+    // Poll status setiap 10 detik
+    const interval = setInterval(() => {
+      fetchStatus();
+    }, 10000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await resetConnection();
+      toast({
+        title: "Berhasil",
+        description: "Koneksi WhatsApp sedang di-reset",
+      });
+      
+      // Tunggu sedikit sebelum memeriksa status baru
+      setTimeout(() => {
+        fetchStatus();
+        setRefreshing(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Error resetting connection:", error);
+      toast({
+        title: "Error",
+        description: "Gagal mereset koneksi WhatsApp",
+        variant: "destructive",
+      });
+      setRefreshing(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    if (!window.confirm("Apakah Anda yakin ingin logout dari sesi WhatsApp?")) {
+      return;
+    }
+    
+    setRefreshing(true);
+    try {
+      await logoutSession();
+      toast({
+        title: "Berhasil",
+        description: "Berhasil logout dari WhatsApp",
+      });
+      
+      setTimeout(() => {
+        fetchStatus();
+        setRefreshing(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Error logging out:", error);
+      toast({
+        title: "Error",
+        description: "Gagal logout dari WhatsApp",
+        variant: "destructive",
+      });
+      setRefreshing(false);
+    }
+  };
+
+  const handleStart = async () => {
+    setRefreshing(true);
+    try {
+      await startAllSessions();
+      toast({
+        title: "Berhasil",
+        description: "Berhasil memulai sesi WhatsApp",
+      });
+      
+      setTimeout(() => {
+        fetchStatus();
+        setRefreshing(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Error starting session:", error);
+      toast({
+        title: "Error",
+        description: "Gagal memulai sesi WhatsApp",
+        variant: "destructive",
+      });
+      setRefreshing(false);
+    }
+  };
+
+  return (
+    <DashboardLayout>
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold tracking-tight">WhatsApp</h2>
+        <p className="text-muted-foreground">
+          Kelola koneksi dan pengaturan WhatsApp
+        </p>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Status Koneksi</CardTitle>
+            <CardDescription>
+              Status koneksi WhatsApp saat ini
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="flex items-center justify-center py-6">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <span>Memuat status...</span>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center">
+                  <span className="mr-2 font-medium">Status:</span>
+                  <div className="flex items-center">
+                    {status.connected ? (
+                      <>
+                        <CheckCircle className="mr-1 h-4 w-4 text-green-500" />
+                        <span className="text-green-600">Terhubung</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="mr-1 h-4 w-4 text-red-500" />
+                        <span className="text-red-600">Terputus</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <span className="mr-2 font-medium">State:</span>
+                  <span>{status.state}</span>
+                </div>
+                {status.message && (
+                  <div>
+                    <span className="mr-2 font-medium">Pesan:</span>
+                    <span>{status.message}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button onClick={handleRefresh} disabled={refreshing}>
+              {refreshing ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCcw className="mr-2 h-4 w-4" />
+              )}
+              Reset Koneksi
+            </Button>
+            {status.connected ? (
+              <Button variant="destructive" onClick={handleLogout} disabled={refreshing}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
+            ) : (
+              <Button variant="default" onClick={handleStart} disabled={refreshing}>
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Mulai Sesi
+              </Button>
+            )}
+          </CardFooter>
+        </Card>
+
+        {!status.connected && qrCode && (
+          <Card>
+            <CardHeader>
+              <CardTitle>QR Code</CardTitle>
+              <CardDescription>
+                Scan QR code ini dengan WhatsApp di ponsel Anda untuk menghubungkan
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex justify-center">
+              <div className="overflow-hidden rounded-md border p-1">
+                <img
+                  src={qrCode}
+                  alt="WhatsApp QR Code"
+                  width={300}
+                  height={300}
+                  className="aspect-square h-auto w-full max-w-sm object-cover"
+                />
+              </div>
+            </CardContent>
+            <CardFooter className="text-center text-sm text-muted-foreground">
+              QR code akan kedaluwarsa dalam beberapa menit. Jika kedaluwarsa, klik tombol Reset Koneksi.
+            </CardFooter>
+          </Card>
+        )}
+      </div>
+    </DashboardLayout>
+  );
+} 
