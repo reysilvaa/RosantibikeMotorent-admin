@@ -1,20 +1,7 @@
 import axios from 'axios';
 import { API_URL } from '../config';
 import { getToken } from '../cookies';
-import { Admin, LoginCredentials, LoginResponse } from '../types/admin';
-
-// Fungsi untuk login
-export const loginAdmin = async (credentials: LoginCredentials): Promise<LoginResponse> => {
-  try {
-    const response = await axios.post(`${API_URL}/auth/login`, credentials);
-    return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.data && error.response.data.message) {
-      throw new Error(error.response.data.message);
-    }
-    throw new Error('Username atau password salah');
-  }
-};
+import { Admin } from '../types/admin';
 
 // Fungsi untuk mendapatkan daftar admin
 export const getAdmins = async (): Promise<Admin[]> => {
@@ -25,6 +12,7 @@ export const getAdmins = async (): Promise<Admin[]> => {
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log(response.data);
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data && error.response.data.message) {

@@ -1,15 +1,20 @@
 import Cookies from 'js-cookie';
 
-// Fungsi untuk mendapatkan token dari cookies atau localStorage
-export const getToken = (): string | null => {
-  if (typeof window === 'undefined') return null;
-  
-  // Coba dapatkan dari cookies dulu (prioritas)
-  const cookieToken = Cookies.get('accessToken');
-  if (cookieToken) return cookieToken;
-  
-  // Fallback: coba dari localStorage
-  return localStorage.getItem('accessToken');
+// Fungsi untuk menyimpan token
+export const setToken = (token: string): void => {
+  Cookies.set('accessToken', token);
+  localStorage.setItem('accessToken', token);
+};
+
+// Fungsi untuk mendapatkan token
+export const getToken = (): string | undefined => {
+  return Cookies.get('accessToken') || localStorage.getItem('accessToken') || undefined;
+};
+
+// Fungsi untuk menghapus token
+export const removeToken = (): void => {
+  Cookies.remove('accessToken');
+  localStorage.removeItem('accessToken');
 };
 
 // Cek apakah sudah login
