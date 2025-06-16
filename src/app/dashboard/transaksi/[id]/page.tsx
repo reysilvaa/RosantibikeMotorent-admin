@@ -264,8 +264,8 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
                       <span>Jenis Motor</span>
                     </div>
                     <p className="text-lg font-medium">
-                      {transaksi?.unitMotor?.JenisMotor?.merk} (
-                      {transaksi?.unitMotor?.JenisMotor?.cc} CC)
+                      {transaksi?.unitMotor?.jenis?.merk} (
+                      {transaksi?.unitMotor?.jenis?.cc} CC)
                     </p>
                   </div>
 

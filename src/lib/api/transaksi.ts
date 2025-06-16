@@ -98,11 +98,10 @@ export const getLaporanFasilitas = async (startDate: string, endDate: string): P
 };
 
 // Fungsi untuk membuat transaksi baru
-export const createTransaksi = async (data: {
-  transaksi: Transaksi;
-}): Promise<Transaksi> => {
+export const createTransaksi = async (data: Partial<Transaksi>): Promise<Transaksi> => {
   try {
     const token = getToken();
+    
     const response = await axios.post(`${API_URL}/transaksi`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -110,8 +109,9 @@ export const createTransaksi = async (data: {
     });
     return response.data.data;
   } catch (error: any) {
+    console.error('Error response:', error.response?.data);
     if (error.response && error.response.data && error.response.data.message) {
-      throw new Error(error.response.data.message);
+      throw new Error(`Gagal membuat transaksi: ${error.response.data.message}`);
     }
     throw new Error('Gagal membuat transaksi baru');
   }
