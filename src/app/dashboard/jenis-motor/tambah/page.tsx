@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Upload, Loader2, AlertCircle, CheckCircle } from "lucide-react";
-import { createJenisMotor } from "@/lib/jenis-motor";
+import { createJenisMotor, JenisMotor } from "@/lib/jenis-motor";
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,11 +14,7 @@ export default function TambahJenisMotorPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [formData, setFormData] = useState({
-    merk: "",
-    model: "",
-    cc: "",
-  });
+  const [formData, setFormData] = useState<Partial<JenisMotor>>({});
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   
@@ -73,16 +69,13 @@ export default function TambahJenisMotorPage() {
     try {
       setLoading(true);
       setError("");
-      
-      // Konversi cc ke number
-      const ccNumber = parseInt(formData.cc, 10);
-      
+            
       if (selectedFile) {
         // Jika ada file, gunakan FormData
         const submitData = new FormData();
         submitData.append("merk", formData.merk);
         submitData.append("model", formData.model);
-        submitData.append("cc", ccNumber.toString());
+        submitData.append("cc", formData.cc.toString());
         
         // Buat slug otomatis dari merk dan model
         const slug = generateSlug(formData.merk, formData.model);
@@ -96,7 +89,7 @@ export default function TambahJenisMotorPage() {
         const jsonData = {
           merk: formData.merk,
           model: formData.model,
-          cc: ccNumber, // Kirim sebagai number, bukan string
+          cc: formData.cc, // Kirim sebagai number, bukan string
           slug: generateSlug(formData.merk, formData.model)
         };
         
@@ -110,7 +103,7 @@ export default function TambahJenisMotorPage() {
       setFormData({
         merk: "",
         model: "",
-        cc: "",
+        cc: 0,
       });
       setSelectedFile(null);
       setPreviewUrl(null);
