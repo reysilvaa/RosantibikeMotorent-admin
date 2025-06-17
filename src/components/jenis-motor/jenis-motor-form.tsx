@@ -2,11 +2,11 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, ImageIcon } from "lucide-react";
-import { StatusMessage } from "@/components/jenis-motor/status-message";
+import { ImageIcon } from "lucide-react";
+import { StatusMessage } from "@/components/ui/status-message";
+import { FormActions } from "@/components/ui/form-actions";
 import { useJenisMotorFormStore } from "@/lib/store/jenis-motor/jenis-motor-form-store";
 
 interface JenisMotorFormProps {
@@ -144,26 +144,11 @@ export function JenisMotorForm({ onCancel }: JenisMotorFormProps) {
         </div>
       </div>
       
-      <div className="mt-6 flex justify-end gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          disabled={loading}
-        >
-          Batal
-        </Button>
-        <Button type="submit" disabled={loading}>
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Menyimpan...
-            </>
-          ) : (
-            "Simpan"
-          )}
-        </Button>
-      </div>
+      <FormActions
+        isLoading={loading}
+        onCancel={onCancel}
+        submitLabel="Simpan"
+      />
     </form>
   );
 } 

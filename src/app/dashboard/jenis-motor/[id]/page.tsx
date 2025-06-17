@@ -2,10 +2,9 @@
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import DashboardLayout from "@/components/layout/dashboard-layout";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 import { JenisMotorEditForm } from "@/components/jenis-motor/jenis-motor-edit-form";
 import { useJenisMotorEditStore } from "@/lib/store/jenis-motor/jenis-motor-edit-store";
 
@@ -45,25 +44,12 @@ export default function EditJenisMotorPage({ params }: EditJenisMotorPageProps) 
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center">
-          <Button
-            variant="outline"
-            size="icon"
-            className="mr-4"
-            onClick={handleCancel}
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span className="sr-only">Kembali</span>
-          </Button>
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight">
-              Edit Jenis Motor
-            </h2>
-            <p className="text-neutral-500 dark:text-neutral-400">
-              Perbarui informasi jenis motor
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          title="Edit Jenis Motor"
+          description="Perbarui informasi jenis motor"
+          showBackButton={true}
+          backHref="/dashboard/jenis-motor"
+        />
 
         <Card>
           <CardHeader>

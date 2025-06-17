@@ -1,102 +1,40 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getTransaksiDetail, selesaikanTransaksi, Transaksi, StatusTransaksi } from "@/lib/transaksi";
-import { formatTanggal, formatTanggalWaktu } from "@/lib/utils";
+import { ClipboardCheck, User, Phone, MapPin, Tag, Calendar, CreditCard, Bike } from "lucide-react";
+import { StatusTransaksi } from "@/lib/transaksi";
+import { formatTanggal, formatTanggalWaktu, formatRupiah } from "@/lib/utils";
 import DashboardLayout from "@/components/layout/dashboard-layout";
-import { DetailHeader } from "@/components/transaksi/detail-header";
-import { NotificationMessage } from "@/components/transaksi/notification-message";
-import { PenyewaInfo } from "@/components/transaksi/penyewa-info";
-import { SewaInfo } from "@/components/transaksi/sewa-info";
-import { UnitMotorInfo } from "@/components/transaksi/unit-motor-info";
-import { FasilitasTambahan } from "@/components/transaksi/fasilitas-tambahan";
-import { RiwayatTransaksi } from "@/components/transaksi/riwayat-transaksi";
-import { LoadingIndicator } from "@/components/transaksi/loading-indicator";
+import { StatusMessage } from "@/components/ui/status-message";
+import { LoadingIndicator } from "@/components/ui/loading-indicator";
+import { PageHeader } from "@/components/ui/page-header";
+import { InfoCard } from "@/components/ui/info-card";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { useTransaksiDetailStore } from "@/lib/store/transaksi/transaksi-detail-store";
 
 export default function DetailTransaksiPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [processing, setProcessing] = useState(false);
-  const [transaksi, setTransaksi] = useState<Transaksi | null>(null);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [transaksiId, setTransaksiId] = useState("");
+  const {
+    transaksi,
+    loading,
+    processing,
+    error,
+    success,
+    fetchTransaksiDetail,
+    handleSelesaikan,
+    getStatusBadgeClass,
+    safeDateFormat
+  } = useTransaksiDetailStore();
 
   useEffect(() => {
     if (params.id) {
-      setTransaksiId(params.id);
+      fetchTransaksiDetail(params.id);
     }
-  }, [params.id]);
-
-  useEffect(() => {
-    if (!transaksiId) return;
-    
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const data = await getTransaksiDetail(transaksiId);
-        setTransaksi(data);
-      } catch (error) {
-        console.error("Gagal mengambil data transaksi:", error);
-        setError("Gagal mengambil data transaksi");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [transaksiId]);
+  }, [params.id, fetchTransaksiDetail]);
 
   const handleBack = () => {
     router.push("/dashboard/transaksi");
-  };
-
-  const handleSelesaikan = async () => {
-    if (!transaksiId) return;
-    
-    try {
-      setProcessing(true);
-      await selesaikanTransaksi(transaksiId);
-      // Refresh data
-      const data = await getTransaksiDetail(transaksiId);
-      setTransaksi(data);
-      setSuccess("Transaksi berhasil diselesaikan");
-    } catch (error) {
-      console.error("Gagal menyelesaikan transaksi:", error);
-      setError("Gagal menyelesaikan transaksi");
-    } finally {
-      setProcessing(false);
-    }
-  };
-
-  // Fungsi untuk mendapatkan badge warna berdasarkan status
-  const getStatusBadgeClass = (status: StatusTransaksi) => {
-    switch (status) {
-      case StatusTransaksi.BOOKING:
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
-      case StatusTransaksi.BERJALAN:
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
-      case StatusTransaksi.SELESAI:
-        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
-      case StatusTransaksi.BATAL:
-        return "bg-neutral-100 text-neutral-800 dark:bg-neutral-900/30 dark:text-neutral-400";
-      case StatusTransaksi.OVERDUE:
-        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
-      default:
-        return "bg-neutral-100 text-neutral-800 dark:bg-neutral-900/30 dark:text-neutral-400";
-    }
-  };
-
-  // Fungsi untuk memformat tanggal dengan aman
-  const safeDateFormat = (dateString: string | null | undefined, formatter: Function) => {
-    if (!dateString) return "-";
-    try {
-      return formatter(dateString);
-    } catch (error) {
-      console.error("Format tanggal error:", error);
-      return "-";
-    }
   };
 
   if (loading) {
@@ -109,46 +47,144 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
 
   // Default status jika transaksi null
   const defaultStatus = StatusTransaksi.BOOKING;
+  const status = transaksi?.status || defaultStatus;
+
+  // Map status to variant
+  const getStatusVariant = (status: StatusTransaksi) => {
+    switch (status) {
+      case StatusTransaksi.BOOKING: return "warning";
+      case StatusTransaksi.BERJALAN: return "info";
+      case StatusTransaksi.SELESAI: return "success";
+      case StatusTransaksi.BATAL: return "neutral";
+      case StatusTransaksi.OVERDUE: return "danger";
+      default: return "neutral";
+    }
+  };
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <DetailHeader 
+        <PageHeader 
+          title="Detail Transaksi" 
           id={transaksi?.id || ""}
-          status={transaksi?.status || defaultStatus}
-          processing={processing}
-          handleBack={handleBack}
-          handleSelesaikan={handleSelesaikan}
+          showBackButton={true}
+          backHref="/dashboard/transaksi"
+          actionLabel={status === StatusTransaksi.BERJALAN ? "Selesaikan Transaksi" : undefined}
+          actionIcon={status === StatusTransaksi.BERJALAN ? <ClipboardCheck className="mr-2 h-4 w-4" /> : undefined}
+          actionHandler={status === StatusTransaksi.BERJALAN ? () => handleSelesaikan(params.id) : undefined}
+          actionDisabled={processing}
+          actionLoading={processing}
         />
 
-        <NotificationMessage error={error} success={success} />
+        <StatusMessage error={error} success={success} />
 
         <div className="grid gap-6 md:grid-cols-2">
-          <PenyewaInfo 
-            namaPenyewa={transaksi?.namaPenyewa || ""}
-            noWhatsapp={transaksi?.noWhatsapp || ""}
-            alamat={transaksi?.alamat}
+          <InfoCard
+            title="Informasi Penyewa"
+            items={[
+              {
+                icon: User,
+                label: "Nama Penyewa",
+                value: transaksi?.namaPenyewa || "-"
+              },
+              {
+                icon: Phone,
+                label: "Nomor Telepon",
+                value: transaksi?.noWhatsapp || "-"
+              },
+              {
+                icon: MapPin,
+                label: "Alamat",
+                value: transaksi?.alamat || "-"
+              }
+            ]}
           />
 
-          <SewaInfo
-            status={transaksi?.status || defaultStatus}
-            tanggalMulai={transaksi?.tanggalMulai || ""}
-            tanggalSelesai={transaksi?.tanggalSelesai || ""}
-            totalBiaya={transaksi?.totalBiaya || 0}
-            getStatusBadgeClass={getStatusBadgeClass}
-            formatTanggal={(date) => safeDateFormat(date, formatTanggal)}
+          <InfoCard
+            title="Informasi Sewa"
+            items={[
+              {
+                icon: Tag,
+                label: "Status",
+                value: <StatusBadge 
+                  status={status} 
+                  variant={getStatusVariant(status) as any}
+                />
+              },
+              {
+                icon: Calendar,
+                label: "Tanggal Mulai",
+                value: safeDateFormat(transaksi?.tanggalMulai, formatTanggal)
+              },
+              {
+                icon: Calendar,
+                label: "Tanggal Selesai",
+                value: safeDateFormat(transaksi?.tanggalSelesai, formatTanggal)
+              },
+              {
+                icon: CreditCard,
+                label: "Total Harga",
+                value: <span className="text-xl font-bold text-primary">
+                  {formatRupiah(transaksi?.totalBiaya || 0)}
+                </span>
+              }
+            ]}
           />
         </div>
 
-        <UnitMotorInfo unitMotor={transaksi?.unitMotor} />
+        <InfoCard
+          title="Unit Motor"
+          items={transaksi?.unitMotor ? [
+            {
+              icon: Bike,
+              label: "Jenis Motor",
+              value: `${transaksi.unitMotor.jenis?.merk || "-"} (${transaksi.unitMotor.jenis?.cc || "-"} CC)`
+            },
+            {
+              icon: Tag,
+              label: "Plat Nomor",
+              value: transaksi.unitMotor.platNomor || "-"
+            },
+            {
+              icon: CreditCard,
+              label: "Harga Sewa / hari",
+              value: formatRupiah(transaksi.unitMotor.hargaSewa || 0)
+            }
+          ] : []}
+          emptyMessage="Data unit motor tidak tersedia"
+        />
         
-        <FasilitasTambahan helm={transaksi?.helm} jasHujan={transaksi?.jasHujan} />
+        <InfoCard
+          title="Fasilitas Tambahan"
+          items={[
+            ...(transaksi?.helm && transaksi.helm > 0 ? [{
+              label: "Helm",
+              value: `${transaksi.helm} unit`
+            }] : []),
+            ...(transaksi?.jasHujan && transaksi.jasHujan > 0 ? [{
+              label: "Jas Hujan",
+              value: `${transaksi.jasHujan} unit`
+            }] : [])
+          ]}
+          emptyMessage="Tidak ada fasilitas tambahan"
+        />
 
-        <RiwayatTransaksi
-          status={transaksi?.status || defaultStatus}
-          createdAt={transaksi?.createdAt || ""}
-          updatedAt={transaksi?.updatedAt || ""}
-          formatTanggalWaktu={(date) => safeDateFormat(date, formatTanggalWaktu)}
+        <InfoCard
+          title="Riwayat Transaksi"
+          items={[
+            {
+              label: "Transaksi Dibuat",
+              value: safeDateFormat(transaksi?.createdAt, formatTanggalWaktu)
+            },
+            ...(status === StatusTransaksi.SELESAI ? [{
+              label: "Transaksi Selesai",
+              value: safeDateFormat(transaksi?.updatedAt, formatTanggalWaktu)
+            }] : []),
+            ...(status === StatusTransaksi.OVERDUE ? [{
+              label: "Transaksi Overdue",
+              value: safeDateFormat(transaksi?.updatedAt, formatTanggalWaktu)
+            }] : [])
+          ]}
         />
       </div>
     </DashboardLayout>

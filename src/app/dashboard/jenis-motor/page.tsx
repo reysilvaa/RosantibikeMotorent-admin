@@ -2,16 +2,16 @@
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Plus, ImageIcon } from "lucide-react";
 import DashboardLayout from "@/components/layout/dashboard-layout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { JenisMotorCard } from "@/components/jenis-motor/jenis-motor-card";
-import { SearchBar } from "@/components/jenis-motor/search-bar";
-import { DeleteDialog } from "@/components/jenis-motor/delete-dialog";
-import { EmptyState } from "@/components/jenis-motor/empty-state";
-import { LoadingState } from "@/components/jenis-motor/loading-state";
-import { StatusMessage } from "@/components/jenis-motor/status-message";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { SearchBar } from "@/components/ui/search-bar";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { LoadingIndicator } from "@/components/ui/loading-indicator";
+import { StatusMessage } from "@/components/ui/status-message";
+import { ItemCard } from "@/components/ui/item-card";
 import { useJenisMotorStore } from "@/lib/store/jenis-motor/jenis-motor-store";
 
 export default function JenisMotorPage() {
@@ -23,6 +23,7 @@ export default function JenisMotorPage() {
     filteredData,
     searchQuery,
     showDeleteDialog,
+    jenisToDelete,
     fetchJenisMotor,
     handleSearch,
     setSearchQuery,
@@ -41,67 +42,77 @@ export default function JenisMotorPage() {
   };
 
   const handleEdit = (id: string) => {
-    router.push(`/dashboard/jenis-motor/edit/${id}`);
+    router.push(`/dashboard/jenis-motor/${id}`);
   };
+
+  // Temukan jenis motor yang akan dihapus untuk pesan konfirmasi
+  const jenisMotorToDelete = filteredData.find(j => j.id === jenisToDelete);
 
   return (
     <DashboardLayout>
       <div className="space-y-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight">
-              Jenis Motor
-            </h2>
-            <p className="text-neutral-500 dark:text-neutral-400">
-              Kelola daftar jenis motor yang tersedia
-            </p>
-          </div>
-          <Button className="hidden sm:flex" onClick={handleAdd}>
-            <Plus className="mr-2 h-4 w-4" />
-            Tambah Jenis
-          </Button>
-        </div>
+        <PageHeader
+          title="Jenis Motor"
+          description="Kelola daftar jenis motor yang tersedia"
+          actionLabel="Tambah Jenis"
+          actionIcon={<Plus className="mr-2 h-4 w-4" />}
+          actionHandler={handleAdd}
+        />
 
         <Card>
           <CardHeader className="pb-3">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <CardTitle>Daftar Jenis Motor</CardTitle>
-              <SearchBar
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                onSearch={handleSearch}
-                onReset={resetSearch}
-              />
-            </div>
+            <SearchBar
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              onSearch={handleSearch}
+              onReset={resetSearch}
+              placeholder="Cari merk atau model..."
+              title="Daftar Jenis Motor"
+              showTitle={true}
+            />
           </CardHeader>
           <CardContent>
             <StatusMessage error={error} success={success} />
             
             {loading ? (
-              <LoadingState />
+              <LoadingIndicator />
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {filteredData.length > 0 ? (
                   filteredData.map((jenis) => (
-                    <JenisMotorCard
+                    <ItemCard
                       key={jenis.id}
-                      jenis={jenis}
-                      onEdit={handleEdit}
-                      onDelete={confirmDelete}
+                      title={`${jenis.merk} ${jenis.model}`}
+                      subtitle={`${jenis.cc} CC`}
+                      imageSrc={jenis.gambar}
+                      imageAlt={`${jenis.merk} ${jenis.model}`}
+                      onEdit={() => handleEdit(jenis.id)}
+                      onDelete={() => confirmDelete(jenis.id)}
                     />
                   ))
                 ) : (
                   <EmptyState
-                    isSearching={!!searchQuery}
-                    onAdd={handleAdd}
+                    icon={ImageIcon}
+                    title={searchQuery ? "Tidak ada jenis motor yang sesuai dengan pencarian" : "Belum ada data jenis motor"}
+                    description={searchQuery ? "Coba kata kunci lain atau reset pencarian" : "Mulai dengan menambahkan jenis motor baru"}
+                    actionLabel={searchQuery ? undefined : "Tambah Jenis Motor"}
+                    actionHandler={searchQuery ? undefined : handleAdd}
+                    className="col-span-full"
                   />
                 )}
               </div>
             )}
 
-            <DeleteDialog
+            <ConfirmDialog
               isOpen={showDeleteDialog}
               loading={loading}
+              title="Konfirmasi Hapus"
+              description={jenisMotorToDelete 
+                ? `Apakah Anda yakin ingin menghapus ${jenisMotorToDelete.merk} ${jenisMotorToDelete.model}? Tindakan ini tidak dapat dibatalkan.`
+                : "Apakah Anda yakin ingin menghapus jenis motor ini? Tindakan ini tidak dapat dibatalkan."
+              }
+              confirmLabel="Hapus"
+              variant="destructive"
               onClose={cancelDelete}
               onConfirm={deleteJenis}
             />
@@ -110,4 +121,4 @@ export default function JenisMotorPage() {
       </div>
     </DashboardLayout>
   );
-}
+} 

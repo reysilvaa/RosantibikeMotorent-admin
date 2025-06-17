@@ -2,11 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, ImageIcon } from "lucide-react";
-import { StatusMessage } from "@/components/jenis-motor/status-message";
+import { ImageIcon } from "lucide-react";
+import { StatusMessage } from "@/components/ui/status-message";
+import { FormActions } from "@/components/ui/form-actions";
+import { LoadingIndicator } from "@/components/ui/loading-indicator";
 import { useJenisMotorEditStore } from "@/lib/store/jenis-motor/jenis-motor-edit-store";
 
 interface JenisMotorEditFormProps {
@@ -81,12 +82,7 @@ export function JenisMotorEditForm({ id, onCancel }: JenisMotorEditFormProps) {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center p-6">
-        <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
-        <span className="ml-2">Memuat data...</span>
-      </div>
-    );
+    return <LoadingIndicator message="Memuat data..." />;
   }
 
   return (
@@ -169,26 +165,11 @@ export function JenisMotorEditForm({ id, onCancel }: JenisMotorEditFormProps) {
         </div>
       </div>
       
-      <div className="mt-6 flex justify-end gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          disabled={loadingSubmit}
-        >
-          Batal
-        </Button>
-        <Button type="submit" disabled={loadingSubmit}>
-          {loadingSubmit ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Menyimpan...
-            </>
-          ) : (
-            "Simpan Perubahan"
-          )}
-        </Button>
-      </div>
+      <FormActions
+        isLoading={loadingSubmit}
+        onCancel={onCancel}
+        submitLabel="Simpan Perubahan"
+      />
     </form>
   );
 } 
