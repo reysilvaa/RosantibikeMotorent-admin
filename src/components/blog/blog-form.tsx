@@ -6,6 +6,8 @@ import { FormActions } from "@/components/ui/form-actions";
 import { StatusMessage } from "@/components/ui/status-message";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BlogStatus } from "@/lib/types/blog";
+import { searchBlogTags, BlogTag } from "@/lib/api/blog";
+import { useDebounce } from "@/hooks/use-debounce";
 
 interface BlogFormProps {
   initialValues?: {
@@ -42,6 +44,13 @@ export function BlogForm({
   const [formError, setFormError] = useState("");
   const [tagNames, setTagNames] = useState<{[key: string]: string}>(initialValues.tagNames || {});
   
+  // State untuk autocomplete
+  const [tagSuggestions, setTagSuggestions] = useState<BlogTag[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  
+  const debouncedTagInput = useDebounce(tagInput, 300);
+  
   useEffect(() => {
     if (initialValues.judul) setJudul(initialValues.judul);
     if (initialValues.konten) setKonten(initialValues.konten);
@@ -50,6 +59,28 @@ export function BlogForm({
     if (initialValues.tags) setTags(initialValues.tags);
     if (initialValues.tagNames) setTagNames(initialValues.tagNames);
   }, [initialValues]);
+  
+  // Efek untuk mencari tag saat input berubah
+  useEffect(() => {
+    const fetchTagSuggestions = async () => {
+      if (debouncedTagInput.trim().length < 1) {
+        setTagSuggestions([]);
+        return;
+      }
+      
+      try {
+        setIsLoadingSuggestions(true);
+        const response = await searchBlogTags(debouncedTagInput);
+        setTagSuggestions(response.data || []);
+      } catch (error) {
+        console.error("Gagal mengambil saran tag:", error);
+      } finally {
+        setIsLoadingSuggestions(false);
+      }
+    };
+    
+    fetchTagSuggestions();
+  }, [debouncedTagInput]);
   
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -68,19 +99,43 @@ export function BlogForm({
   };
 
   const handleAddTag = () => {
-    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
+    if (tagInput.trim() && !tags.includes(tagInput.trim().toLowerCase())) {
+      // Konversi tag ke lowercase untuk konsistensi
+      const normalizedTag = tagInput.trim().toLowerCase();
+      
       // Untuk form tambah, kita menggunakan nama tag sebagai ID sementara
-      const newTagId = tagInput.trim();
-      setTags([...tags, newTagId]);
+      setTags([...tags, normalizedTag]);
       
       // Simpan nama tag untuk ditampilkan
       setTagNames({
         ...tagNames,
-        [newTagId]: newTagId
+        [normalizedTag]: normalizedTag
       });
       
       setTagInput("");
+      setShowSuggestions(false);
     }
+  };
+  
+  const handleSelectSuggestion = (tag: BlogTag) => {
+    // Jika tag sudah ada, jangan tambahkan lagi
+    if (tags.includes(tag.id)) {
+      setTagInput("");
+      setShowSuggestions(false);
+      return;
+    }
+    
+    // Tambahkan tag dari saran
+    setTags([...tags, tag.id]);
+    
+    // Simpan nama tag untuk ditampilkan
+    setTagNames({
+      ...tagNames,
+      [tag.id]: tag.nama
+    });
+    
+    setTagInput("");
+    setShowSuggestions(false);
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
@@ -91,6 +146,20 @@ export function BlogForm({
     if (e.key === 'Enter') {
       e.preventDefault();
       handleAddTag();
+    } else if (e.key === 'ArrowDown' && tagSuggestions.length > 0) {
+      // Fokus ke saran pertama jika ada
+      const suggestionElement = document.getElementById('tag-suggestion-0');
+      if (suggestionElement) {
+        suggestionElement.focus();
+      }
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+    }
+  };
+  
+  const handleTagInputFocus = () => {
+    if (tagInput.trim().length > 0) {
+      setShowSuggestions(true);
     }
   };
   
@@ -168,12 +237,20 @@ export function BlogForm({
 
         <div className="grid gap-2">
           <Label htmlFor="tags">Tags</Label>
-          <div className="flex gap-2">
+          <div className="flex gap-2 relative">
             <Input
               id="tags"
               value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
+              onChange={(e) => {
+                setTagInput(e.target.value);
+                setShowSuggestions(e.target.value.trim().length > 0);
+              }}
               onKeyDown={handleTagInputKeyDown}
+              onFocus={handleTagInputFocus}
+              onBlur={() => {
+                // Delay untuk memungkinkan klik pada saran
+                setTimeout(() => setShowSuggestions(false), 200);
+              }}
               placeholder="Tambahkan tag"
               disabled={isLoading}
               className="flex-grow"
@@ -186,16 +263,55 @@ export function BlogForm({
             >
               Tambah
             </button>
+            
+            {/* Tag suggestions dropdown */}
+            {showSuggestions && tagSuggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+                {isLoadingSuggestions ? (
+                  <div className="p-2 text-center text-gray-500 dark:text-gray-400">Mencari tag...</div>
+                ) : (
+                  <ul>
+                    {tagSuggestions.map((tag, index) => (
+                      <li 
+                        key={tag.id} 
+                        id={`tag-suggestion-${index}`}
+                        tabIndex={0}
+                        onClick={() => handleSelectSuggestion(tag)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handleSelectSuggestion(tag);
+                          } else if (e.key === 'ArrowDown' && index < tagSuggestions.length - 1) {
+                            const nextElement = document.getElementById(`tag-suggestion-${index + 1}`);
+                            if (nextElement) nextElement.focus();
+                          } else if (e.key === 'ArrowUp') {
+                            if (index > 0) {
+                              const prevElement = document.getElementById(`tag-suggestion-${index - 1}`);
+                              if (prevElement) prevElement.focus();
+                            } else {
+                              const inputElement = document.getElementById('tags');
+                              if (inputElement) inputElement.focus();
+                            }
+                          }
+                        }}
+                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer focus:bg-gray-100 dark:focus:bg-gray-700 focus:outline-none text-gray-800 dark:text-gray-200"
+                      >
+                        {tag.nama}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
           </div>
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2">
               {tags.map((tagId, index) => (
-                <div key={index} className="bg-gray-200 px-3 py-1 rounded-full flex items-center gap-2">
-                  <span>{getTagDisplayName(tagId)}</span>
+                <div key={index} className="bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-full flex items-center gap-2">
+                  <span className="text-gray-800 dark:text-gray-200">{getTagDisplayName(tagId)}</span>
                   <button 
                     type="button" 
                     onClick={() => handleRemoveTag(tagId)}
-                    className="text-red-500 hover:text-red-700"
+                    className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                   >
                     ×
                   </button>

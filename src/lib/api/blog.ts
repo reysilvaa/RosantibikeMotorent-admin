@@ -11,6 +11,12 @@ export interface BlogParams {
   category?: string;
 }
 
+// Interface untuk tag
+export interface BlogTag {
+  id: string;
+  nama: string;
+}
+
 // Fungsi untuk mendapatkan semua blog post
 export const getBlogPosts = async (params?: BlogParams) => {
   try {
@@ -77,6 +83,51 @@ export const getBlogPostBySlug = async (slug: string) => {
       throw new Error(error.response.data.message);
     }
     throw new Error('Gagal mendapatkan blog post berdasarkan slug');
+  }
+};
+
+// Fungsi untuk mendapatkan semua tag
+export const getBlogTags = async () => {
+  try {
+    const token = getToken();
+    console.log('Fetching blog tags');
+    
+    const response = await axios.get(`${API_URL}/blog/tags`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log('Blog tags response:', response.data);
+    return response.data;
+  } catch (error: unknown) {
+    console.error('Error fetching blog tags:', error);
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Gagal mendapatkan daftar tag');
+  }
+};
+
+// Fungsi untuk mencari tag berdasarkan query
+export const searchBlogTags = async (query: string) => {
+  try {
+    const token = getToken();
+    console.log('Searching blog tags with query:', query);
+    
+    const response = await axios.get(`${API_URL}/blog/tags/search`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: { q: query },
+    });
+    console.log('Search blog tags response:', response.data);
+    return response.data;
+  } catch (error: unknown) {
+    console.error('Error searching blog tags:', error);
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Gagal mencari tag');
   }
 };
 

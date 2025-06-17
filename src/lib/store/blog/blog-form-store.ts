@@ -69,10 +69,19 @@ export const useBlogFormStore = create<BlogFormState>((set, get) => ({
       formDataToSubmit.append('kategori', formData.kategori);
       
       // Tambahkan tags jika ada
-      if (formData.tags.length > 0) {
+      // Backend mengharapkan array string untuk tags, bukan FormData entries
+      // Jadi kita perlu memastikan tags dikirim sebagai string array
+      if (formData.tags && formData.tags.length > 0) {
+        // Untuk setiap tag, kita tambahkan sebagai entry terpisah
+        // FormData akan mengirimkan ini sebagai array di backend
         formData.tags.forEach((tag) => {
-          formDataToSubmit.append('tags', tag);
+          if (tag && tag.trim() !== '') {
+            formDataToSubmit.append('tags', tag);
+          }
         });
+      } else {
+        // Jika tidak ada tags, kirim array kosong
+        formDataToSubmit.append('tags', '');
       }
       
       // Tambahkan file jika ada
@@ -121,7 +130,6 @@ export const useBlogFormStore = create<BlogFormState>((set, get) => ({
       
       // Tambahkan tags jika ada - pastikan tags adalah ID yang valid
       // Backend mengharapkan ID tag yang valid, bukan nama tag
-      // Jika tags adalah nama tag, maka perlu diubah menjadi ID tag terlebih dahulu
       if (formData.tags && formData.tags.length > 0) {
         // Pastikan tags adalah array
         const tagsArray = Array.isArray(formData.tags) ? formData.tags : [formData.tags];

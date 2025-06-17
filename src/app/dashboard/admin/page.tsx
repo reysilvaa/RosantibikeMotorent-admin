@@ -31,7 +31,7 @@ export default function AdminPage() {
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
-    setCurrentAdmin(useAuthStore.getState());
+    setCurrentAdmin(useAuthStore.getState().user);
     fetchAdmins();
   }, []);
 
