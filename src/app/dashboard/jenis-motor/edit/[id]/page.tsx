@@ -7,7 +7,7 @@ import DashboardLayout from "@/components/layout/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { JenisMotorEditForm } from "@/components/jenis-motor/jenis-motor-edit-form";
-import { useJenisMotorEditStore } from "@/lib/store/jenis-motor-edit-store";
+import { useJenisMotorEditStore } from "@/lib/store/jenis-motor/jenis-motor-edit-store";
 
 interface EditJenisMotorPageProps {
   params: {

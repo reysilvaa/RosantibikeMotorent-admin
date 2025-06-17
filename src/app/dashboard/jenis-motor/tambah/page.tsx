@@ -7,7 +7,7 @@ import DashboardLayout from "@/components/layout/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { JenisMotorForm } from "@/components/jenis-motor/jenis-motor-form";
-import { useJenisMotorFormStore } from "@/lib/store/jenis-motor-form-store";
+import { useJenisMotorFormStore } from "@/lib/store/jenis-motor/jenis-motor-form-store";
 
 export default function TambahJenisMotorPage() {
   const router = useRouter();

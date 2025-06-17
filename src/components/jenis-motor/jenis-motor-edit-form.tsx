@@ -1,8 +1,13 @@
-import React, { useEffect } from "react";
-import { Upload, Loader2, AlertCircle, CheckCircle } from "lucide-react";
+"use client";
+
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useJenisMotorEditStore } from "@/lib/store/jenis-motor-edit-store";
+import { Label } from "@/components/ui/label";
+import { Loader2, ImageIcon } from "lucide-react";
+import { StatusMessage } from "@/components/jenis-motor/status-message";
+import { useJenisMotorEditStore } from "@/lib/store/jenis-motor/jenis-motor-edit-store";
 
 interface JenisMotorEditFormProps {
   id: string;
@@ -11,196 +16,179 @@ interface JenisMotorEditFormProps {
 
 export function JenisMotorEditForm({ id, onCancel }: JenisMotorEditFormProps) {
   const {
+    jenisMotor,
     formData,
-    selectedFile,
-    previewUrl,
     loading,
+    loadingSubmit,
     error,
     success,
-    isLoading,
     fetchJenisMotor,
-    handleInputChange,
-    handleFileChange,
+    setFormData,
+    setSelectedFile,
     submitForm,
   } = useJenisMotorEditStore();
 
-  // Fetch data jenis motor saat komponen dimount
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  // Ambil data jenis motor saat komponen mount
   useEffect(() => {
     fetchJenisMotor(id);
   }, [id, fetchJenisMotor]);
 
+  // Set preview gambar dari data yang sudah ada
+  useEffect(() => {
+    if (jenisMotor?.gambar) {
+      setPreviewUrl(jenisMotor.gambar);
+    }
+  }, [jenisMotor]);
+
+  // Handler untuk perubahan input
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    
+    if (name === 'cc') {
+      // Pastikan CC adalah angka
+      const numValue = parseInt(value, 10);
+      if (!isNaN(numValue)) {
+        setFormData({ [name]: numValue });
+      }
+    } else {
+      setFormData({ [name]: value });
+    }
+  };
+
+  // Handler untuk perubahan file
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      
+      // Membuat URL preview untuk gambar
+      const fileReader = new FileReader();
+      fileReader.onload = (event) => {
+        if (event.target?.result) {
+          setPreviewUrl(event.target.result as string);
+        }
+      };
+      fileReader.readAsDataURL(file);
+    }
+  };
+
+  // Handler untuk submit form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await submitForm(id);
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-neutral-500" />
-        <span className="ml-2 text-lg">Memuat data...</span>
+      <div className="flex items-center justify-center p-6">
+        <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+        <span className="ml-2">Memuat data...</span>
       </div>
     );
   }
 
   return (
-    <>
-      {error && (
-        <div className="mb-4 flex items-center rounded-lg bg-red-50 p-4 text-red-600 dark:bg-red-900/30 dark:text-red-400">
-          <AlertCircle className="mr-2 h-5 w-5" />
-          {error}
-        </div>
-      )}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <StatusMessage error={error} success={success ? "Jenis motor berhasil diperbarui" : undefined} />
       
-      {success && (
-        <div className="mb-4 flex items-center rounded-lg bg-green-50 p-4 text-green-600 dark:bg-green-900/30 dark:text-green-400">
-          <CheckCircle className="mr-2 h-5 w-5" />
-          {success}
-        </div>
-      )}
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="space-y-4">
           <div className="space-y-2">
-            <label
-              htmlFor="merk"
-              className="text-sm font-medium text-neutral-700 dark:text-neutral-300"
-            >
-              Merk <span className="text-red-500">*</span>
-            </label>
+            <Label htmlFor="merk">Merk</Label>
             <Input
               id="merk"
               name="merk"
-              placeholder="Honda, Yamaha, dll"
-              value={formData.merk || ""}
+              value={formData.merk}
               onChange={handleInputChange}
-              disabled={loading}
+              placeholder="Contoh: Honda, Yamaha, dll"
               required
             />
           </div>
           
           <div className="space-y-2">
-            <label
-              htmlFor="model"
-              className="text-sm font-medium text-neutral-700 dark:text-neutral-300"
-            >
-              Model <span className="text-red-500">*</span>
-            </label>
+            <Label htmlFor="model">Model</Label>
             <Input
               id="model"
               name="model"
-              placeholder="Vario 125, CBR 150, dll"
-              value={formData.model || ""}
+              value={formData.model}
               onChange={handleInputChange}
-              disabled={loading}
+              placeholder="Contoh: BeAT, NMAX, dll"
               required
             />
           </div>
           
           <div className="space-y-2">
-            <label
-              htmlFor="cc"
-              className="text-sm font-medium text-neutral-700 dark:text-neutral-300"
-            >
-              CC <span className="text-red-500">*</span>
-            </label>
+            <Label htmlFor="cc">CC</Label>
             <Input
               id="cc"
               name="cc"
               type="number"
-              placeholder="125"
-              min={50}
-              value={formData.cc || ""}
+              min="50"
+              value={formData.cc}
               onChange={handleInputChange}
-              disabled={loading}
+              placeholder="Contoh: 125"
               required
             />
-            <p className="text-xs text-neutral-500">
-              Minimal CC motor adalah 50
-            </p>
           </div>
         </div>
         
-        <div className="space-y-2">
-          <label
-            htmlFor="gambar"
-            className="text-sm font-medium text-neutral-700 dark:text-neutral-300"
-          >
-            Gambar (Opsional)
-          </label>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <div className="mt-1 flex justify-center rounded-lg border border-dashed border-neutral-300 px-6 py-10 dark:border-neutral-700">
-                <div className="text-center">
-                  {previewUrl ? (
-                    <img
-                      src={previewUrl}
-                      alt="Preview"
-                      className="mx-auto mb-4 h-32 w-auto rounded"
-                    />
-                  ) : (
-                    <Upload className="mx-auto h-12 w-12 text-neutral-400" />
-                  )}
-                  <div className="mt-4 flex text-sm leading-6 text-neutral-600 dark:text-neutral-400">
-                    <label
-                      htmlFor="gambar"
-                      className="relative cursor-pointer rounded-md font-semibold text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-2 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
-                    >
-                      <span>Pilih file</span>
-                      <Input
-                        id="gambar"
-                        name="gambar"
-                        type="file"
-                        accept="image/*"
-                        className="sr-only"
-                        onChange={handleFileChange}
-                        disabled={loading}
-                      />
-                    </label>
-                    <p className="pl-1">atau drag and drop</p>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>Gambar</Label>
+            <div className="flex flex-col gap-4">
+              <div className="relative h-40 w-full overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900">
+                {previewUrl ? (
+                  <Image
+                    src={previewUrl}
+                    alt="Preview"
+                    fill
+                    className="object-contain"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center">
+                    <ImageIcon className="h-12 w-12 text-neutral-300 dark:text-neutral-600" />
                   </div>
-                  <p className="text-xs text-neutral-500">
-                    PNG, JPG, GIF hingga 5MB
-                  </p>
-                </div>
+                )}
               </div>
-            </div>
-            
-            <div className="space-y-2">
-              <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                Ketentuan upload gambar:
+              
+              <Input
+                id="file"
+                name="file"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="cursor-pointer"
+              />
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                Format: JPG, PNG, atau WEBP. Ukuran maks: 2MB.
               </p>
-              <ul className="list-inside list-disc space-y-1 text-sm text-neutral-600 dark:text-neutral-400">
-                <li>Format file: JPG, PNG, atau GIF</li>
-                <li>Ukuran maksimal: 5MB</li>
-                <li>Resolusi yang disarankan: 800x600 piksel</li>
-                <li>Rasio aspek: 4:3 atau 16:9</li>
-              </ul>
             </div>
           </div>
         </div>
-        
-        <div className="flex justify-end gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={loading}
-          >
-            Batal
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Menyimpan...
-              </>
-            ) : (
-              "Simpan"
-            )}
-          </Button>
-        </div>
-      </form>
-    </>
+      </div>
+      
+      <div className="mt-6 flex justify-end gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={loadingSubmit}
+        >
+          Batal
+        </Button>
+        <Button type="submit" disabled={loadingSubmit}>
+          {loadingSubmit ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Menyimpan...
+            </>
+          ) : (
+            "Simpan Perubahan"
+          )}
+        </Button>
+      </div>
+    </form>
   );
 } 
