@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useBlogFormStore } from "@/lib/store/blog/blog-form-store";
 import { PageHeader } from "@/components/ui/page-header";
@@ -11,27 +11,51 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function TambahBlogPage() {
   const router = useRouter();
+  const initialLoadComplete = useRef(false);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const { loading, error, success, submitForm, resetForm, setFormData, setSelectedFile } = useBlogFormStore();
 
   useEffect(() => {
     resetForm();
+    setTimeout(() => {
+      initialLoadComplete.current = true;
+    }, 100);
+    
+    // Tambahkan event listener untuk mendeteksi interaksi pengguna
+    const handleUserInteraction = () => {
+      setHasUserInteracted(true);
+    };
+    
+    window.addEventListener('click', handleUserInteraction);
+    window.addEventListener('keydown', handleUserInteraction);
+    
+    return () => {
+      window.removeEventListener('click', handleUserInteraction);
+      window.removeEventListener('keydown', handleUserInteraction);
+    };
   }, [resetForm]);
 
   useEffect(() => {
-    if (success) {
+    // Redirect ke halaman blog jika berhasil diupdate DAN pengguna telah berinteraksi
+    if (success && hasUserInteracted) {
       const timer = setTimeout(() => {
         router.push("/dashboard/blog");
       }, 1500);
 
       return () => clearTimeout(timer);
     }
-  }, [success, router]);
+  }, [success, router, hasUserInteracted]);
 
   const handleCancel = () => {
     router.push("/dashboard/blog");
   };
 
   const handleSubmit = async (formDataSubmit: FormData) => {
+    // Hanya lakukan submit jika load awal sudah selesai dan pengguna telah berinteraksi
+    if (!initialLoadComplete.current || !hasUserInteracted) {
+      return;
+    }
+    
     const judul = formDataSubmit.get('judul') as string;
     const konten = formDataSubmit.get('konten') as string;
     const status = formDataSubmit.get('status') as BlogStatus;
@@ -74,7 +98,7 @@ export default function TambahBlogPage() {
               onSubmit={handleSubmit}
               isLoading={loading}
               error={error}
-              success={success}
+              success={success && hasUserInteracted}
               onCancel={handleCancel}
             />
           </CardContent>

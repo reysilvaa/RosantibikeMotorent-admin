@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RichEditor } from "@/components/ui/rich-editor";
@@ -35,6 +35,7 @@ export function BlogForm({
   success = false,
   isEdit = false,
 }: BlogFormProps) {
+  const isInitialMount = useRef(true);
   const [judul, setJudul] = useState(initialValues.judul || "");
   const [konten, setKonten] = useState(initialValues.konten || "");
   const [status, setStatus] = useState<BlogStatus>(initialValues.status || BlogStatus.DRAFT);
@@ -60,9 +61,13 @@ export function BlogForm({
     if (initialValues.kategori) setKategori(initialValues.kategori);
     if (initialValues.tags) setTags(initialValues.tags);
     if (initialValues.tagNames) setTagNames(initialValues.tagNames);
+    
+    // Set isInitialMount ke false setelah render pertama
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    }
   }, [initialValues]);
   
-  // Efek untuk mencari tag saat input berubah
   useEffect(() => {
     const fetchTagSuggestions = async () => {
       if (debouncedTagInput.trim().length < 1) {
@@ -169,6 +174,10 @@ export function BlogForm({
     e.preventDefault();
     setFormError("");
     
+    if (isInitialMount.current) {
+      return;
+    }
+    
     // Validasi form
     if (!judul.trim()) {
       setFormError("Judul harus diisi");
@@ -204,16 +213,22 @@ export function BlogForm({
     await onSubmit(formData);
   };
   
-  // Fungsi untuk mendapatkan nama tag yang ditampilkan
   const getTagDisplayName = (tagId: string) => {
     return tagNames[tagId] || tagId;
+  };
+  
+  // Fungsi untuk menangani perubahan konten editor
+  const handleKontenChange = (newKonten: string) => {
+    // Hanya update jika bukan inisialisasi awal
+    if (!isInitialMount.current) {
+      setKonten(newKonten);
+    }
   };
   
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {(formError || error) && <StatusMessage error={formError || error} />}
       {success && <StatusMessage success={isEdit ? "Blog berhasil diperbarui" : "Blog berhasil ditambahkan"} />}
-      
       <div className="space-y-4">
         <div className="grid gap-2">
           <Label htmlFor="judul">Judul</Label>
@@ -364,7 +379,7 @@ export function BlogForm({
           <Label htmlFor="konten">Konten</Label>
           <RichEditor
             value={konten}
-            onChange={setKonten}
+            onChange={handleKontenChange}
             disabled={isLoading}
           />
         </div>
@@ -378,4 +393,4 @@ export function BlogForm({
       />
     </form>
   );
-} 
+}

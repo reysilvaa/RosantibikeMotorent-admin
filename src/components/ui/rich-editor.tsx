@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Bold from "@tiptap/extension-bold";
@@ -31,7 +31,8 @@ import {
   Code as CodeIcon,
   Quote as QuoteIcon,
   Undo,
-  Redo
+  Redo,
+  Link2Off,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -51,9 +52,16 @@ export function RichEditor({
   editorClassName,
   disabled = false,
 }: RichEditorProps) {
+  const isInitialMount = useRef(true);
+  
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        heading: false,
+        bulletList: false,
+        orderedList: false,
+        blockquote: false,
+      }),
       Bold,
       Italic,
       Underline,
@@ -62,21 +70,44 @@ export function RichEditor({
         levels: [1, 2, 3],
       }),
       Paragraph,
-      BulletList,
-      OrderedList,
+      BulletList.configure({
+        HTMLAttributes: {
+          class: 'list-disc pl-6',
+        },
+      }),
+      OrderedList.configure({
+        HTMLAttributes: {
+          class: 'list-decimal pl-6',
+        },
+      }),
       ListItem,
       Link.configure({
         openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-blue-600 dark:text-blue-400 underline',
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        },
       }),
-      Image,
+      Image.configure({
+        HTMLAttributes: {
+          class: 'rounded-md max-w-full',
+        },
+      }),
       Code,
       CodeBlock,
-      Blockquote,
+      Blockquote.configure({
+        HTMLAttributes: {
+          class: 'border-l-4 border-neutral-300 dark:border-neutral-700 pl-4 italic',
+        },
+      }),
     ],
     content: value,
     editable: !disabled,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      if (!isInitialMount.current) {
+        onChange(editor.getHTML());
+      }
     },
     editorProps: {
       attributes: {
@@ -92,28 +123,86 @@ export function RichEditor({
     if (editor && editor.getHTML() !== value) {
       editor.commands.setContent(value);
     }
+    
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    }
   }, [editor, value]);
 
   if (!editor) {
     return null;
   }
 
+  const isValidUrl = (url: string): boolean => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const addLink = () => {
-    const url = window.prompt("URL");
-    if (url) {
+    const previousUrl = editor.getAttributes('link').href;
+    const url = window.prompt('URL tautan', previousUrl);
+    
+    if (url === null) {
+      return;
+    }
+    
+    if (url === '') {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
+    }
+    
+    if (!isValidUrl(url)) {
+      alert('URL tidak valid. Pastikan dimulai dengan http:// atau https://');
+      return;
+    }
+    
+    if (editor.state.selection.empty) {
+      editor.chain().focus().insertContent({
+        type: 'text',
+        text: url,
+        marks: [
+          {
+            type: 'link',
+            attrs: {
+              href: url,
+              target: '_blank',
+              rel: 'noopener noreferrer',
+            },
+          },
+        ],
+      }).run();
+    } else {
       editor
         .chain()
         .focus()
-        .extendMarkRange("link")
-        .setLink({ href: url })
+        .extendMarkRange('link')
+        .setLink({ href: url, target: '_blank', rel: 'noopener noreferrer' })
         .run();
     }
   };
 
+  const removeLink = () => {
+    editor.chain().focus().extendMarkRange('link').unsetLink().run();
+  };
+
   const addImage = () => {
-    const url = window.prompt("URL gambar");
+    const url = window.prompt('URL gambar');
+    
+    if (url === null) {
+      return;
+    }
+    
+    if (url && !isValidUrl(url)) {
+      alert('URL gambar tidak valid. Pastikan dimulai dengan http:// atau https://');
+      return;
+    }
+    
     if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
+      editor.chain().focus().setImage({ src: url, alt: 'Gambar' }).run();
     }
   };
 
@@ -127,6 +216,7 @@ export function RichEditor({
           onClick={() => editor.chain().focus().toggleBold().run()}
           className={cn(editor.isActive("bold") ? "bg-neutral-200 dark:bg-neutral-800" : "")}
           disabled={disabled}
+          title="Bold (Ctrl+B)"
         >
           <BoldIcon className="h-4 w-4" />
         </Button>
@@ -137,6 +227,7 @@ export function RichEditor({
           onClick={() => editor.chain().focus().toggleItalic().run()}
           className={cn(editor.isActive("italic") ? "bg-neutral-200 dark:bg-neutral-800" : "")}
           disabled={disabled}
+          title="Italic (Ctrl+I)"
         >
           <ItalicIcon className="h-4 w-4" />
         </Button>
@@ -147,6 +238,7 @@ export function RichEditor({
           onClick={() => editor.chain().focus().toggleUnderline().run()}
           className={cn(editor.isActive("underline") ? "bg-neutral-200 dark:bg-neutral-800" : "")}
           disabled={disabled}
+          title="Underline (Ctrl+U)"
         >
           <UnderlineIcon className="h-4 w-4" />
         </Button>
@@ -157,6 +249,7 @@ export function RichEditor({
           onClick={() => editor.chain().focus().toggleStrike().run()}
           className={cn(editor.isActive("strike") ? "bg-neutral-200 dark:bg-neutral-800" : "")}
           disabled={disabled}
+          title="Strikethrough"
         >
           <StrikeIcon className="h-4 w-4" />
         </Button>
@@ -168,6 +261,7 @@ export function RichEditor({
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
           className={cn(editor.isActive("heading", { level: 1 }) ? "bg-neutral-200 dark:bg-neutral-800" : "")}
           disabled={disabled}
+          title="Heading 1"
         >
           <Heading1 className="h-4 w-4" />
         </Button>
@@ -178,6 +272,7 @@ export function RichEditor({
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
           className={cn(editor.isActive("heading", { level: 2 }) ? "bg-neutral-200 dark:bg-neutral-800" : "")}
           disabled={disabled}
+          title="Heading 2"
         >
           <Heading2 className="h-4 w-4" />
         </Button>
@@ -189,6 +284,7 @@ export function RichEditor({
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           className={cn(editor.isActive("bulletList") ? "bg-neutral-200 dark:bg-neutral-800" : "")}
           disabled={disabled}
+          title="Bullet List"
         >
           <List className="h-4 w-4" />
         </Button>
@@ -199,6 +295,7 @@ export function RichEditor({
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           className={cn(editor.isActive("orderedList") ? "bg-neutral-200 dark:bg-neutral-800" : "")}
           disabled={disabled}
+          title="Ordered List"
         >
           <ListOrdered className="h-4 w-4" />
         </Button>
@@ -210,6 +307,7 @@ export function RichEditor({
           onClick={addLink}
           className={cn(editor.isActive("link") ? "bg-neutral-200 dark:bg-neutral-800" : "")}
           disabled={disabled}
+          title="Add Link"
         >
           <LinkIcon className="h-4 w-4" />
         </Button>
@@ -217,8 +315,19 @@ export function RichEditor({
           type="button"
           variant="ghost"
           size="sm"
+          onClick={removeLink}
+          disabled={!editor.isActive('link') || disabled}
+          title="Remove Link"
+        >
+          <Link2Off className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
           onClick={addImage}
           disabled={disabled}
+          title="Add Image"
         >
           <ImageIcon className="h-4 w-4" />
         </Button>
@@ -229,6 +338,7 @@ export function RichEditor({
           onClick={() => editor.chain().focus().toggleCode().run()}
           className={cn(editor.isActive("code") ? "bg-neutral-200 dark:bg-neutral-800" : "")}
           disabled={disabled}
+          title="Inline Code"
         >
           <CodeIcon className="h-4 w-4" />
         </Button>
@@ -239,6 +349,7 @@ export function RichEditor({
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
           className={cn(editor.isActive("blockquote") ? "bg-neutral-200 dark:bg-neutral-800" : "")}
           disabled={disabled}
+          title="Blockquote"
         >
           <QuoteIcon className="h-4 w-4" />
         </Button>
@@ -249,6 +360,7 @@ export function RichEditor({
           size="sm"
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!editor.can().undo() || disabled}
+          title="Undo"
         >
           <Undo className="h-4 w-4" />
         </Button>
@@ -258,6 +370,7 @@ export function RichEditor({
           size="sm"
           onClick={() => editor.chain().focus().redo().run()}
           disabled={!editor.can().redo() || disabled}
+          title="Redo"
         >
           <Redo className="h-4 w-4" />
         </Button>
