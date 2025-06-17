@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  rules: [
+    {
+      "no-console": ["error"],
+    },
+  ],
+
   images: {
     domains: [
       'rosantibikemotorent.com', 

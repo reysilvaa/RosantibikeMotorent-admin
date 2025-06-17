@@ -16,9 +16,9 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { isAuthenticated, getAdminData } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import Cookies from 'js-cookie';
+import { getAdminData } from "@/lib/cookies";
+import { useAuthStore } from "@/lib/store/auth-store";
 
 interface SidebarNavProps {
   isOpen: boolean;
@@ -62,13 +62,10 @@ const SidebarNavItem = ({
 const SidebarNav = ({ isOpen, toggleSidebar }: SidebarNavProps) => {
   const router = useRouter();
   const admin = getAdminData();
+  const { logout } = useAuthStore();
 
   const handleLogout = () => {
-    Cookies.remove('accessToken');
-    
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("adminData");
-    
+    logout();
     router.push("/auth/login");
   };
 
@@ -191,12 +188,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [isMounted, setIsMounted] = React.useState(false);
+  const { checkAuth, isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     setIsMounted(true);
     
-    if (isMounted && !isAuthenticated()) {
-      router.push("/auth/login");
+    // Periksa autentikasi
+    if (typeof window !== "undefined") {
+      const isLoggedIn = checkAuth();
+      if (!isLoggedIn) {
+        router.push("/auth/login");
+      }
     }
     
     const handleResize = () => {
@@ -211,9 +213,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     handleResize();
     
     return () => window.removeEventListener("resize", handleResize);
-  }, [router, isMounted]);
+  }, [router, checkAuth]);
 
-  if (!isMounted) return null;
+  if (!isMounted) {
+    return null;
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">

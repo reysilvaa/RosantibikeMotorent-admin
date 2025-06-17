@@ -3,18 +3,16 @@ import Cookies from 'js-cookie';
 // Fungsi untuk menyimpan token
 export const setToken = (token: string): void => {
   Cookies.set('accessToken', token);
-  localStorage.setItem('accessToken', token);
 };
 
 // Fungsi untuk mendapatkan token
 export const getToken = (): string | undefined => {
-  return Cookies.get('accessToken') || localStorage.getItem('accessToken') || undefined;
+  return Cookies.get('accessToken') || undefined;
 };
 
 // Fungsi untuk menghapus token
 export const removeToken = (): void => {
   Cookies.remove('accessToken');
-  localStorage.removeItem('accessToken');
 };
 
 // Cek apakah sudah login
@@ -31,6 +29,13 @@ export function isAuthenticated(): boolean {
 // Mendapatkan data admin dari localStorage
 export function getAdminData(): { id: string; username: string; nama: string } | null {
   if (typeof window === "undefined") return null;
-  const adminData = localStorage.getItem("adminData");
-  return adminData ? JSON.parse(adminData) : null;
+  
+  const adminDataStr = localStorage.getItem("adminData");
+  if (!adminDataStr) return null;
+  
+  try {
+    return JSON.parse(adminDataStr);
+  } catch {
+    return null;
+  }
 } 

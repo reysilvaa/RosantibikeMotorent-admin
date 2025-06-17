@@ -4,7 +4,6 @@ export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('accessToken')?.value;
   
-  // Periksa jika rute memerlukan autentikasi
   const isAuthRoute = pathname.startsWith('/dashboard');
   const isLoginPage = pathname === '/auth/login';
   

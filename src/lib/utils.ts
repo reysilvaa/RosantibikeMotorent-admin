@@ -1,6 +1,5 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import Cookies from 'js-cookie';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -60,20 +59,3 @@ export function formatTanggalWaktu(tanggal: string | Date): string {
   }).format(new Date(tanggal));
 }
 
-// Cek apakah sudah login
-export function isAuthenticated(): boolean {
-  if (typeof window === "undefined") return false;
-  // Periksa token di cookies (prioritas utama)
-  const cookieToken = Cookies.get('accessToken');
-  if (cookieToken) return true;
-  
-  // Fallback: periksa token di localStorage (untuk backward compatibility)
-  return !!localStorage.getItem("accessToken");
-}
-
-// Mendapatkan data admin dari localStorage
-export function getAdminData(): { id: string; username: string; nama: string } | null {
-  if (typeof window === "undefined") return null;
-  const adminData = localStorage.getItem("adminData");
-  return adminData ? JSON.parse(adminData) : null;
-} 
