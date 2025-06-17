@@ -46,7 +46,7 @@ export function ItemCard({
         )}
       </div>
       <CardContent className="p-4">
-        <h3 className="font-semibold">{title}</h3>
+        <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">{title}</h3>
         {subtitle && (
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
             {subtitle}

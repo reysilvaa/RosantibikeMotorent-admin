@@ -9,6 +9,7 @@ import { LoadingIndicator } from "@/components/ui/loading-indicator";
 import { StatusMessage } from "@/components/ui/status-message";
 import { BlogStatus } from "@/lib/types/blog";
 import DashboardLayout from "@/components/layout/dashboard-layout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function EditBlogPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -56,6 +57,10 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
     }
   }, [success, router, id]);
 
+  const handleCancel = () => {
+    router.push(`/dashboard/blog/${id}`);
+  };
+
   const handleSubmit = async (formDataSubmit: FormData) => {
     // Ekstrak data dari FormData
     const judul = formDataSubmit.get('judul') as string;
@@ -82,40 +87,54 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
   };
 
   if (loading) {
-    return <LoadingIndicator message="Memuat data blog..." />;
+    return (
+      <DashboardLayout>
+        <LoadingIndicator message="Memuat data blog..." />
+      </DashboardLayout>
+    );
   }
 
   if (!blog && !loading) {
-    return <StatusMessage error="Blog tidak ditemukan" />;
+    return (
+      <DashboardLayout>
+        <StatusMessage error="Blog tidak ditemukan" />
+      </DashboardLayout>
+    );
   }
 
   return (
     <DashboardLayout>
-      <div className="container py-6 space-y-6">
+      <div className="space-y-6">
         <PageHeader
           title="Edit Blog"
           description={`Mengedit blog: ${blog?.judul}`}
-          showBackButton
+          showBackButton={true}
           backHref={`/dashboard/blog/${id}`}
         />
 
-        <div className="max-w-3xl">
-          <BlogForm
-            initialValues={{
-              judul: formData.judul,
-              konten: formData.konten,
-              status: formData.status,
-              kategori: formData.kategori,
-              tags: formData.tags,
-              tagNames: tagNames,
-            }}
-            onSubmit={handleSubmit}
-            isLoading={loadingSubmit}
-            error={error}
-            success={success}
-            isEdit={true}
-          />
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Data Blog</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <BlogForm
+              initialValues={{
+                judul: formData.judul,
+                konten: formData.konten,
+                status: formData.status,
+                kategori: formData.kategori,
+                tags: formData.tags,
+                tagNames: tagNames,
+              }}
+              onSubmit={handleSubmit}
+              onCancel={handleCancel}
+              isLoading={loadingSubmit}
+              error={error}
+              success={success}
+              isEdit={true}
+            />
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );

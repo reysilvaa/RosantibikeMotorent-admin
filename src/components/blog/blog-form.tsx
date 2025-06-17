@@ -19,6 +19,7 @@ interface BlogFormProps {
     tagNames?: { [key: string]: string }; // Map dari ID tag ke nama tag
   };
   onSubmit: (formData: FormData) => Promise<void>;
+  onCancel?: () => void;
   isLoading?: boolean;
   error?: string;
   success?: boolean;
@@ -28,6 +29,7 @@ interface BlogFormProps {
 export function BlogForm({
   initialValues = {},
   onSubmit,
+  onCancel,
   isLoading = false,
   error = "",
   success = false,
@@ -266,7 +268,7 @@ export function BlogForm({
             
             {/* Tag suggestions dropdown */}
             {showSuggestions && tagSuggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
                 {isLoadingSuggestions ? (
                   <div className="p-2 text-center text-gray-500 dark:text-gray-400">Mencari tag...</div>
                 ) : (
@@ -371,6 +373,8 @@ export function BlogForm({
       <FormActions
         isLoading={isLoading}
         submitLabel={isEdit ? "Perbarui" : "Simpan"}
+        onCancel={onCancel}
+        cancelLabel="Batal"
       />
     </form>
   );

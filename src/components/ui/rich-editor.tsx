@@ -118,7 +118,7 @@ export function RichEditor({
   };
 
   return (
-    <div className={cn("border rounded-md overflow-hidden", className)}>
+    <div className={cn("border rounded-md overflow-hidden border-neutral-200 dark:border-neutral-800", className)}>
       <div className="flex flex-wrap gap-1 border-b bg-neutral-50 dark:bg-neutral-900 p-2">
         <Button
           type="button"

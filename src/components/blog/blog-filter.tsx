@@ -5,26 +5,21 @@ import { BlogStatus } from "@/lib/types/blog";
 interface BlogFilterProps {
   currentValue: BlogStatus | "";
   onChange: (value: BlogStatus | "") => void;
-  className?: string;
 }
 
-export function BlogFilter({
-  currentValue,
-  onChange,
-  className = "",
-}: BlogFilterProps) {
-  const options: FilterOption<BlogStatus | "">[] = [
+export function BlogFilter({ currentValue, onChange }: BlogFilterProps) {
+  // Filter options untuk status blog
+  const filterOptions: FilterOption<BlogStatus | "">[] = [
     { value: "", label: "Semua" },
     { value: BlogStatus.PUBLISHED, label: "Terbit" },
-    { value: BlogStatus.DRAFT, label: "Draft" },
+    { value: BlogStatus.DRAFT, label: "Draft" }
   ];
 
   return (
     <FilterButtons
-      options={options}
+      options={filterOptions}
       currentValue={currentValue}
       onChange={onChange}
-      className={className}
     />
   );
 } 
