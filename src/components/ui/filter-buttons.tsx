@@ -15,14 +15,14 @@ interface FilterButtonsProps<T> {
   showAllOption?: boolean;
 }
 
-export const FilterButtons = <T,>({
+export function FilterButtons<T>({
   options,
   currentValue,
   onChange,
   allLabel = "Semua",
   className = "",
   showAllOption = true,
-}: FilterButtonsProps<T>) => {
+}: FilterButtonsProps<T>) {
   return (
     <div className={`mb-4 flex flex-wrap items-center gap-2 ${className}`}>
       {showAllOption && (
@@ -47,4 +47,4 @@ export const FilterButtons = <T,>({
       ))}
     </div>
   );
-}; 
+} 

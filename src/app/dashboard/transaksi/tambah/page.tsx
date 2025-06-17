@@ -9,7 +9,7 @@ export default function TambahTransaksiPage() {
   const router = useRouter();
 
   const handleCancel = () => {
-    router.push("/dashboard/transaksi");
+      router.push("/dashboard/transaksi");
   };
 
   return (

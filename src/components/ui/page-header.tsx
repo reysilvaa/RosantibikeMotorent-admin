@@ -8,7 +8,7 @@ interface PageHeaderProps {
   description?: string;
   id?: string;
   backHref?: string;
-  actionLabel?: string;
+  actionLabel?: string | undefined;
   actionIcon?: React.ReactNode;
   actionHref?: string;
   actionHandler?: () => void;
