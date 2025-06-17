@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { useAuthStore } from "@/lib/store/auth-store";
+import { useAuthStore } from "@/lib/store/auth/auth-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 

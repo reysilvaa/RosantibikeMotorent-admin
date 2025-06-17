@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Users,
   Plus,
   Edit,
   Trash2,
@@ -11,20 +10,20 @@ import {
   RefreshCcw,
   AlertCircle,
   CheckCircle,
-  XCircle,
 } from "lucide-react";
 import { getAdmins, deleteAdmin } from "@/lib/auth";
-import { getAdminData } from "@/lib/utils";
+import { useAuthStore } from "@/lib/store/auth/auth-store";
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Admin } from "@/lib/auth";
 
 export default function AdminPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [admins, setAdmins] = useState<any[]>([]);
-  const [currentAdmin, setCurrentAdmin] = useState<any>(null);
+  const [admins, setAdmins] = useState<Admin[]>([]);
+  const [currentAdmin, setCurrentAdmin] = useState<Admin | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showDialog, setShowDialog] = useState(false);
   const [adminToDelete, setAdminToDelete] = useState<string | null>(null);
@@ -32,8 +31,7 @@ export default function AdminPage() {
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
-    const adminData = getAdminData();
-    setCurrentAdmin(adminData);
+    setCurrentAdmin(useAuthStore.getState());
     fetchAdmins();
   }, []);
 

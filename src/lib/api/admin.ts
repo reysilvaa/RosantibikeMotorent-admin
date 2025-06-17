@@ -12,7 +12,6 @@ export const getAdmins = async (): Promise<Admin[]> => {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log(response.data);
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data && error.response.data.message) {

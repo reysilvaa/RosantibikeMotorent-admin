@@ -66,7 +66,7 @@ export default function JenisMotorPage() {
               setSearchQuery={setSearchQuery}
               onSearch={handleSearch}
               onReset={resetSearch}
-              placeholder="Cari merk atau model..."
+                    placeholder="Cari merk atau model..."
               title="Daftar Jenis Motor"
               showTitle={true}
             />
@@ -112,7 +112,7 @@ export default function JenisMotorPage() {
                 : "Apakah Anda yakin ingin menghapus jenis motor ini? Tindakan ini tidak dapat dibatalkan."
               }
               confirmLabel="Hapus"
-              variant="destructive"
+                      variant="destructive"
               onClose={cancelDelete}
               onConfirm={deleteJenis}
             />
@@ -121,4 +121,4 @@ export default function JenisMotorPage() {
       </div>
     </DashboardLayout>
   );
-} 
+}

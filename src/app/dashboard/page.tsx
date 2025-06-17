@@ -1,15 +1,12 @@
 "use client";
-
+import React from "react";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import {
   ShoppingCart,
   Bike,
   TrendingUp,
-  AlertCircle,
   ArrowUpRight,
   Clock,
-  Calendar,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DashboardLayout from "@/components/layout/dashboard-layout";
@@ -112,7 +109,6 @@ const StatCard = ({
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 export default function DashboardPage() {
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [statistik, setStatistik] = useState<StatistikData>({
     totalTransaksi: 0,

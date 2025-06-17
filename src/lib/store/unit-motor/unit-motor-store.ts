@@ -101,11 +101,11 @@ export const useUnitMotorFormStore = create<UnitMotorFormState>((set, get) => ({
       
       toast.success("Unit motor berhasil ditambahkan");
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Gagal membuat unit motor:", error);
       set({ 
         loading: false, 
-        error: error.message || "Gagal membuat unit motor baru" 
+        error: error instanceof Error ? error.message : "Gagal membuat unit motor baru" 
       });
       return false;
     }

@@ -18,7 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { getAdminData } from "@/lib/cookies";
-import { useAuthStore } from "@/lib/store/auth-store";
+import { useAuthStore } from "@/lib/store/auth/auth-store";
 
 interface SidebarNavProps {
   isOpen: boolean;

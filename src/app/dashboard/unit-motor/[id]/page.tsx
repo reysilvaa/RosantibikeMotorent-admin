@@ -16,7 +16,7 @@ import { UnitMotorEditForm } from "@/components/unit-motor/unit-motor-edit-form"
 import { StatusBadge } from "@/components/ui/status-badge";
 import { UnitMotor } from "@/lib/types/unit-motor";
 
-export default function DetailUnitMotorPage({ params }: { params: { id: string } }) {
+export default function DetailUnitMotorPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
@@ -26,11 +26,15 @@ export default function DetailUnitMotorPage({ params }: { params: { id: string }
   const [success, setSuccess] = useState<string | undefined>();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  // Menggunakan React.use untuk mengakses params
+  const unwrappedParams = React.use(params) as { id: string };
+  const motorId = unwrappedParams.id;
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await getUnitMotorDetail(params.id);
+        const data = await getUnitMotorDetail(motorId);
         setUnitMotor(data);
       } catch (error) {
         console.error("Gagal mengambil data unit motor:", error);
@@ -41,7 +45,7 @@ export default function DetailUnitMotorPage({ params }: { params: { id: string }
     };
 
     fetchData();
-  }, [params.id]);
+  }, [motorId]);
 
   const handleToggleEdit = () => {
     setEditing(!editing);
@@ -52,7 +56,7 @@ export default function DetailUnitMotorPage({ params }: { params: { id: string }
   const handleDelete = async () => {
     try {
       setDeleting(true);
-      await deleteUnitMotor(params.id);
+      await deleteUnitMotor(motorId);
       
       // Redirect ke halaman unit motor setelah berhasil hapus
       router.push("/dashboard/unit-motor");
@@ -100,37 +104,37 @@ export default function DetailUnitMotorPage({ params }: { params: { id: string }
             <CardTitle>Informasi Unit Motor</CardTitle>
             {!editing && (
               <div className="flex space-x-2">
-                <Button
-                  variant="outline"
-                  onClick={handleToggleEdit}
+            <Button
+              variant="outline"
+              onClick={handleToggleEdit}
                   size="sm"
-                >
-                  <Pencil className="mr-2 h-4 w-4" />
+            >
+              <Pencil className="mr-2 h-4 w-4" />
                   Edit
-                </Button>
-                <Button
-                  variant="destructive"
+            </Button>
+            <Button
+              variant="destructive"
                   onClick={() => setShowDeleteConfirm(true)}
-                  disabled={deleting}
+              disabled={deleting}
                   size="sm"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
+            >
+                <Trash2 className="mr-2 h-4 w-4" />
                   Hapus
-                </Button>
-              </div>
+            </Button>
+          </div>
             )}
           </CardHeader>
           <CardContent>
             {editing ? (
               <UnitMotorEditForm
-                id={params.id}
+                id={motorId}
                 onCancel={handleToggleEdit}
                 onSuccess={() => {
                   setEditing(false);
                   // Refresh data setelah update
                   setTimeout(async () => {
                     try {
-                      const data = await getUnitMotorDetail(params.id);
+                      const data = await getUnitMotorDetail(motorId);
                       setUnitMotor(data);
                       setSuccess("Data berhasil diperbarui");
                     } catch (error) {

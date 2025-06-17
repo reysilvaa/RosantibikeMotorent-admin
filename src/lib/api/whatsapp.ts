@@ -64,7 +64,6 @@ export const getWhatsAppQrCode = async () => {
     return response.data;
   } catch (error: any) {
     console.error("Error fetching WhatsApp QR code:", error);
-    // Jika error adalah karena QR code tidak tersedia (404), kita tangani secara khusus
     if (error instanceof Error && 
         (error.message.includes('QR code tidak tersedia') || 
          error.message.includes('tidak tersedia') || 

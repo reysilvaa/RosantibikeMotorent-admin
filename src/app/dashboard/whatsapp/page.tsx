@@ -51,10 +51,7 @@ export default function WhatsappPage() {
         message: sessionResponse?.data?.message || statusResponse.message || '',
       };
       
-      console.log('Status from backend:', mergedStatus);
       setStatus(mergedStatus);
-      
-      // Jika tidak terhubung dan tidak mengambil QR code, coba ambil
       if (!mergedStatus.connected) {
         fetchQrCode();
       } else {

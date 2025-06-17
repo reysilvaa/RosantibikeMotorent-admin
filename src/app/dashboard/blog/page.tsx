@@ -1,166 +1,131 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { FileText, Plus } from "lucide-react";
-import DashboardLayout from "@/components/layout/dashboard-layout";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { BlogStatus } from "@/lib/blog";
-import { formatTanggal } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { DataTable } from "@/components/ui/data-table";
-import { SearchBar } from "@/components/ui/search-bar";
-import { EmptyState } from "@/components/ui/empty-state";
-import { LoadingIndicator } from "@/components/ui/loading-indicator";
-import { Pagination } from "@/components/ui/pagination";
+import { Plus } from "lucide-react";
+import { useBlogStore } from "@/lib/store/blog/blog-store";
 import { PageHeader } from "@/components/ui/page-header";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { SearchBar } from "@/components/ui/search-bar";
+import { BlogFilter } from "@/components/blog/blog-filter";
+import { BlogCard } from "@/components/blog/blog-card";
+import { LoadingIndicator } from "@/components/ui/loading-indicator";
+import { EmptyState } from "@/components/ui/empty-state";
 import { StatusMessage } from "@/components/ui/status-message";
-import { useBlogListStore } from "@/lib/store/blog-store";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Pagination } from "@/components/ui/pagination";
+import DashboardLayout from "@/components/layout/dashboard-layout";
 
-export default function BlogPage() {
-  const router = useRouter();
+export default function BlogListPage() {
   const {
-    blogs,
+    data,
     loading,
     error,
     success,
-    filter,
-    meta,
+    searchQuery,
+    statusFilter,
+    currentPage,
+    totalPages,
+    totalData,
+    limit,
+    showDeleteDialog,
     fetchBlogs,
-    setFilter,
-    resetFilter,
-    deleteBlog,
-    setPage,
-    resetMessages
-  } = useBlogListStore();
+    handleSearch,
+    setSearchQuery,
+    handleStatusFilterChange,
+    handlePageChange,
+    resetSearch,
+    confirmDelete,
+    cancelDelete,
+    deleteBlog
+  } = useBlogStore();
 
   useEffect(() => {
     fetchBlogs();
   }, [fetchBlogs]);
 
-  const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
-  const [blogToDelete, setBlogToDelete] = React.useState<string | null>(null);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    resetMessages();
-    fetchBlogs();
-  };
-
-  const handleConfirmDelete = async () => {
-    if (blogToDelete) {
-      const success = await deleteBlog(blogToDelete);
-      if (success) {
-        setShowDeleteConfirm(false);
-        setBlogToDelete(null);
-      }
-    }
-  };
-
-  const getStatusBadge = (status: BlogStatus) => {
-    switch (status) {
-      case BlogStatus.PUBLISHED:
-        return <Badge className="bg-green-600 border-green-600">Dipublikasi</Badge>;
-      case BlogStatus.DRAFT:
-        return <Badge variant="outline">Draft</Badge>;
-      default:
-        return <Badge variant="secondary">Unknown</Badge>;
-    }
-  };
-
-  const columns = [
-    {
-      header: "Judul",
-      accessorKey: "judul" as keyof typeof blogs[0],
-      className: "font-medium"
-    },
-    {
-      header: "Status",
-      cell: (blog: typeof blogs[0]) => getStatusBadge(blog.status)
-    },
-    {
-      header: "Tanggal Dibuat",
-      cell: (blog: typeof blogs[0]) => formatTanggal(new Date(blog.createdAt))
-    }
-  ];
-
   return (
     <DashboardLayout>
+    <div className="container py-6 space-y-6">
       <PageHeader
         title="Blog"
-        description="Kelola artikel blog untuk website Anda"
+        description="Kelola blog untuk website"
         actionLabel="Tambah Blog"
         actionIcon={<Plus className="mr-2 h-4 w-4" />}
         actionHref="/dashboard/blog/tambah"
       />
 
+      <div className="space-y-4">
+        <SearchBar
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          onSearch={handleSearch}
+          onReset={resetSearch}
+          placeholder="Cari judul blog..."
+        />
+
+        <BlogFilter
+          currentValue={statusFilter}
+          onChange={handleStatusFilterChange}
+        />
+
+        {error && <StatusMessage error={error} />}
+        {success && <StatusMessage success={success} />}
+
+        {loading ? (
+          <LoadingIndicator />
+        ) : data.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {data.map((blog) => (
+                <BlogCard
+                  key={blog.id}
+                  id={blog.id}
+                  judul={blog.judul}
+                  thumbnail={blog.thumbnail}
+                  status={blog.status}
+                  kategori={blog.kategori}
+                  createdAt={blog.createdAt}
+                  onEdit={() => {
+                    window.location.href = `/dashboard/blog/edit/${blog.id}`;
+                  }}
+                  onDelete={() => confirmDelete(blog.id)}
+                />
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalData={totalData}
+                limit={limit}
+                onPageChange={handlePageChange}
+              />
+            )}
+          </>
+        ) : (
+          <EmptyState
+            title="Tidak ada blog"
+            description="Belum ada blog yang ditambahkan"
+            actionLabel="Tambah Blog"
+            actionHandler={() => {
+              window.location.href = "/dashboard/blog/tambah";
+            }}
+          />
+        )}
+      </div>
+
       <ConfirmDialog
-        isOpen={showDeleteConfirm}
+        isOpen={showDeleteDialog}
         title="Hapus Blog"
         description="Apakah Anda yakin ingin menghapus blog ini? Tindakan ini tidak dapat dibatalkan."
         confirmLabel="Hapus"
+        cancelLabel="Batal"
         variant="destructive"
-        onConfirm={handleConfirmDelete}
-        onClose={() => setShowDeleteConfirm(false)}
+        loading={loading}
+        onClose={cancelDelete}
+        onConfirm={deleteBlog}
       />
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Daftar Artikel</CardTitle>
-          <CardDescription>
-            Daftar artikel blog yang telah dibuat
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <SearchBar
-            searchQuery={filter.search || ""}
-            setSearchQuery={(search) => setFilter({ search })}
-            onSearch={handleSearch}
-            onReset={resetFilter}
-            placeholder="Cari artikel..."
-          />
-
-          <StatusMessage error={error || undefined} success={success || undefined} />
-
-          {loading ? (
-            <LoadingIndicator message="Sedang memuat data..." />
-          ) : blogs.length === 0 ? (
-            <EmptyState
-              icon={FileText}
-              title="Tidak ada artikel"
-              description="Anda belum memiliki artikel blog. Buat artikel baru sekarang."
-              actionLabel="Tambah Blog"
-              actionHandler={() => router.push("/dashboard/blog/tambah")}
-            />
-          ) : (
-            <DataTable
-              data={blogs}
-              columns={columns}
-              keyField="id"
-              onRowClick={(blog) => router.push(`/dashboard/blog/${blog.id}`)}
-            />
-          )}
-        </CardContent>
-        <CardFooter>
-          {meta.totalPages > 1 && (
-            <Pagination
-              currentPage={meta.page}
-              totalPages={meta.totalPages}
-              totalData={meta.total}
-              limit={meta.limit}
-              onPageChange={setPage}
-            />
-          )}
-        </CardFooter>
-      </Card>
+    </div>
     </DashboardLayout>
   );
 } 

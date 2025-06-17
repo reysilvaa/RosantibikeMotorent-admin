@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { ClipboardCheck, User, Phone, MapPin, Tag, Calendar, CreditCard, Bike } from "lucide-react";
 import { StatusTransaksi } from "@/lib/transaksi";
 import { formatTanggal, formatTanggalWaktu, formatRupiah } from "@/lib/utils";
@@ -13,8 +12,7 @@ import { InfoCard } from "@/components/ui/info-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { useTransaksiDetailStore } from "@/lib/store/transaksi/transaksi-detail-store";
 
-export default function DetailTransaksiPage({ params }: { params: { id: string } }) {
-  const router = useRouter();
+export default function DetailTransaksiPage({ params }: { params: Promise<{ id: string }> }) {
   const {
     transaksi,
     loading,
@@ -23,20 +21,17 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
     success,
     fetchTransaksiDetail,
     handleSelesaikan,
-    getStatusBadgeClass,
     safeDateFormat
   } = useTransaksiDetailStore();
 
-  useEffect(() => {
-    if (params.id) {
-      fetchTransaksiDetail(params.id);
+  // Menggunakan React.use untuk mengakses params
+   useEffect(() => {
+    if (React.use(params).id) {
+      fetchTransaksiDetail(React.use(params).id);
     }
-  }, [params.id, fetchTransaksiDetail]);
+  }, [React.use(params).id, fetchTransaksiDetail]);
 
-  const handleBack = () => {
-    router.push("/dashboard/transaksi");
-  };
-
+  
   if (loading) {
     return (
       <DashboardLayout>
@@ -71,7 +66,7 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
           backHref="/dashboard/transaksi"
           actionLabel={status === StatusTransaksi.BERJALAN ? "Selesaikan Transaksi" : undefined}
           actionIcon={status === StatusTransaksi.BERJALAN ? <ClipboardCheck className="mr-2 h-4 w-4" /> : undefined}
-          actionHandler={status === StatusTransaksi.BERJALAN ? () => handleSelesaikan(params.id) : undefined}
+          actionHandler={status === StatusTransaksi.BERJALAN ? () => handleSelesaikan(React.use(params).id) : undefined}
           actionDisabled={processing}
           actionLoading={processing}
         />
@@ -108,7 +103,7 @@ export default function DetailTransaksiPage({ params }: { params: { id: string }
                 label: "Status",
                 value: <StatusBadge 
                   status={status} 
-                  variant={getStatusVariant(status) as any}
+                  variant={getStatusVariant(status)}
                 />
               },
               {

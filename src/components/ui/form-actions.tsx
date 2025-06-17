@@ -1,55 +1,47 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface FormActionsProps {
   isLoading?: boolean;
   onCancel?: () => void;
-  onSubmit?: () => void;
-  cancelLabel?: string;
   submitLabel?: string;
+  cancelLabel?: string;
   submitIcon?: React.ReactNode;
-  className?: string;
   fullWidth?: boolean;
+  className?: string;
 }
 
 export function FormActions({
   isLoading = false,
   onCancel,
-  onSubmit,
-  cancelLabel = "Batal",
   submitLabel = "Simpan",
+  cancelLabel = "Batal",
   submitIcon,
-  className = "",
-  fullWidth = false
+  fullWidth = false,
+  className,
 }: FormActionsProps) {
   return (
-    <div className={`flex justify-end gap-3 ${className} ${fullWidth ? "col-span-full" : ""}`}>
+    <div className={cn("flex items-center gap-2", fullWidth ? "flex-col sm:flex-row" : "", className)}>
       {onCancel && (
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
           disabled={isLoading}
+          className={cn(fullWidth && "w-full sm:w-auto")}
         >
           {cancelLabel}
         </Button>
       )}
-      <Button 
-        type={onSubmit ? "button" : "submit"} 
+      <Button
+        type="submit"
         disabled={isLoading}
-        onClick={onSubmit}
+        className={cn(fullWidth && "w-full sm:w-auto")}
       >
-        {isLoading ? (
-          <>
-            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-800"></div>
-            Memproses...
-          </>
-        ) : (
-          <>
-            {submitIcon && <span className="mr-2">{submitIcon}</span>}
-            {submitLabel}
-          </>
-        )}
+        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : submitIcon}
+        {submitLabel}
       </Button>
     </div>
   );
