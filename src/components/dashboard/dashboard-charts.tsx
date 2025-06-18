@@ -13,24 +13,24 @@ export function DashboardCharts({
   dataStatusMotor,
 }: DashboardChartsProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <Card className="col-span-1">
-        <CardHeader>
-          <CardTitle>Transaksi per Bulan</CardTitle>
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <Card>
+        <CardHeader className="px-4 py-4 md:px-6">
+          <CardTitle className="text-lg md:text-xl">Transaksi per Bulan</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="h-80">
+        <CardContent className="px-2 pb-4 md:px-6">
+          <div className="h-64 md:h-80">
             <TransactionChart data={dataTransaksiBulan} />
           </div>
         </CardContent>
       </Card>
       
-      <Card className="col-span-1">
-        <CardHeader>
-          <CardTitle>Status Motor</CardTitle>
+      <Card>
+        <CardHeader className="px-4 py-4 md:px-6">
+          <CardTitle className="text-lg md:text-xl">Status Motor</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="h-80">
+        <CardContent className="px-2 pb-4 md:px-6">
+          <div className="h-64 md:h-80">
             <StatusMotorChart data={dataStatusMotor} />
           </div>
         </CardContent>

@@ -50,7 +50,7 @@ export default function JenisMotorPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-6 md:space-y-8">
         <PageHeader
           title="Jenis Motor"
           description="Kelola daftar jenis motor yang tersedia"
@@ -60,24 +60,24 @@ export default function JenisMotorPage() {
         />
 
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-3 px-4 py-4 md:px-6">
             <SearchBar
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               onSearch={handleSearch}
               onReset={resetSearch}
-                    placeholder="Cari merk atau model..."
+              placeholder="Cari merk atau model..."
               title="Daftar Jenis Motor"
               showTitle={true}
             />
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-4 pb-4 md:px-6">
             <StatusMessage error={error} success={success} />
             
             {loading ? (
               <LoadingIndicator />
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
                 {filteredData.length > 0 ? (
                   filteredData.map((jenis) => (
                     <ItemCard
@@ -112,7 +112,7 @@ export default function JenisMotorPage() {
                 : "Apakah Anda yakin ingin menghapus jenis motor ini? Tindakan ini tidak dapat dibatalkan."
               }
               confirmLabel="Hapus"
-                      variant="destructive"
+              variant="destructive"
               onClose={cancelDelete}
               onConfirm={deleteJenis}
             />

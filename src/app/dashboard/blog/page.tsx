@@ -71,7 +71,7 @@ export default function BlogListPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-6 md:space-y-8">
         <PageHeader
           title="Blog"
           description="Kelola blog untuk website"
@@ -81,7 +81,7 @@ export default function BlogListPage() {
         />
 
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-3 px-4 py-4 md:px-6">
             <SearchBar
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
@@ -92,7 +92,7 @@ export default function BlogListPage() {
               showTitle={true}
             />
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-4 pb-4 md:px-6">
             <FilterButtons
               options={filterOptions}
               currentValue={statusFilter}
@@ -105,7 +105,7 @@ export default function BlogListPage() {
               <LoadingIndicator />
             ) : (
               <>
-                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
                   {data.length > 0 ? (
                     data.map((blog) => (
                       <ItemCard
@@ -117,15 +117,15 @@ export default function BlogListPage() {
                         onEdit={() => handleEdit(blog.id)}
                         onDelete={() => confirmDelete(blog.id)}
                         actionButtons={
-                          <div className="flex gap-2 w-full">
+                          <div className="flex gap-1 w-full md:gap-2">
                             <button
-                              className="flex-1 text-sm px-3 py-1.5 rounded-md border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                              className="flex-1 text-xs px-2 py-1.5 rounded-md border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 md:text-sm md:px-3"
                               onClick={() => handleView(blog.id)}
                             >
                               Lihat
                             </button>
                             <button
-                              className="flex-1 text-sm px-3 py-1.5 rounded-md border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                              className="flex-1 text-xs px-2 py-1.5 rounded-md border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 md:text-sm md:px-3"
                               onClick={() => handleEdit(blog.id)}
                             >
                               Edit

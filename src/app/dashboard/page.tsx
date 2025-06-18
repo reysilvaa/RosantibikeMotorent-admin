@@ -86,19 +86,19 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-6 md:space-y-8">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-          <p className="text-neutral-500 dark:text-neutral-400">
+          <h2 className="text-xl font-bold tracking-tight md:text-3xl">Dashboard</h2>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 md:text-base">
             Ringkasan dan statistik dari sistem rental motor
           </p>
         </div>
         
         {loading ? (
-          <div className="grid h-96 place-items-center">
+          <div className="grid h-60 place-items-center md:h-96">
             <div className="flex flex-col items-center space-y-4">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-              <p className="text-lg font-medium">Memuat data...</p>
+              <p className="text-base font-medium md:text-lg">Memuat data...</p>
             </div>
           </div>
         ) : (
