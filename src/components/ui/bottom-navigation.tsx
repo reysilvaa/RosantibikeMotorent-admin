@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   Bike,
-  FileText,
   Menu,
   Plus,
+  ShoppingCart,
 } from "lucide-react";
 
 interface BottomNavItemProps {
@@ -39,8 +39,8 @@ const BottomNavItem = ({ href, icon, label, isMain = false }: BottomNavItemProps
         onMouseLeave={() => setIsPressed(false)}
       >
         <div className={cn(
-          "flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white transition-all duration-200 shadow-md",
-          isPressed ? "scale-95 bg-blue-700 shadow-inner" : isActive ? "ring-4 ring-blue-100" : "hover:bg-blue-500"
+          "flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-blue-700 text-white transition-all duration-200 shadow-md",
+          isPressed ? "scale-95 shadow-inner" : isActive ? "ring-4 ring-blue-100" : "hover:from-blue-500 hover:to-blue-600"
         )}>
           {icon}
         </div>
@@ -69,7 +69,7 @@ const BottomNavItem = ({ href, icon, label, isMain = false }: BottomNavItemProps
       <div className={cn(
         "flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 ease-in-out",
         isActive 
-          ? "bg-blue-100 scale-110 shadow-sm" 
+          ? "bg-gradient-to-r from-blue-50 to-blue-100 scale-110 shadow-sm" 
           : isPressed
             ? "bg-blue-50 scale-95"
             : "bg-transparent hover:bg-blue-50 hover:scale-105"
@@ -110,7 +110,7 @@ export function BottomNavigation() {
         {/* Center space for main action */}
         <div className="w-20 flex justify-center">
           <BottomNavItem
-            href="/dashboard/transaksi"
+            href="/dashboard/transaksi/tambah"
             icon={<Plus size={24} strokeWidth={2.5} />}
             label="Booking"
             isMain={true}
@@ -119,9 +119,9 @@ export function BottomNavigation() {
         
         <div className="flex-1 flex justify-around">
           <BottomNavItem
-            href="/dashboard/blog"
-            icon={<FileText size={20} strokeWidth={2} className="stroke-current" />}
-            label="Blog"
+            href="/dashboard/transaksi"
+            icon={<ShoppingCart size={20} strokeWidth={2} className="stroke-current" />}
+            label="Transaksi"
           />
           <BottomNavItem
             href="/dashboard/more"
