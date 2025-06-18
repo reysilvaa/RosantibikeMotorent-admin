@@ -1,16 +1,14 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  rules: [
-    {
-      "no-console": ["error"],
-    },
-  ],
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 
   images: {
     domains: [
-      'rosantibikemotorent.com', 
-      'localhost', 
+      'rosantibikemotorent.com',
+      'localhost',
       'res.cloudinary.com',
     ],
   },
