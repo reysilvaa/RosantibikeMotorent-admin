@@ -1,7 +1,7 @@
 import React from "react";
 import { ShoppingCart, Bike, TrendingUp, Clock } from "lucide-react";
 import { StatCard } from "./stat-card";
-import { formatRupiah } from "@/lib/utils";
+import { formatRupiah } from "@/lib/helper";
 
 interface DashboardStatsProps {
   totalTransaksi: number;

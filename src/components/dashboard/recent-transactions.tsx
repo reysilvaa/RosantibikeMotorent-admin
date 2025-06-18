@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
-import { formatRupiah, formatTanggal } from "@/lib/utils";
+import { formatRupiah, formatTanggal } from "@/lib/helper";
 import { StatusTransaksi, Transaksi } from "@/lib/transaksi";
 
 interface RecentTransactionsProps {

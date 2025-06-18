@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { getUnitMotor, deleteUnitMotor } from "@/lib/api/unit-motor";
-import { formatRupiah } from "@/lib/utils";
+import { formatRupiah } from "@/lib/helper";
 import { UnitMotor, FilterUnitMotor } from "@/lib/types/unit-motor";
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
