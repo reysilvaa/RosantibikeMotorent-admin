@@ -53,9 +53,9 @@ export const useUnitMotorEditStore = create<UnitMotorEditState>((set, get) => ({
         unitMotor: data,
         formData: {
           plat: data.platNomor || "",
-          tahunPembuatan: data.tahunPembuatan || "",
+          tahunPembuatan: data.tahunPembuatan?.toString() || "",
           hargaSewa: data.hargaSewa?.toString() || "",
-          jenisMotorId: data.jenisMotorId || "",
+          jenisMotorId: data.jenis?.id || "",
           status: data.status || "TERSEDIA"
         },
         loading: false

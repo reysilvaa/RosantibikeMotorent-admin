@@ -26,11 +26,10 @@ export function isAuthenticated(): boolean {
   return !!localStorage.getItem("accessToken");
 }
 
-// Mendapatkan data admin dari localStorage
 export function getAdminData(): { id: string; username: string; nama: string } | null {
   if (typeof window === "undefined") return null;
   
-  const adminDataStr = localStorage.getItem("adminData");
+  const adminDataStr = Cookies.get("adminData");
   if (!adminDataStr) return null;
   
   try {
