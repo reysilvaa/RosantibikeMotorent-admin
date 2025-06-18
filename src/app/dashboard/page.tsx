@@ -11,54 +11,18 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { formatRupiah, formatTanggal } from "@/lib/utils";
-import { getTransaksi, StatusTransaksi } from "@/lib/transaksi";
+import { getTransaksi, StatusTransaksi, Transaksi } from "@/lib/transaksi";
 import { getUnitMotor } from "@/lib/unit-motor";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-} from "recharts";
+import { StatistikData } from "@/lib/types/stats";
+import { TransactionChart, getDataTransaksiBulan } from "@/components/dashboard/transaction-chart";
+import { StatusMotorChart, getDataStatusMotor } from "@/components/dashboard/status-motor-chart";
+import { DataTable } from "@/components/ui/data-table";
 
-// Interface untuk data statistik
-interface StatistikData {
-  totalTransaksi: number;
-  pendapatanBulanIni: number;
-  motorTersedia: number;
-  transaksiPending: number;
-  dataTransaksi: Array<{
-    id: string;
-    namaPenyewa: string;
-    noHP: string;
-    tanggalMulai: string;
-    tanggalSelesai: string;
-    status: StatusTransaksi;
-    totalHarga: number;
-    unitMotor?: {
-      plat: string;
-      jenisMotor?: {
-        nama: string;
-      };
-    };
-  }>;
-  dataTransaksiBulan: Array<{
-    bulan: string;
-    jumlah: number;
-  }>;
-  dataStatusMotor: Array<{
-    status: string;
-    jumlah: number;
-  }>;
+
+interface CustomStatistikData extends Omit<StatistikData, 'dataTransaksi'> {
+  dataTransaksi: Transaksi[];
 }
 
-// Komponen Card Info
 const StatCard = ({
   title,
   value,
@@ -105,12 +69,9 @@ const StatCard = ({
   </Card>
 );
 
-// Warna untuk chart
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
-
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
-  const [statistik, setStatistik] = useState<StatistikData>({
+  const [statistik, setStatistik] = useState<CustomStatistikData>({
     totalTransaksi: 0,
     pendapatanBulanIni: 0,
     motorTersedia: 0,
@@ -124,14 +85,8 @@ export default function DashboardPage() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
-        // Mendapatkan data transaksi
         const resTransaksi = await getTransaksi({ limit: 100 });
-        
-        // Mendapatkan data unit motor
         const resUnitMotor = await getUnitMotor({ limit: 100 });
-        
-        // Menghitung total pendapatan bulan ini
         const tanggalSekarang = new Date();
         const bulanIni = tanggalSekarang.getMonth();
         const tahunIni = tanggalSekarang.getFullYear();
@@ -152,12 +107,9 @@ export default function DashboardPage() {
           0
         );
         
-        // Menghitung jumlah motor tersedia
         const motorTersedia = resUnitMotor.data.filter(
           (motor) => motor.status === "TERSEDIA"
         ).length;
-        
-        // Menghitung transaksi pending (Booking dan Berjalan)
         const transaksiPending = resTransaksi.data.filter(
           (transaksi) =>
             transaksi.status === StatusTransaksi.BOOKING ||
@@ -165,69 +117,14 @@ export default function DashboardPage() {
             transaksi.status === StatusTransaksi.AKTIF
         ).length;
         
-        // Data untuk chart transaksi per bulan
-        const dataPerBulan = new Array(12).fill(0);
-        
-        resTransaksi.data.forEach((transaksi) => {
-          const tanggalTransaksi = new Date(transaksi.createdAt);
-          if (tanggalTransaksi.getFullYear() === tahunIni) {
-            dataPerBulan[tanggalTransaksi.getMonth()]++;
-          }
-        });
-        
-        const namaBulan = [
-          "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
-          "Jul", "Agu", "Sep", "Okt", "Nov", "Des"
-        ];
-        
-        const dataTransaksiBulan = dataPerBulan.map((jumlah, index) => ({
-          bulan: namaBulan[index],
-          jumlah,
-        }));
-        
-        // Data untuk chart status motor
-        const motorStatus = {
-          TERSEDIA: 0,
-          DISEWA: 0,
-          DIPESAN: 0,
-          OVERDUE: 0,
-        };
-        
-        resUnitMotor.data.forEach((motor) => {
-          if (motor.status in motorStatus) {
-            motorStatus[motor.status as keyof typeof motorStatus]++;
-          }
-        });
-        
-        const dataStatusMotor = Object.entries(motorStatus).map(
-          ([status, jumlah]) => ({
-            status,
-            jumlah,
-          })
-        );
-        
         setStatistik({
           totalTransaksi: resTransaksi.meta.totalItems,
           pendapatanBulanIni,
           motorTersedia,
           transaksiPending,
-          dataTransaksi: resTransaksi.data.slice(0, 5).map(transaksi => ({
-            id: transaksi.id,
-            namaPenyewa: transaksi.namaPenyewa,
-            noHP: transaksi.noWhatsapp,
-            tanggalMulai: transaksi.tanggalMulai,
-            tanggalSelesai: transaksi.tanggalSelesai,
-            status: transaksi.status,
-            totalHarga: Number(transaksi.totalBiaya),
-            unitMotor: transaksi.unitMotor ? {
-              plat: transaksi.unitMotor.platNomor,
-              jenisMotor: transaksi.unitMotor.jenis ? {
-                nama: `${transaksi.unitMotor.jenis?.merk} ${transaksi.unitMotor.jenis?.model}`
-              } : undefined
-            } : undefined
-          })),
-          dataTransaksiBulan,
-          dataStatusMotor,
+          dataTransaksi : resTransaksi.data.slice(0, 5) as Transaksi[],
+          dataTransaksiBulan: getDataTransaksiBulan(resTransaksi.data, tahunIni),
+          dataStatusMotor: getDataStatusMotor(resUnitMotor.data),
         });
       } catch (error) {
         console.error("Gagal mengambil data:", error);
@@ -238,6 +135,72 @@ export default function DashboardPage() {
     
     fetchData();
   }, []);
+
+  const transaksiColumns = [
+    {
+      header: "Penyewa",
+      cell: (transaksi: Transaksi) => (
+        <div>
+          <div className="font-medium">{transaksi.namaPenyewa}</div>
+          <div className="text-xs text-neutral-500 dark:text-neutral-400">
+            {transaksi.noWhatsapp}
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: "Motor",
+      cell: (transaksi: Transaksi) => (
+        <div>
+          <div>{transaksi.unitMotor?.jenis ? `${transaksi.unitMotor.jenis.merk} ${transaksi.unitMotor.jenis.model}` : "-"}</div>
+          <div className="text-xs text-neutral-500 dark:text-neutral-400">
+            {transaksi.unitMotor?.platNomor || "-"}
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: "Mulai",
+      cell: (transaksi: Transaksi) => formatTanggal(transaksi.tanggalMulai),
+    },
+    {
+      header: "Selesai",
+      cell: (transaksi: Transaksi) => formatTanggal(transaksi.tanggalSelesai),
+    },
+    {
+      header: "Status",
+      cell: (transaksi: Transaksi) => (
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+            transaksi.status === StatusTransaksi.SELESAI
+              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+              : transaksi.status === StatusTransaksi.BERJALAN
+              ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+              : transaksi.status === StatusTransaksi.BOOKING
+              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+              : transaksi.status === StatusTransaksi.BATAL
+              ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+              : transaksi.status === StatusTransaksi.OVERDUE
+              ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400" 
+              : "bg-neutral-100 text-neutral-800 dark:bg-neutral-900/30 dark:text-neutral-400"
+          }`}
+        >
+          {transaksi.status}
+        </span>
+      ),
+    },
+    {
+      header: "Total",
+      cell: (transaksi: Transaksi) => (
+        <div className="font-medium">{formatRupiah(Number(transaksi.totalBiaya))}</div>
+      ),
+      className: "text-right",
+    },
+  ];
+
+  const handleTransaksiClick = (transaksi: Transaksi) => {
+    window.location.href = `/dashboard/transaksi/${transaksi.id}`;
+  };
 
   return (
     <DashboardLayout>
@@ -298,27 +261,7 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="h-80">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        data={statistik.dataTransaksiBulan}
-                        margin={{
-                          top: 5,
-                          right: 30,
-                          left: 20,
-                          bottom: 5,
-                        }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="bulan" />
-                        <YAxis />
-                        <Tooltip />
-                        <Bar
-                          dataKey="jumlah"
-                          fill="#3b82f6"
-                          name="Jumlah Transaksi"
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
+                    <TransactionChart data={statistik.dataTransaksiBulan} />
                   </div>
                 </CardContent>
               </Card>
@@ -329,32 +272,7 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="h-80">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={statistik.dataStatusMotor}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={({ name, percent }) =>
-                            `${name}: ${(percent * 100).toFixed(0)}%`
-                          }
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="jumlah"
-                          nameKey="status"
-                        >
-                          {statistik.dataStatusMotor.map((entry, index) => (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={COLORS[index % COLORS.length]}
-                            />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                        <Legend />
-                      </PieChart>
-                    </ResponsiveContainer>
+                    <StatusMotorChart data={statistik.dataStatusMotor} />
                   </div>
                 </CardContent>
               </Card>
@@ -365,80 +283,14 @@ export default function DashboardPage() {
                 <CardTitle>Transaksi Terbaru</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full whitespace-nowrap text-left">
-                    <thead>
-                      <tr className="border-b text-sm font-medium text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
-                        <th className="px-4 py-3">Penyewa</th>
-                        <th className="px-4 py-3">Motor</th>
-                        <th className="px-4 py-3">Mulai</th>
-                        <th className="px-4 py-3">Selesai</th>
-                        <th className="px-4 py-3">Status</th>
-                        <th className="px-4 py-3">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {statistik.dataTransaksi.length > 0 ? (
-                        statistik.dataTransaksi.map((transaksi) => (
-                          <tr
-                            key={transaksi.id}
-                            className="border-b text-sm dark:border-neutral-800"
-                          >
-                            <td className="px-4 py-3 font-medium">
-                              {transaksi.namaPenyewa}
-                              <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                                {transaksi.noHP}
-                              </div>
-                            </td>
-                            <td className="px-4 py-3">
-                              {transaksi.unitMotor?.jenisMotor?.nama || "-"}
-                              <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                                {transaksi.unitMotor?.plat || "-"}
-                              </div>
-                            </td>
-                            <td className="px-4 py-3">
-                              {formatTanggal(transaksi.tanggalMulai)}
-                            </td>
-                            <td className="px-4 py-3">
-                              {formatTanggal(transaksi.tanggalSelesai)}
-                            </td>
-                            <td className="px-4 py-3">
-                              <span
-                                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                  transaksi.status === StatusTransaksi.SELESAI
-                                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                                    : transaksi.status === StatusTransaksi.BERJALAN
-                                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
-                                    : transaksi.status === StatusTransaksi.BOOKING
-                                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                                    : transaksi.status === StatusTransaksi.BATAL
-                                    ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-                                    : transaksi.status === StatusTransaksi.OVERDUE
-                                    ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400" 
-                                    : "bg-neutral-100 text-neutral-800 dark:bg-neutral-900/30 dark:text-neutral-400"
-                                }`}
-                              >
-                                {transaksi.status}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3 font-medium">
-                              {formatRupiah(transaksi.totalHarga)}
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td
-                            colSpan={6}
-                            className="px-4 py-8 text-center text-neutral-500 dark:text-neutral-400"
-                          >
-                            Belum ada data transaksi
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                <DataTable
+                  data={statistik.dataTransaksi}
+                  columns={transaksiColumns}
+                  keyField="id"
+                  onRowClick={handleTransaksiClick}
+                  emptyMessage="Belum ada data transaksi"
+                  isLoading={loading}
+                />
               </CardContent>
             </Card>
           </>
