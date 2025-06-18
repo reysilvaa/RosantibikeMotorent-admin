@@ -3,6 +3,7 @@ import { ArrowLeft, Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { cn } from "@/lib/utils";
 
 interface PageHeaderProps {
   title: string;
@@ -84,16 +85,20 @@ export function PageHeader({
           variant="default"
           onClick={handleAction}
           disabled={actionDisabled}
-          size={isMobile ? "icon" : "default"}
-          className={actionHref && isMobile ? "p-2" : ""}
+          size={isMobile && !actionLabel ? "icon" : "default"}
+          className={cn(
+            isMobile && actionLabel ? "text-xs px-3 py-1.5 h-9" : "",
+            actionHref && isMobile && !actionLabel ? "p-2" : ""
+          )}
         >
           {actionLoading ? (
-            <Loader2 className={`h-4 w-4 animate-spin ${!isMobile && actionLabel ? "mr-2" : ""}`} />
+            <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
           ) : (
-            actionIcon || (isMobile && <Plus className="h-4 w-4" />)
+            <span className={actionLabel ? "mr-1.5" : ""}>
+              {actionIcon || <Plus className="h-4 w-4" />}
+            </span>
           )}
-          {!isMobile && actionLabel}
-          {isMobile && actionLabel && !actionIcon && <span className="sr-only">{actionLabel}</span>}
+          {actionLabel && <span>{actionLabel}</span>}
         </Button>
       )}
     </div>

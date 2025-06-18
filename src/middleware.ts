@@ -7,7 +7,6 @@ export default function middleware(request: NextRequest) {
   const isAuthRoute = pathname.startsWith('/dashboard');
   const isLoginPage = pathname === '/auth/login';
   
-  // Jika mencoba mengakses dashboard tanpa token, redirect ke login
   if (isAuthRoute && !token) {
     const redirectUrl = new URL('/auth/login', request.url);
     return NextResponse.redirect(redirectUrl);

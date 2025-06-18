@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useUnitMotorFormStore } from "@/lib/store/unit-motor/unit-motor-store";
 import { getJenisMotor } from "@/lib/api/jenis-motor";
-import { formatRupiahInput } from "@/lib/utils";
+import { formatRupiahInput } from "@/lib/helper";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
