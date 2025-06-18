@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Table, Calendar } from "lucide-react";
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
@@ -15,9 +15,13 @@ import { formatRupiah, formatTanggal } from "@/lib/helper";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Pagination } from "@/components/ui/pagination";
 import { StatusTransaksi, Transaksi } from "@/lib/transaksi";
+import { TransaksiCalendar } from "@/components/transaksi/transaksi-calendar";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export default function TransaksiPage() {
   const router = useRouter();
+  const [viewMode, setViewMode] = useState<"table" | "calendar">("table");
+  
   const {
     transaksi,
     loading,
@@ -124,7 +128,7 @@ export default function TransaksiPage() {
     <DashboardLayout>
       <div className="space-y-8">
         <PageHeader 
-          title="Daftar Transaksi" 
+          title="Daftar Transaksi / bug : harus di reset filter baru muncul datanya" 
           description="Kelola semua transaksi rental motor"
           actionLabel="Tambah Transaksi"
           actionIcon={<ShoppingCart className="mr-2 h-4 w-4" />}
@@ -133,15 +137,34 @@ export default function TransaksiPage() {
 
         <Card>
           <CardHeader className="pb-3">
-            <SearchBar
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              onSearch={handleSearch}
-              onReset={handleResetFilter}
-              placeholder="Cari nama atau nomor HP..."
-              title="Transaksi"
-              showTitle={true}
-            />
+            <div className="flex items-center justify-between">
+              <SearchBar
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                onSearch={handleSearch}
+                onReset={handleResetFilter}
+                placeholder="Cari nama atau nomor HP..."
+                title="Transaksi"
+                showTitle={true}
+              />
+              
+              <Tabs 
+                value={viewMode} 
+                onValueChange={(value) => setViewMode(value as "table" | "calendar")}
+                className="w-auto"
+              >
+                <TabsList>
+                  <TabsTrigger value="table">
+                    <Table className="h-4 w-4 mr-2" />
+                    Tabel
+                  </TabsTrigger>
+                  <TabsTrigger value="calendar">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Kalender
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
           </CardHeader>
           <CardContent>
             <FilterButtons
@@ -150,31 +173,37 @@ export default function TransaksiPage() {
               onChange={handleStatusFilterChange}
             />
 
-            {loading ? (
-              <LoadingIndicator />
-            ) : (
-              <>
-                <DataTable
-                  data={transaksi}
-                  columns={columns}
-                  keyField="id"
-                  onRowClick={handleRowClick}
-                  emptyMessage={
-                    searchQuery || statusFilter
-                      ? "Tidak ada transaksi yang sesuai dengan filter"
-                      : "Belum ada data transaksi"
-                  }
-                />
+            <TabsContent value="table" currentValue={viewMode}>
+              {loading ? (
+                <LoadingIndicator />
+              ) : (
+                <>
+                  <DataTable
+                    data={transaksi}
+                    columns={columns}
+                    keyField="id"
+                    onRowClick={handleRowClick}
+                    emptyMessage={
+                      searchQuery || statusFilter
+                        ? "Tidak ada transaksi yang sesuai dengan filter"
+                        : "Belum ada data transaksi"
+                    }
+                  />
 
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  totalData={totalData}
-                  limit={limit}
-                  onPageChange={handlePageChange}
-                />
-              </>
-            )}
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalData={totalData}
+                    limit={limit}
+                    onPageChange={handlePageChange}
+                  />
+                </>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="calendar" currentValue={viewMode}>
+              <TransaksiCalendar />
+            </TabsContent>
           </CardContent>
         </Card>
       </div>

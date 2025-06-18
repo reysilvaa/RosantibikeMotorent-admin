@@ -40,40 +40,49 @@ const SidebarNavItem = ({
   const pathname = usePathname();
   const isActive = pathname === href || pathname.startsWith(`${href}/`);
 
-  return (
-    <TooltipProvider>
-      <Tooltip delayDuration={300}>
-        <TooltipTrigger asChild>
-          <Link
-            href={href}
-            className={cn(
-              "flex items-center gap-3 rounded-lg transition-all duration-300 ease-in-out",
-              isOpen ? "px-4 py-2.5 mx-2" : "w-11 h-11 mx-auto justify-center",
-              isActive
-                ? "bg-blue-600 text-white"
-                : "text-neutral-700 hover:bg-blue-50 hover:text-blue-700"
-            )}
-          >
-            <div className={cn("text-base", !isOpen && "mx-auto")}>{icon}</div>
-            {isOpen && (
-              <>
-                <span className="flex-1 font-medium text-sm">
-                  {title}
-                </span>
-                {isActive && (
-                  <ChevronRight size={15} className="ml-auto text-white" />
-                )}
-              </>
-            )}
-          </Link>
-        </TooltipTrigger>
-        {!isOpen && (
+  if (!isOpen) {
+    return (
+      <TooltipProvider>
+        <Tooltip delayDuration={300}>
+          <TooltipTrigger>
+            <Link
+              href={href}
+              className={cn(
+                "flex items-center gap-3 rounded-lg w-11 h-11 mx-auto justify-center transition-all duration-300 ease-in-out",
+                isActive
+                  ? "bg-blue-600 text-white"
+                  : "text-neutral-700 hover:bg-blue-50 hover:text-blue-700"
+              )}
+            >
+              <div className="text-base mx-auto">{icon}</div>
+            </Link>
+          </TooltipTrigger>
           <TooltipContent side="right" className="border border-neutral-200 bg-white text-neutral-800">
             {title}
           </TooltipContent>
-        )}
-      </Tooltip>
-    </TooltipProvider>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "flex items-center gap-3 rounded-lg px-4 py-2.5 mx-2 transition-all duration-300 ease-in-out",
+        isActive
+          ? "bg-blue-600 text-white"
+          : "text-neutral-700 hover:bg-blue-50 hover:text-blue-700"
+      )}
+    >
+      <div className="text-base">{icon}</div>
+      <span className="flex-1 font-medium text-sm">
+        {title}
+      </span>
+      {isActive && (
+        <ChevronRight size={15} className="ml-auto text-white" />
+      )}
+    </Link>
   );
 };
 
@@ -151,32 +160,37 @@ export function Sidebar({ isOpen }: SidebarProps) {
             </div>
           )}
         </div>
-        <TooltipProvider>
-          <Tooltip delayDuration={300}>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                className={cn(
-                  "flex w-full items-center gap-2 rounded-lg text-left text-neutral-600 hover:bg-red-50 hover:text-red-600 transition-all duration-300 ease-in-out",
-                  !isOpen && "justify-center p-2 mx-auto"
-                )}
-                onClick={handleLogout}
-              >
-                <LogOut size={18} />
-                {isOpen && (
-                  <span className="font-medium text-sm">
-                    Keluar
-                  </span>
-                )}
-              </Button>
-            </TooltipTrigger>
-            {!isOpen && (
+        {!isOpen ? (
+          <TooltipProvider>
+            <Tooltip delayDuration={300}>
+              <TooltipTrigger>
+                <div
+                  className={cn(
+                    "flex items-center justify-center p-2 rounded-lg text-neutral-600 hover:bg-red-50 hover:text-red-600 transition-all duration-300 ease-in-out cursor-pointer",
+                    "mx-auto"
+                  )}
+                  onClick={handleLogout}
+                >
+                  <LogOut size={18} />
+                </div>
+              </TooltipTrigger>
               <TooltipContent side="right" className="border border-neutral-200 bg-white text-neutral-800">
                 Keluar
               </TooltipContent>
-            )}
-          </Tooltip>
-        </TooltipProvider>
+            </Tooltip>
+          </TooltipProvider>
+        ) : (
+          <Button
+            variant="ghost"
+            className="flex w-full items-center gap-2 rounded-lg text-left text-neutral-600 hover:bg-red-50 hover:text-red-600 transition-all duration-300 ease-in-out"
+            onClick={handleLogout}
+          >
+            <LogOut size={18} />
+            <span className="font-medium text-sm">
+              Keluar
+            </span>
+          </Button>
+        )}
       </div>
     </aside>
   );
