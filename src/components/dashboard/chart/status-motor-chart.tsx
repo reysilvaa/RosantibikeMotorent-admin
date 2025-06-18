@@ -1,5 +1,5 @@
 import React from "react";
-import { DonutChart } from "../ui/chart";
+import { DonutChart } from "../../ui/chart";
 
 interface StatusMotorChartProps {
   data: Array<{ status: string; jumlah: number }>;

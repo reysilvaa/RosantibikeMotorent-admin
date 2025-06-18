@@ -1,0 +1,53 @@
+import React from "react";
+import { ArrowUpRight } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  icon: React.ReactNode;
+  trend?: "up" | "down";
+  trendValue?: string;
+  className?: string;
+}
+
+export function StatCard({
+  title,
+  value,
+  icon,
+  trend,
+  trendValue,
+  className,
+}: StatCardProps) {
+  return (
+    <Card className={className}>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+          {title}
+        </CardTitle>
+        <div className="rounded-full bg-neutral-100 p-2 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+          {icon}
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        {trend && trendValue && (
+          <p
+            className={`mt-1 flex items-center text-xs ${
+              trend === "up"
+                ? "text-green-600 dark:text-green-500"
+                : "text-red-600 dark:text-red-500"
+            }`}
+          >
+            {trend === "up" ? (
+              <ArrowUpRight className="mr-1 h-3 w-3" />
+            ) : (
+              <ArrowUpRight className="mr-1 h-3 w-3 rotate-90" />
+            )}
+            {trendValue}
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+} 

@@ -1,5 +1,5 @@
 import React from "react";
-import { BarChart } from "../ui/chart";
+import { BarChart } from "../../ui/chart";
 
 interface TransactionChartProps {
   data: Array<{ bulan: string; jumlah: number }>;
