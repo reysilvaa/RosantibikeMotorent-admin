@@ -3,9 +3,11 @@
 import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Menu, X, Bell, Search, ChevronRight, Home } from "lucide-react";
+import { Menu, X, Bell, Search, ChevronRight, Home, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getAdminData } from "@/lib/cookies";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { cn } from "@/lib/utils";
 
 interface HeaderProps {
   isSidebarOpen: boolean;
@@ -21,6 +23,7 @@ export function Header({ isSidebarOpen, toggleSidebar }: HeaderProps) {
   const pathname = usePathname();
   const admin = getAdminData();
   const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbItem[]>([]);
+  const { isMobile } = useIsMobile();
 
   // Fungsi untuk mendapatkan judul halaman berdasarkan pathname
   const getPageTitle = (path: string) => {
@@ -121,6 +124,21 @@ export function Header({ isSidebarOpen, toggleSidebar }: HeaderProps) {
     return items;
   };
 
+  // Fungsi untuk mendapatkan breadcrumb yang sesuai untuk tampilan mobile
+  const getMobileBreadcrumbs = (items: BreadcrumbItem[]) => {
+    if (items.length <= 2) {
+      // Jika hanya ada Dashboard atau Dashboard + 1 item, tampilkan semua
+      return items;
+    }
+    
+    // Jika ada lebih dari 2 item, tampilkan item pertama (Dashboard), ellipsis, dan 2 item terakhir
+    return [
+      items[0],
+      { title: "...", path: "" }, // Item dummy untuk ellipsis
+      ...items.slice(-2) // 2 item terakhir
+    ];
+  };
+
   useEffect(() => {
     if (pathname) {
       const newBreadcrumbs = generateBreadcrumbs(pathname);
@@ -128,10 +146,14 @@ export function Header({ isSidebarOpen, toggleSidebar }: HeaderProps) {
     }
   }, [pathname]);
 
+  // Pilih breadcrumb yang akan ditampilkan berdasarkan ukuran layar
+  const displayedBreadcrumbs = isMobile ? getMobileBreadcrumbs(breadcrumbs) : breadcrumbs;
+
   return (
     <header className="sticky top-0 z-50 flex h-14 items-center border-b border-neutral-200 bg-white px-4">
       <div className="flex w-full items-center justify-between">
-        <div className="flex items-center gap-3 overflow-hidden">
+        {/* Bagian kiri: tombol menu dan breadcrumb */}
+        <div className="flex items-center gap-2 overflow-hidden max-w-[calc(100%-120px)] sm:max-w-[calc(100%-150px)] md:max-w-[calc(100%-250px)]">
           <Button
             variant="ghost"
             size="sm"
@@ -141,31 +163,42 @@ export function Header({ isSidebarOpen, toggleSidebar }: HeaderProps) {
             {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </Button>
 
-          <div className="flex items-center overflow-x-auto hide-scrollbar pr-4">
+          <div className="flex items-center overflow-x-auto hide-scrollbar">
             <nav className="flex items-center space-x-1 text-sm">
-              {breadcrumbs.map((item, index) => (
-                <React.Fragment key={item.path}>
+              {displayedBreadcrumbs.map((item, index) => (
+                <React.Fragment key={index}>
                   {index > 0 && (
-                    <ChevronRight size={16} className="mx-1 flex-shrink-0 text-neutral-400" />
+                    <ChevronRight size={14} className="mx-1 flex-shrink-0 text-neutral-400" />
                   )}
-                  <Link
-                    href={item.path}
-                    className={`flex items-center whitespace-nowrap rounded px-2 py-1 transition-colors ${
-                      index === breadcrumbs.length - 1
-                        ? "font-semibold text-neutral-900 bg-neutral-100"
-                        : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
-                    }`}
-                  >
-                    {index === 0 && <Home size={14} className="mr-1.5" />}
-                    {item.title}
-                  </Link>
+                  {item.path ? (
+                    <Link
+                      href={item.path}
+                      className={cn(
+                        "flex items-center whitespace-nowrap rounded px-2 py-1 transition-colors",
+                        index === displayedBreadcrumbs.length - 1
+                          ? "font-semibold text-neutral-900 bg-neutral-100"
+                          : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900",
+                        index === 0 ? "flex-shrink-0" : "flex-shrink"
+                      )}
+                    >
+                      {index === 0 && <Home size={14} className="mr-1.5" />}
+                      <span className={index === displayedBreadcrumbs.length - 1 ? "" : "truncate max-w-[100px] md:max-w-[150px]"}>
+                        {item.title}
+                      </span>
+                    </Link>
+                  ) : (
+                    <span className="flex items-center px-1 flex-shrink-0">
+                      <MoreHorizontal size={16} className="text-neutral-400" />
+                    </span>
+                  )}
                 </React.Fragment>
               ))}
             </nav>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* Bagian kanan: pencarian, notifikasi, dan profil */}
+        <div className="flex items-center gap-2 flex-shrink-0">
           <div className="hidden md:flex relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <Search size={16} className="text-neutral-400" />
@@ -180,7 +213,7 @@ export function Header({ isSidebarOpen, toggleSidebar }: HeaderProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="relative h-9 w-9 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-all duration-300 ease-in-out"
+            className="relative h-9 w-9 flex-shrink-0 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-all duration-300 ease-in-out"
           >
             <Bell size={18} />
             <span className="absolute top-1 right-1 flex h-2 w-2">
@@ -189,7 +222,7 @@ export function Header({ isSidebarOpen, toggleSidebar }: HeaderProps) {
             </span>
           </Button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-white transition-all duration-300 ease-in-out">
               {admin?.nama?.charAt(0) || "A"}
             </div>
