@@ -3,6 +3,7 @@ export {
   createAdmin,
   updateAdmin,
   deleteAdmin,
+  getAdminById,
 } from './api/admin';
 
 export { loginAdmin } from './api/auth';

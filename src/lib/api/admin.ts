@@ -7,14 +7,14 @@ import { Admin } from '../types/admin';
 export const getAdmins = async (): Promise<Admin[]> => {
   try {
     const token = getToken();
-    const response = await axios.get(`${API_URL}/admin/debug`, {
+    const response = await axios.get(`${API_URL}/admin`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.data && error.response.data.message) {
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
     throw new Error('Gagal mendapatkan daftar admin');
@@ -31,8 +31,8 @@ export const createAdmin = async (data: { username: string; password: string; na
       },
     });
     return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.data && error.response.data.message) {
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
     throw new Error('Gagal membuat admin baru');
@@ -49,8 +49,8 @@ export const updateAdmin = async (id: string, data: { username?: string; passwor
       },
     });
     return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.data && error.response.data.message) {
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
     throw new Error('Gagal mengupdate admin');
@@ -67,10 +67,28 @@ export const deleteAdmin = async (id: string): Promise<Admin> => {
       },
     });
     return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.data && error.response.data.message) {
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
     throw new Error('Gagal menghapus admin');
+  }
+};
+
+// Fungsi untuk mendapatkan detail admin berdasarkan ID
+export const getAdminById = async (id: string): Promise<Admin> => {
+  try {
+    const token = getToken();
+    const response = await axios.get(`${API_URL}/admin/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Gagal mendapatkan detail admin');
   }
 }; 
