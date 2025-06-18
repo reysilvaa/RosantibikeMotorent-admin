@@ -27,14 +27,13 @@ export default function DetailUnitMotorPage({ params }: { params: Promise<{ id: 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Menggunakan React.use untuk mengakses params
-  const unwrappedParams = React.use(params) as { id: string };
-  const motorId = unwrappedParams.id;
+  const { id } = React.use(params);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await getUnitMotorDetail(motorId);
+        const data = await getUnitMotorDetail(id);
         setUnitMotor(data);
       } catch (error) {
         console.error("Gagal mengambil data unit motor:", error);
@@ -45,7 +44,7 @@ export default function DetailUnitMotorPage({ params }: { params: Promise<{ id: 
     };
 
     fetchData();
-  }, [motorId]);
+  }, [id]);
 
   const handleToggleEdit = () => {
     setEditing(!editing);
@@ -56,7 +55,7 @@ export default function DetailUnitMotorPage({ params }: { params: Promise<{ id: 
   const handleDelete = async () => {
     try {
       setDeleting(true);
-      await deleteUnitMotor(motorId);
+      await deleteUnitMotor(id);
       
       // Redirect ke halaman unit motor setelah berhasil hapus
       router.push("/dashboard/unit-motor");
@@ -127,14 +126,14 @@ export default function DetailUnitMotorPage({ params }: { params: Promise<{ id: 
           <CardContent>
             {editing ? (
               <UnitMotorEditForm
-                id={motorId}
+                id={id}
                 onCancel={handleToggleEdit}
                 onSuccess={() => {
                   setEditing(false);
                   // Refresh data setelah update
                   setTimeout(async () => {
                     try {
-                      const data = await getUnitMotorDetail(motorId);
+                      const data = await getUnitMotorDetail(id);
                       setUnitMotor(data);
                       setSuccess("Data berhasil diperbarui");
                     } catch (error) {

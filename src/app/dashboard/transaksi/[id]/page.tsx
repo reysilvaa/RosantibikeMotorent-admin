@@ -23,13 +23,13 @@ export default function DetailTransaksiPage({ params }: { params: Promise<{ id: 
     handleSelesaikan,
     safeDateFormat
   } = useTransaksiDetailStore();
+  const { id } = React.use(params);
 
-  // Menggunakan React.use untuk mengakses params
    useEffect(() => {
-    if (React.use(params).id) {
-      fetchTransaksiDetail(React.use(params).id);
+    if (id) {
+      fetchTransaksiDetail(id);
     }
-  }, [React.use(params).id, fetchTransaksiDetail]);
+  }, [id, fetchTransaksiDetail]);
 
   
   if (loading) {

@@ -16,7 +16,7 @@ interface BlogFormProps {
     status?: BlogStatus;
     kategori?: string;
     tags?: string[];
-    tagNames?: { [key: string]: string }; // Map dari ID tag ke nama tag
+    tagNames?: { [key: string]: string }; 
   };
   onSubmit: (formData: FormData) => Promise<void>;
   onCancel?: () => void;
@@ -24,6 +24,7 @@ interface BlogFormProps {
   error?: string;
   success?: boolean;
   isEdit?: boolean;
+  onChange?: () => void;
 }
 
 export function BlogForm({
@@ -34,6 +35,7 @@ export function BlogForm({
   error = "",
   success = false,
   isEdit = false,
+  onChange,
 }: BlogFormProps) {
   const isInitialMount = useRef(true);
   const [judul, setJudul] = useState(initialValues.judul || "");
@@ -46,8 +48,6 @@ export function BlogForm({
   const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
   const [formError, setFormError] = useState("");
   const [tagNames, setTagNames] = useState<{[key: string]: string}>(initialValues.tagNames || {});
-  
-  // State untuk autocomplete
   const [tagSuggestions, setTagSuggestions] = useState<BlogTag[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -62,11 +62,16 @@ export function BlogForm({
     if (initialValues.tags) setTags(initialValues.tags);
     if (initialValues.tagNames) setTagNames(initialValues.tagNames);
     
-    // Set isInitialMount ke false setelah render pertama
     if (isInitialMount.current) {
       isInitialMount.current = false;
     }
   }, [initialValues]);
+  
+  useEffect(() => {
+    if (!isInitialMount.current && onChange) {
+      onChange();
+    }
+  }, [judul, konten, status, kategori, tags, onChange]);
   
   useEffect(() => {
     const fetchTagSuggestions = async () => {
@@ -93,8 +98,6 @@ export function BlogForm({
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setThumbnail(file);
-      
-      // Buat URL preview
       const reader = new FileReader();
       reader.onload = () => {
         if (typeof reader.result === 'string') {
@@ -102,18 +105,19 @@ export function BlogForm({
         }
       };
       reader.readAsDataURL(file);
+      
+      if (onChange) {
+        onChange();
+      }
     }
   };
 
   const handleAddTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim().toLowerCase())) {
-      // Konversi tag ke lowercase untuk konsistensi
       const normalizedTag = tagInput.trim().toLowerCase();
       
-      // Untuk form tambah, kita menggunakan nama tag sebagai ID sementara
       setTags([...tags, normalizedTag]);
       
-      // Simpan nama tag untuk ditampilkan
       setTagNames({
         ...tagNames,
         [normalizedTag]: normalizedTag
@@ -125,17 +129,14 @@ export function BlogForm({
   };
   
   const handleSelectSuggestion = (tag: BlogTag) => {
-    // Jika tag sudah ada, jangan tambahkan lagi
     if (tags.includes(tag.id)) {
       setTagInput("");
       setShowSuggestions(false);
       return;
     }
     
-    // Tambahkan tag dari saran
     setTags([...tags, tag.id]);
     
-    // Simpan nama tag untuk ditampilkan
     setTagNames({
       ...tagNames,
       [tag.id]: tag.nama
@@ -154,7 +155,6 @@ export function BlogForm({
       e.preventDefault();
       handleAddTag();
     } else if (e.key === 'ArrowDown' && tagSuggestions.length > 0) {
-      // Fokus ke saran pertama jika ada
       const suggestionElement = document.getElementById('tag-suggestion-0');
       if (suggestionElement) {
         suggestionElement.focus();
@@ -174,11 +174,6 @@ export function BlogForm({
     e.preventDefault();
     setFormError("");
     
-    if (isInitialMount.current) {
-      return;
-    }
-    
-    // Validasi form
     if (!judul.trim()) {
       setFormError("Judul harus diisi");
       return;
@@ -189,7 +184,6 @@ export function BlogForm({
       return;
     }
     
-    // Persiapkan FormData untuk dikirim
     const formData = new FormData();
     formData.append("judul", judul);
     formData.append("konten", konten);
@@ -199,7 +193,6 @@ export function BlogForm({
       formData.append("kategori", kategori);
     }
     
-    // Tambahkan tags jika ada
     if (tags.length > 0) {
       tags.forEach(tag => {
         formData.append("tags", tag);
@@ -217,18 +210,15 @@ export function BlogForm({
     return tagNames[tagId] || tagId;
   };
   
-  // Fungsi untuk menangani perubahan konten editor
   const handleKontenChange = (newKonten: string) => {
-    // Hanya update jika bukan inisialisasi awal
-    if (!isInitialMount.current) {
-      setKonten(newKonten);
-    }
+    setKonten(newKonten);
   };
   
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {(formError || error) && <StatusMessage error={formError || error} />}
       {success && <StatusMessage success={isEdit ? "Blog berhasil diperbarui" : "Blog berhasil ditambahkan"} />}
+      
       <div className="space-y-4">
         <div className="grid gap-2">
           <Label htmlFor="judul">Judul</Label>
@@ -265,7 +255,6 @@ export function BlogForm({
               onKeyDown={handleTagInputKeyDown}
               onFocus={handleTagInputFocus}
               onBlur={() => {
-                // Delay untuk memungkinkan klik pada saran
                 setTimeout(() => setShowSuggestions(false), 200);
               }}
               placeholder="Tambahkan tag"
@@ -281,7 +270,6 @@ export function BlogForm({
               Tambah
             </button>
             
-            {/* Tag suggestions dropdown */}
             {showSuggestions && tagSuggestions.length > 0 && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
                 {isLoadingSuggestions ? (

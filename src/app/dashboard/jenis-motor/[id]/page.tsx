@@ -8,15 +8,9 @@ import { PageHeader } from "@/components/ui/page-header";
 import { JenisMotorEditForm } from "@/components/jenis-motor/jenis-motor-edit-form";
 import { useJenisMotorEditStore } from "@/lib/store/jenis-motor/jenis-motor-edit-store";
 
-interface EditJenisMotorPageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default function EditJenisMotorPage({ params }: EditJenisMotorPageProps) {
+export default function EditJenisMotorPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const { id } = params;
+  const { id } = React.use(params);
   const { success, resetForm } = useJenisMotorEditStore();
 
   // Reset form ketika komponen unmount

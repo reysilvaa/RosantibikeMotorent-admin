@@ -45,10 +45,9 @@ export const useBlogEditStore = create<BlogEditState>((set, get) => ({
   
   fetchBlog: async (id: string) => {
     try {
-      set({ loading: true, error: '' });
+      set({ loading: true, error: '', success: false });
       const data = await getBlogPost(id);
       
-      // Ekstrak tag dari data
       const tags = data.tags?.map((tagItem: { tag: { id: string; nama: string } }) => tagItem.tag.id) || [];
       
       set({ 
@@ -101,7 +100,6 @@ export const useBlogEditStore = create<BlogEditState>((set, get) => ({
       formDataToSubmit.append('kategori', formData.kategori);
       
       // Tambahkan tags jika ada - pastikan tags adalah ID yang valid
-      // Backend mengharapkan ID tag yang valid, bukan nama tag
       if (formData.tags && formData.tags.length > 0) {
         // Pastikan tags adalah array
         const tagsArray = Array.isArray(formData.tags) ? formData.tags : [formData.tags];
@@ -124,6 +122,12 @@ export const useBlogEditStore = create<BlogEditState>((set, get) => ({
       }
       
       await updateBlogPost(id, formDataToSubmit);
+      
+      try {
+        localStorage.removeItem(`blog_draft_${id}`);
+      } catch (e) {
+        console.error("Gagal menghapus draft dari localStorage:", e);
+      }
       
       set({ 
         loadingSubmit: false,

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useBlogFormStore } from "@/lib/store/blog/blog-form-store";
 import { PageHeader } from "@/components/ui/page-header";
@@ -8,10 +8,12 @@ import { BlogForm } from "@/components/blog/blog-form";
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { BlogStatus } from "@/lib/types/blog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Clock } from "lucide-react";
 
 export default function TambahBlogPage() {
   const router = useRouter();
   const initialLoadComplete = useRef(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const { loading, error, success, submitForm, resetForm, setFormData, setSelectedFile } = useBlogFormStore();
 
   useEffect(() => {
@@ -22,7 +24,6 @@ export default function TambahBlogPage() {
   }, [resetForm]);
 
   useEffect(() => {
-    // Redirect ke halaman blog jika berhasil diupdate DAN pengguna telah berinteraksi
     if (success) {
       const timer = setTimeout(() => {
         router.push("/dashboard/blog");
@@ -37,7 +38,9 @@ export default function TambahBlogPage() {
   };
 
   const handleSubmit = async (formDataSubmit: FormData) => {
-
+    if (!initialLoadComplete.current) {
+      return;
+    }
     
     const judul = formDataSubmit.get('judul') as string;
     const konten = formDataSubmit.get('konten') as string;
@@ -45,7 +48,6 @@ export default function TambahBlogPage() {
     const kategori = formDataSubmit.get('kategori') as string;
     const file = formDataSubmit.get('file') as File;
     
-    // Update state di store
     setFormData({
       judul,
       konten,
@@ -58,8 +60,11 @@ export default function TambahBlogPage() {
       setSelectedFile(file);
     }
     
-    // Submit form
     await submitForm();
+  };
+
+  const handleFormChange = () => {
+    setLastSaved(new Date());
   };
 
   return (
@@ -72,6 +77,13 @@ export default function TambahBlogPage() {
           backHref="/dashboard/blog"
         />
 
+        {lastSaved && (
+          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+            <Clock className="h-4 w-4 mr-1" />
+            <span>Perubahan terakhir disimpan sementara: {lastSaved.toLocaleTimeString()}</span>
+          </div>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle>Data Blog</CardTitle>
@@ -83,6 +95,7 @@ export default function TambahBlogPage() {
               error={error}
               success={success}
               onCancel={handleCancel}
+              onChange={handleFormChange}
             />
           </CardContent>
         </Card>

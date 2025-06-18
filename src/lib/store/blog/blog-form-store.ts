@@ -69,12 +69,12 @@ export const useBlogFormStore = create<BlogFormState>((set, get) => ({
       formDataToSubmit.append('kategori', formData.kategori);
       
       // Tambahkan tags jika ada
-      // Backend mengharapkan array string untuk tags, bukan FormData entries
-      // Jadi kita perlu memastikan tags dikirim sebagai string array
       if (formData.tags && formData.tags.length > 0) {
-        // Untuk setiap tag, kita tambahkan sebagai entry terpisah
-        // FormData akan mengirimkan ini sebagai array di backend
-        formData.tags.forEach((tag) => {
+        // Pastikan tags adalah array
+        const tagsArray = Array.isArray(formData.tags) ? formData.tags : [formData.tags];
+        
+        // Tambahkan setiap tag ke formData
+        tagsArray.forEach((tag) => {
           if (tag && tag.trim() !== '') {
             formDataToSubmit.append('tags', tag);
           }
@@ -90,6 +90,12 @@ export const useBlogFormStore = create<BlogFormState>((set, get) => ({
       }
       
       await createBlogPost(formDataToSubmit);
+      
+      try {
+        localStorage.removeItem('blog_draft_new');
+      } catch (e) {
+        console.error("Gagal menghapus draft dari localStorage:", e);
+      }
       
       set({ 
         loading: false,
@@ -128,8 +134,7 @@ export const useBlogFormStore = create<BlogFormState>((set, get) => ({
       formDataToSubmit.append('status', formData.status);
       formDataToSubmit.append('kategori', formData.kategori);
       
-      // Tambahkan tags jika ada - pastikan tags adalah ID yang valid
-      // Backend mengharapkan ID tag yang valid, bukan nama tag
+      // Tambahkan tags jika ada
       if (formData.tags && formData.tags.length > 0) {
         // Pastikan tags adalah array
         const tagsArray = Array.isArray(formData.tags) ? formData.tags : [formData.tags];
@@ -152,6 +157,13 @@ export const useBlogFormStore = create<BlogFormState>((set, get) => ({
       }
       
       await updateBlogPost(id, formDataToSubmit);
+      
+      // Hapus draft dari localStorage setelah berhasil disimpan
+      try {
+        localStorage.removeItem(`blog_draft_${id}`);
+      } catch (e) {
+        console.error("Gagal menghapus draft dari localStorage:", e);
+      }
       
       set({ 
         loading: false,

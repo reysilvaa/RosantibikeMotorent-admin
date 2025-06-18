@@ -13,15 +13,16 @@ import { Button } from "@/components/ui/button";
 import { BlogStatus } from "@/lib/types/blog";
 import DashboardLayout from "@/components/layout/dashboard-layout";
 
-export default function BlogDetailPage({ params }: { params: { id: string } }) {
+export default function BlogDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { blog, loading, error, fetchBlog } = useBlogDetailStore();
+  const { id } = React.use(params);
   
   useEffect(() => {
-    if (params.id) {
-      fetchBlog(params.id);
+    if (id) {
+      fetchBlog(id);
     }
-  }, [params.id, fetchBlog]);
+  }, [id, fetchBlog]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

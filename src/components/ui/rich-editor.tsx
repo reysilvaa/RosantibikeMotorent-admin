@@ -53,6 +53,7 @@ export function RichEditor({
   disabled = false,
 }: RichEditorProps) {
   const isInitialMount = useRef(true);
+  const isUpdatingFromExternalValue = useRef(false);
   
   const editor = useEditor({
     extensions: [
@@ -105,7 +106,7 @@ export function RichEditor({
     content: value,
     editable: !disabled,
     onUpdate: ({ editor }) => {
-      if (!isInitialMount.current) {
+      if (!isInitialMount.current && !isUpdatingFromExternalValue.current) {
         onChange(editor.getHTML());
       }
     },
@@ -121,7 +122,11 @@ export function RichEditor({
 
   useEffect(() => {
     if (editor && editor.getHTML() !== value) {
+      isUpdatingFromExternalValue.current = true;
       editor.commands.setContent(value);
+      setTimeout(() => {
+        isUpdatingFromExternalValue.current = false;
+      }, 0);
     }
     
     if (isInitialMount.current) {
