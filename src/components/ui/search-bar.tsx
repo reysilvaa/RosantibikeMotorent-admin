@@ -3,6 +3,7 @@ import { Search, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CardTitle } from "@/components/ui/card";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface SearchBarProps {
   searchQuery: string;
@@ -25,13 +26,17 @@ export function SearchBar({
   showTitle = false,
   className = "",
 }: SearchBarProps) {
+  const { isMobile } = useIsMobile();
+  
   return (
-    <div className={`flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between ${className}`}>
-      {showTitle && title && <CardTitle>{title}</CardTitle>}
+    <div className={`flex flex-col gap-3 ${className}`}>
+      {showTitle && title && (
+        <CardTitle className="text-lg md:text-xl">{title}</CardTitle>
+      )}
       
       <form
         onSubmit={onSearch}
-        className="flex w-full items-center space-x-2 sm:w-auto"
+        className="flex w-full flex-col gap-2 sm:flex-row sm:items-center"
       >
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-neutral-500 dark:text-neutral-400" />
@@ -43,17 +48,26 @@ export function SearchBar({
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <Button type="submit" variant="default">
-          Cari
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onReset}
-        >
-          <RefreshCcw className="h-4 w-4" />
-          <span className="sr-only sm:not-sr-only sm:ml-2">Reset</span>
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            type="submit" 
+            variant="default"
+            className={isMobile ? "flex-1" : ""}
+          >
+            Cari
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onReset}
+            className={isMobile ? "flex-1" : ""}
+          >
+            <RefreshCcw className="h-4 w-4" />
+            <span className={isMobile ? "ml-2" : "sr-only sm:not-sr-only sm:ml-2"}>
+              Reset
+            </span>
+          </Button>
+        </div>
       </form>
     </div>
   );

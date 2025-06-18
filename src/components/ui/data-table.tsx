@@ -1,12 +1,14 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface Column<T> {
   header: string;
   accessorKey?: keyof T;
   cell?: (item: T) => React.ReactNode;
   className?: string;
+  hideOnMobile?: boolean;
 }
 
 interface DataTableProps<T> {
@@ -28,25 +30,32 @@ export function DataTable<T>({
   isLoading = false,
   className = "",
 }: DataTableProps<T>) {
+  const { isMobile } = useIsMobile();
+  
+  // Filter kolom yang tidak ditampilkan di mobile
+  const visibleColumns = isMobile 
+    ? columns.filter(column => !column.hideOnMobile)
+    : columns;
+
   return (
     <div className={`overflow-x-auto ${className}`}>
-      <table className="w-full whitespace-nowrap text-left">
+      <table className="w-full whitespace-nowrap text-left text-sm">
         <thead>
-          <tr className="border-b text-sm font-medium text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
-            {columns.map((column, index) => (
-              <th key={index} className={`px-4 py-3 ${column.className || ""}`}>
+          <tr className="border-b font-medium text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
+            {visibleColumns.map((column, index) => (
+              <th key={index} className={`px-2 py-3 md:px-4 ${column.className || ""}`}>
                 {column.header}
               </th>
             ))}
-            {onRowClick && <th className="px-4 py-3 text-right">Aksi</th>}
+            {onRowClick && <th className="px-2 py-3 text-right md:px-4">Aksi</th>}
           </tr>
         </thead>
         <tbody>
           {isLoading ? (
             <tr>
               <td
-                colSpan={columns.length + (onRowClick ? 1 : 0)}
-                className="px-4 py-8 text-center text-neutral-500 dark:text-neutral-400"
+                colSpan={visibleColumns.length + (onRowClick ? 1 : 0)}
+                className="px-2 py-8 text-center text-neutral-500 dark:text-neutral-400 md:px-4"
               >
                 Memuat data...
               </td>
@@ -55,10 +64,10 @@ export function DataTable<T>({
             data.map((item) => (
               <tr
                 key={String(item[keyField])}
-                className="border-b text-sm dark:border-neutral-800"
+                className="border-b dark:border-neutral-800"
               >
-                {columns.map((column, index) => (
-                  <td key={index} className={`px-4 py-3 ${column.className || ""}`}>
+                {visibleColumns.map((column, index) => (
+                  <td key={index} className={`px-2 py-3 md:px-4 ${column.className || ""}`}>
                     {column.cell
                       ? column.cell(item)
                       : column.accessorKey
@@ -67,7 +76,7 @@ export function DataTable<T>({
                   </td>
                 ))}
                 {onRowClick && (
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-2 py-3 text-right md:px-4">
                     <Button
                       variant="outline"
                       size="sm"
@@ -84,8 +93,8 @@ export function DataTable<T>({
           ) : (
             <tr>
               <td
-                colSpan={columns.length + (onRowClick ? 1 : 0)}
-                className="px-4 py-8 text-center text-neutral-500 dark:text-neutral-400"
+                colSpan={visibleColumns.length + (onRowClick ? 1 : 0)}
+                className="px-2 py-8 text-center text-neutral-500 dark:text-neutral-400 md:px-4"
               >
                 {emptyMessage}
               </td>

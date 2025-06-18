@@ -19,6 +19,9 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { getAdminData } from "@/lib/cookies";
 import { useAuthStore } from "@/lib/store/auth/auth-store";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { BottomNavigation } from "@/components/ui/bottom-navigation";
+import { MobileHeader } from "@/components/ui/mobile-header";
 
 interface SidebarNavProps {
   isOpen: boolean;
@@ -87,7 +90,7 @@ const SidebarNav = ({ isOpen, toggleSidebar }: SidebarNavProps) => {
               isOpen ? "opacity-100" : "opacity-0 hidden"
             )}
           >
-            Admin Rental
+            Rosantibike Admin
           </span>
         </div>
         <Button
@@ -186,9 +189,24 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [isMounted, setIsMounted] = React.useState(false);
   const { checkAuth, isAuthenticated } = useAuthStore();
+  const { isMobile } = useIsMobile();
+
+  // Fungsi untuk mendapatkan judul halaman berdasarkan pathname
+  const getPageTitle = () => {
+    if (pathname === "/dashboard") return "Dashboard";
+    if (pathname.includes("/dashboard/transaksi")) return "Transaksi";
+    if (pathname.includes("/dashboard/jenis-motor")) return "Jenis Motor";
+    if (pathname.includes("/dashboard/unit-motor")) return "Unit Motor";
+    if (pathname.includes("/dashboard/blog")) return "Blog";
+    if (pathname.includes("/dashboard/whatsapp")) return "WhatsApp";
+    if (pathname.includes("/dashboard/admin")) return "Admin";
+    if (pathname.includes("/dashboard/more")) return "Menu Lainnya";
+    return "Dashboard";
+  };
 
   useEffect(() => {
     setIsMounted(true);
@@ -225,18 +243,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
-      <SidebarNav
-        isOpen={isSidebarOpen}
-        toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-      />
+      {!isMobile && (
+        <SidebarNav
+          isOpen={isSidebarOpen}
+          toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        />
+      )}
+      
       <main
         className={cn(
           "flex min-h-screen flex-col transition-all duration-300 ease-in-out",
-          isSidebarOpen ? "md:pl-60" : "md:pl-16"
+          !isMobile && isSidebarOpen ? "md:pl-60" : !isMobile ? "md:pl-16" : "",
+          isMobile ? "pb-16" : ""
         )}
       >
+        {isMobile && <MobileHeader title={getPageTitle()} />}
         <div className="flex-1 px-4 py-6 md:px-6 lg:px-8">{children}</div>
       </main>
+      {isMobile && <BottomNavigation />}
     </div>
   );
 } 

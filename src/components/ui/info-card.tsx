@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface InfoItem {
   icon?: LucideIcon;
@@ -25,9 +26,13 @@ export function InfoCard({
   isLoading = false,
   emptyMessage = "Tidak ada data",
 }: InfoCardProps) {
+  const { isMobile } = useIsMobile();
+  
+  const effectiveColumns = isMobile ? Math.min(columns, 2) as 1 | 2 : columns;
+  
   const gridCols = {
     1: "",
-    2: "md:grid-cols-2",
+    2: "grid-cols-2",
     3: "md:grid-cols-3",
     4: "md:grid-cols-4",
   };
@@ -35,10 +40,10 @@ export function InfoCard({
   if (isLoading) {
     return (
       <Card className={className}>
-        <CardHeader>
-          <CardTitle>{title}</CardTitle>
+        <CardHeader className="px-4 py-4 md:px-6">
+          <CardTitle className="text-lg md:text-xl">{title}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 py-4 md:px-6">
           <div className="animate-pulse space-y-4">
             <div className="h-4 rounded bg-neutral-200 dark:bg-neutral-700 w-3/4"></div>
             <div className="h-4 rounded bg-neutral-200 dark:bg-neutral-700 w-1/2"></div>
@@ -51,10 +56,10 @@ export function InfoCard({
   if (!items || items.length === 0) {
     return (
       <Card className={className}>
-        <CardHeader>
-          <CardTitle>{title}</CardTitle>
+        <CardHeader className="px-4 py-4 md:px-6">
+          <CardTitle className="text-lg md:text-xl">{title}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 py-4 md:px-6">
           <p className="text-neutral-500 dark:text-neutral-400">
             {emptyMessage}
           </p>
@@ -65,18 +70,18 @@ export function InfoCard({
 
   return (
     <Card className={className}>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
+      <CardHeader className="px-4 py-4 md:px-6">
+        <CardTitle className="text-lg md:text-xl">{title}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className={`grid gap-4 ${gridCols[columns]}`}>
+      <CardContent className="px-4 py-4 md:px-6">
+        <div className={`grid gap-4 ${gridCols[effectiveColumns]}`}>
           {items.map((item, index) => (
             <div key={index} className="space-y-1">
-              <div className="flex items-center text-neutral-500 dark:text-neutral-400">
+              <div className="flex items-center text-sm text-neutral-500 dark:text-neutral-400 md:text-base">
                 {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                 <span>{item.label}</span>
               </div>
-              <div className="text-lg font-medium">{item.value}</div>
+              <div className="text-base font-medium md:text-lg">{item.value}</div>
             </div>
           ))}
         </div>

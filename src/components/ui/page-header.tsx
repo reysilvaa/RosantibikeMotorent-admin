@@ -1,7 +1,8 @@
 import React from "react";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface PageHeaderProps {
   title: string;
@@ -31,6 +32,7 @@ export function PageHeader({
   showBackButton = false,
 }: PageHeaderProps) {
   const router = useRouter();
+  const { isMobile } = useIsMobile();
 
   const handleBack = () => {
     if (backHref) {
@@ -55,7 +57,7 @@ export function PageHeader({
           <Button
             variant="outline"
             size="icon"
-            className="mr-4"
+            className="mr-3 md:mr-4"
             onClick={handleBack}
           >
             <ArrowLeft className="h-4 w-4" />
@@ -63,14 +65,14 @@ export function PageHeader({
           </Button>
         )}
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
+          <h2 className="text-xl font-bold tracking-tight md:text-3xl">{title}</h2>
           {description && (
-            <p className="text-neutral-500 dark:text-neutral-400">
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 md:text-base">
               {description}
             </p>
           )}
           {id && (
-            <p className="text-neutral-500 dark:text-neutral-400">
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 md:text-sm">
               ID: {id}
             </p>
           )}
@@ -82,14 +84,16 @@ export function PageHeader({
           variant="default"
           onClick={handleAction}
           disabled={actionDisabled}
-          className={actionHref ? "hidden sm:flex" : ""}
+          size={isMobile ? "icon" : "default"}
+          className={actionHref && isMobile ? "p-2" : ""}
         >
           {actionLoading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 className={`h-4 w-4 animate-spin ${!isMobile && actionLabel ? "mr-2" : ""}`} />
           ) : (
-            actionIcon
+            actionIcon || (isMobile && <Plus className="h-4 w-4" />)
           )}
-          {actionLabel}
+          {!isMobile && actionLabel}
+          {isMobile && actionLabel && !actionIcon && <span className="sr-only">{actionLabel}</span>}
         </Button>
       )}
     </div>
