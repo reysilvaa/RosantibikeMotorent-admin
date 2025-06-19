@@ -23,7 +23,7 @@ export function Header({ isSidebarOpen, toggleSidebar }: HeaderProps) {
   const pathname = usePathname();
   const admin = getAdminData();
   const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbItem[]>([]);
-  const { isMobile } = useIsMobile();
+  const { isMobile, isSmallMobile } = useIsMobile();
 
   // Fungsi untuk mendapatkan judul halaman berdasarkan pathname
   const getPageTitle = (path: string) => {
@@ -131,11 +131,16 @@ export function Header({ isSidebarOpen, toggleSidebar }: HeaderProps) {
       return items;
     }
     
-    // Jika ada lebih dari 2 item, tampilkan item pertama (Dashboard), ellipsis, dan 2 item terakhir
+    // Untuk mobile yang sangat kecil, tampilkan hanya item terakhir
+    if (isSmallMobile) {
+      return [items[items.length - 1]];
+    }
+    
+    // Jika ada lebih dari 2 item, tampilkan item pertama (Dashboard) dan item terakhir
     return [
       items[0],
       { title: "...", path: "" }, // Item dummy untuk ellipsis
-      ...items.slice(-2) // 2 item terakhir
+      items[items.length - 1] // Item terakhir
     ];
   };
 
@@ -150,45 +155,61 @@ export function Header({ isSidebarOpen, toggleSidebar }: HeaderProps) {
   const displayedBreadcrumbs = isMobile ? getMobileBreadcrumbs(breadcrumbs) : breadcrumbs;
 
   return (
-    <header className="sticky top-0 z-50 flex h-14 items-center border-b border-neutral-200 bg-white px-4">
+    <header className={cn(
+      "sticky top-0 z-50 flex h-14 items-center border-b border-neutral-200 bg-white",
+      isSmallMobile ? "px-2" : "px-3 md:px-4"
+    )}>
       <div className="flex w-full items-center justify-between">
         {/* Bagian kiri: tombol menu dan breadcrumb */}
-        <div className="flex items-center gap-2 overflow-hidden max-w-[calc(100%-120px)] sm:max-w-[calc(100%-150px)] md:max-w-[calc(100%-250px)]">
+        <div className={cn(
+          "flex items-center gap-1 md:gap-2 overflow-hidden",
+          isSmallMobile ? "max-w-[calc(100%-80px)]" : "max-w-[calc(100%-100px)] sm:max-w-[calc(100%-150px)] md:max-w-[calc(100%-250px)]"
+        )}>
           <Button
             variant="ghost"
             size="sm"
-            className="h-9 w-9 p-0 flex-shrink-0 flex items-center justify-center text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-all duration-300 ease-in-out md:hidden"
+            className={cn(
+              "p-0 flex-shrink-0 flex items-center justify-center text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-all duration-300 ease-in-out md:hidden",
+              isSmallMobile ? "h-7 w-7" : "h-8 w-8 md:h-9 md:w-9"
+            )}
             onClick={toggleSidebar}
           >
-            {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            {isSidebarOpen ? <X size={isSmallMobile ? 16 : 18} /> : <Menu size={isSmallMobile ? 16 : 18} />}
           </Button>
 
           <div className="flex items-center overflow-x-auto hide-scrollbar">
-            <nav className="flex items-center space-x-1 text-sm">
+            <nav className={cn(
+              "flex items-center space-x-1",
+              isSmallMobile ? "text-[10px]" : "text-xs md:text-sm"
+            )}>
               {displayedBreadcrumbs.map((item, index) => (
                 <React.Fragment key={index}>
                   {index > 0 && (
-                    <ChevronRight size={14} className="mx-1 flex-shrink-0 text-neutral-400" />
+                    <ChevronRight size={isSmallMobile ? 10 : 12} className="mx-0.5 md:mx-1 flex-shrink-0 text-neutral-400" />
                   )}
                   {item.path ? (
                     <Link
                       href={item.path}
                       className={cn(
-                        "flex items-center whitespace-nowrap rounded px-2 py-1 transition-colors",
+                        "flex items-center whitespace-nowrap rounded transition-colors",
+                        isSmallMobile ? "px-1 py-0.5" : "px-1.5 py-0.5 md:px-2 md:py-1",
                         index === displayedBreadcrumbs.length - 1
                           ? "font-semibold text-neutral-900 bg-neutral-100"
                           : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900",
                         index === 0 ? "flex-shrink-0" : "flex-shrink"
                       )}
                     >
-                      {index === 0 && <Home size={14} className="mr-1.5" />}
-                      <span className={index === displayedBreadcrumbs.length - 1 ? "" : "truncate max-w-[100px] md:max-w-[150px]"}>
+                      {index === 0 && !isSmallMobile && <Home size={12} className="mr-1 md:mr-1.5 md:size-14" />}
+                      <span className={cn(
+                        index === displayedBreadcrumbs.length - 1 ? "" : "truncate",
+                        isSmallMobile ? "max-w-[60px]" : "max-w-[80px] md:max-w-[150px]"
+                      )}>
                         {item.title}
                       </span>
                     </Link>
                   ) : (
-                    <span className="flex items-center px-1 flex-shrink-0">
-                      <MoreHorizontal size={16} className="text-neutral-400" />
+                    <span className="flex items-center px-0.5 md:px-1 flex-shrink-0">
+                      <MoreHorizontal size={isSmallMobile ? 12 : 14} className="text-neutral-400" />
                     </span>
                   )}
                 </React.Fragment>
@@ -198,7 +219,7 @@ export function Header({ isSidebarOpen, toggleSidebar }: HeaderProps) {
         </div>
 
         {/* Bagian kanan: pencarian, notifikasi, dan profil */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
           <div className="hidden md:flex relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <Search size={16} className="text-neutral-400" />
@@ -213,17 +234,23 @@ export function Header({ isSidebarOpen, toggleSidebar }: HeaderProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="relative h-9 w-9 flex-shrink-0 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-all duration-300 ease-in-out"
+            className={cn(
+              "relative flex-shrink-0 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-all duration-300 ease-in-out",
+              isSmallMobile ? "h-7 w-7" : "h-8 w-8 md:h-9 md:w-9"
+            )}
           >
-            <Bell size={18} />
-            <span className="absolute top-1 right-1 flex h-2 w-2">
+            <Bell size={isSmallMobile ? 14 : 16} className="md:size-18" />
+            <span className="absolute top-1 right-1 flex h-1.5 w-1.5 md:h-2 md:w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 md:h-2 md:w-2 bg-red-500"></span>
             </span>
           </Button>
 
           <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-white transition-all duration-300 ease-in-out">
+            <div className={cn(
+              "flex items-center justify-center rounded-full bg-blue-600 text-white transition-all duration-300 ease-in-out",
+              isSmallMobile ? "h-7 w-7" : "h-8 w-8 md:h-9 md:w-9"
+            )}>
               {admin?.nama?.charAt(0) || "A"}
             </div>
             <div className="hidden md:flex flex-col">

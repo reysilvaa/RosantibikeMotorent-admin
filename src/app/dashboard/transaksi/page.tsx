@@ -16,7 +16,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { Pagination } from "@/components/ui/pagination";
 import { StatusTransaksi, Transaksi } from "@/lib/transaksi";
 import { TransaksiCalendar } from "@/components/transaksi/transaksi-calendar";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function TransaksiPage() {
   const router = useRouter();
@@ -126,18 +126,18 @@ export default function TransaksiPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="flex flex-col h-full space-y-4 pb-16 md:pb-0">
         <PageHeader 
-          title="Daftar Transaksi / bug : harus di reset filter baru muncul datanya" 
+          title="Daftar Transaksi" 
           description="Kelola semua transaksi rental motor"
           actionLabel="Tambah Transaksi"
           actionIcon={<ShoppingCart className="mr-2 h-4 w-4" />}
           actionHref="/dashboard/transaksi/tambah"
         />
 
-        <Card>
+        <Card className="flex-1 flex flex-col min-h-0">
           <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <SearchBar
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
@@ -166,44 +166,55 @@ export default function TransaksiPage() {
               </Tabs>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex-1 flex flex-col min-h-0">
             <FilterButtons
               options={filterOptions}
               currentValue={statusFilter}
               onChange={handleStatusFilterChange}
+              className="mb-2"
             />
 
-            <TabsContent value="table" currentValue={viewMode}>
-              {loading ? (
-                <LoadingIndicator />
-              ) : (
-                <>
-                  <DataTable
-                    data={transaksi}
-                    columns={columns}
-                    keyField="id"
-                    onRowClick={handleRowClick}
-                    emptyMessage={
-                      searchQuery || statusFilter
-                        ? "Tidak ada transaksi yang sesuai dengan filter"
-                        : "Belum ada data transaksi"
-                    }
-                  />
-
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    totalData={totalData}
-                    limit={limit}
-                    onPageChange={handlePageChange}
-                  />
-                </>
+            <div className="flex-1 flex flex-col min-h-0">
+              {viewMode === "table" && (
+                <div className="flex-1 flex flex-col overflow-hidden">
+                  {loading ? (
+                    <LoadingIndicator />
+                  ) : (
+                    <>
+                      <div className="flex-1 overflow-auto">
+                        <DataTable
+                          data={transaksi}
+                          columns={columns}
+                          keyField="id"
+                          onRowClick={handleRowClick}
+                          emptyMessage={
+                            searchQuery || statusFilter
+                              ? "Tidak ada transaksi yang sesuai dengan filter"
+                              : "Belum ada data transaksi"
+                          }
+                        />
+                      </div>
+                      
+                      <div className="mt-4">
+                        <Pagination
+                          currentPage={currentPage}
+                          totalPages={totalPages}
+                          totalData={totalData}
+                          limit={limit}
+                          onPageChange={handlePageChange}
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
               )}
-            </TabsContent>
-            
-            <TabsContent value="calendar" currentValue={viewMode}>
-              <TransaksiCalendar />
-            </TabsContent>
+              
+              {viewMode === "calendar" && (
+                <div className="flex-1 overflow-auto">
+                  <TransaksiCalendar />
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>

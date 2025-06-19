@@ -18,7 +18,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [isMounted, setIsMounted] = React.useState(false);
   const { checkAuth, isAuthenticated } = useAuthStore();
-  const { isMobile } = useIsMobile();
+  const { isMobile, isSmallMobile } = useIsMobile();
 
   useEffect(() => {
     setIsMounted(true);
@@ -74,11 +74,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         />
         
-        <main className="flex-1 p-4 pb-24 md:p-6">
+        <main className={cn(
+          "flex-1 flex flex-col",
+          isSmallMobile ? "px-2 pt-2 pb-14" : "px-3 pt-3 pb-16",
+          "md:p-6"
+        )}>
           {children}
-      </main>
+        </main>
         
-      {isMobile && <BottomNavigation />}
+        {isMobile && <BottomNavigation />}
       </div>
     </div>
   );

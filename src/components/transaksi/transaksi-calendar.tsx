@@ -33,15 +33,15 @@ const getStatusColor = (status: StatusTransaksi) => {
 const TransaksiEvent = React.memo(({ transaksi }: { transaksi: Transaksi }) => {
   return (
     <div className={cn(
-      "px-2 py-1 rounded text-xs mb-1",
+      "px-1 sm:px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-xs mb-1",
       getStatusColor(transaksi.status)
     )}>
       <div className="flex items-center gap-1">
         <span>{transaksi.jamMulai} - {transaksi.jamSelesai}</span>
-        {transaksi.status === StatusTransaksi.AKTIF && <Check className="h-3 w-3" />}
+        {transaksi.status === StatusTransaksi.AKTIF && <Check className="h-2 w-2 sm:h-3 sm:w-3" />}
       </div>
-      <div className="font-medium">{transaksi.namaPenyewa}</div>
-      <div className="text-[10px]">{transaksi.unitMotor.platNomor} • {transaksi.unitMotor.jenis?.model}</div>
+      <div className="font-medium truncate">{transaksi.namaPenyewa}</div>
+      <div className="text-[8px] sm:text-[10px] truncate">{transaksi.unitMotor.platNomor} • {transaksi.unitMotor.jenis?.model}</div>
     </div>
   );
 });
@@ -61,20 +61,20 @@ const CalendarDay = React.memo(({
   return (
     <div 
       className={cn(
-        "border-r last:border-r-0 border-b p-1 min-h-[100px]",
+        "border-r last:border-r-0 border-b p-1 min-h-[80px] sm:min-h-[100px]",
         isToday ? "bg-blue-50" : ""
       )}
     >
-      <div className="font-medium text-right mb-1">
+      <div className="font-medium text-right mb-1 text-xs sm:text-sm">
         {format(day, 'd')}
       </div>
       
       {transaksiForDate.length === 0 ? (
-        <div className="text-xs text-gray-400 text-center mt-4">
+        <div className="text-[10px] sm:text-xs text-gray-400 text-center mt-2 sm:mt-4">
           Tidak ada booking
         </div>
       ) : (
-        <div className="space-y-1 max-h-[200px] overflow-y-auto">
+        <div className="space-y-1 max-h-[160px] sm:max-h-[200px] overflow-y-auto">
           {transaksiForDate.map((transaksi) => (
             <TransaksiEvent 
               key={transaksi.id} 
@@ -104,33 +104,33 @@ const CalendarHeader = React.memo(({
   totalBookings: number;
 }) => {
   return (
-    <div className="p-4 border-b">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Data Booking</h2>
-        <div className="text-sm text-gray-500">
+    <div className="p-2 sm:p-4 border-b">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 sm:mb-4 gap-1">
+        <h2 className="text-base sm:text-xl font-semibold">Data Booking</h2>
+        <div className="text-xs sm:text-sm text-gray-500">
           Menampilkan {totalBookings} dari {totalBookings} booking
         </div>
       </div>
       
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">
+        <h3 className="text-sm sm:text-lg font-medium truncate max-w-[120px] sm:max-w-none">
           {format(currentDate, 'MMMM yyyy', { locale: id })}
         </h3>
         
-        <div className="flex gap-2">
+        <div className="flex gap-1 sm:gap-2">
           <Button 
             variant="outline" 
             size="sm" 
-            className="h-8"
+            className="h-7 sm:h-8 px-1.5 sm:px-3 text-xs"
             onClick={goToPreviousMonth}
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
           
           <Button 
             variant="outline" 
             size="sm" 
-            className="h-8"
+            className="h-7 sm:h-8 px-1.5 sm:px-3 text-xs"
             onClick={goToToday}
           >
             Hari Ini
@@ -139,10 +139,10 @@ const CalendarHeader = React.memo(({
           <Button 
             variant="outline" 
             size="sm" 
-            className="h-8"
+            className="h-7 sm:h-8 px-1.5 sm:px-3 text-xs"
             onClick={goToNextMonth}
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
         </div>
       </div>
@@ -226,7 +226,7 @@ export function TransaksiCalendar() {
     Array.from({ length: startDay }).map((_, index) => (
       <div 
         key={`empty-start-${index}`} 
-        className="border-r last:border-r-0 border-b p-1 min-h-[100px] bg-gray-50"
+        className="border-r last:border-r-0 border-b p-1 min-h-[80px] bg-gray-50"
       />
     )),
     [startDay]
@@ -237,7 +237,7 @@ export function TransaksiCalendar() {
     Array.from({ length: 42 - (daysInMonth.length + startDay) }).map((_, index) => (
       <div 
         key={`empty-end-${index}`} 
-        className="border-r last:border-r-0 border-b p-1 min-h-[100px] bg-gray-50"
+        className="border-r last:border-r-0 border-b p-1 min-h-[80px] bg-gray-50"
       />
     )),
     [daysInMonth.length, startDay]
@@ -250,20 +250,28 @@ export function TransaksiCalendar() {
       const isToday = isSameDay(day, new Date());
       
       return (
-        <CalendarDay
-          key={index}
-          day={day}
-          transaksiForDate={transaksiForDate}
-          isToday={isToday}
+        <CalendarDay 
+          key={index} 
+          day={day} 
+          transaksiForDate={transaksiForDate} 
+          isToday={isToday} 
         />
       );
     }),
-    [daysInMonth, transaksiData]
+    [daysInMonth, getTransaksiForDate]
   );
   
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+  
   return (
-    <div className="bg-white rounded-lg shadow-sm">
-      <CalendarHeader
+    <div className="flex flex-col h-full border rounded-lg overflow-hidden">
+      <CalendarHeader 
         currentDate={currentDate}
         goToPreviousMonth={goToPreviousMonth}
         goToToday={goToToday}
@@ -271,32 +279,25 @@ export function TransaksiCalendar() {
         totalBookings={totalBookings}
       />
       
-      {isLoading ? (
-        <div className="flex justify-center items-center h-60">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      ) : (
-        <div className="divide-y">
-          {/* Header Hari */}
-          <div className="grid grid-cols-7">
-            {dayNames.map((day, index) => (
-              <div 
-                key={index} 
-                className="p-2 text-center font-medium text-sm text-gray-600 border-r last:border-r-0"
-              >
+      <div className="overflow-auto flex-1">
+        <div className="min-w-full">
+          {/* Header hari */}
+          <div className="grid grid-cols-7 border-b bg-gray-50">
+            {dayNames.map(day => (
+              <div key={day} className="text-center py-2 font-medium text-sm">
                 {day}
               </div>
             ))}
           </div>
           
-          {/* Grid Kalender */}
+          {/* Kalender */}
           <div className="grid grid-cols-7">
             {emptyCellsBefore}
             {calendarDays}
             {emptyCellsAfter}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 } 
