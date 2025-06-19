@@ -26,7 +26,6 @@ const BottomNavItem = ({ href, icon, label, isMain = false }: BottomNavItemProps
     : pathname.startsWith(`${href}/`) || pathname === href;
   const [isPressed, setIsPressed] = useState(false);
 
-  // Jika ini adalah tombol utama (main action button)
   if (isMain) {
     return (
       <Link
@@ -90,7 +89,7 @@ export function BottomNavigation() {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 w-full border-t border-neutral-100 bg-white/95 backdrop-blur-md shadow-[0_-1px_10px_rgba(0,0,0,0.04)] md:hidden">
       {/* Notch background - white curve */}
-      <div className="absolute -top-5 left-1/2 h-10 w-20 -translate-x-1/2 bg-white/95 backdrop-blur-md rounded-t-full border-t border-l border-r border-neutral-100"></div>
+      <div className="absolute -top-6 left-1/2 h-12 w-24 -translate-x-1/2 bg-white/95 backdrop-blur-md rounded-t-full border-t border-l border-r border-neutral-100"></div>
       
       {/* Main content */}
       <div className="flex h-16 w-full max-w-md mx-auto items-end justify-between px-2 relative">
