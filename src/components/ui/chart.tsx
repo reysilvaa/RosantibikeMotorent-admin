@@ -10,7 +10,7 @@ export type ApexOptions = {
   chart?: {
     type?: 'bar' | 'donut' | 'line' | 'area' | 'pie' | 'radialBar' | 'scatter' | 'bubble' | 'heatmap' | 'candlestick' | 'boxPlot' | 'radar' | 'polarArea' | 'rangeBar' | 'rangeArea' | 'treemap';
     height?: number;
-    width?: number;
+    width?: number | string;
     toolbar?: {
       show?: boolean;
     };
@@ -24,6 +24,8 @@ export type ApexOptions = {
       style?: {
         colors?: string | string[];
       };
+      rotate?: number;
+      trim?: boolean;
     };
     axisBorder?: {
       show?: boolean;
@@ -49,6 +51,10 @@ export type ApexOptions = {
   grid?: {
     borderColor?: string;
     strokeDashArray?: number;
+    padding?: {
+      left?: number;
+      right?: number;
+    };
     yaxis?: {
       lines?: {
         show?: boolean;
@@ -88,6 +94,7 @@ export type ApexOptions = {
     bar?: {
       borderRadius?: number;
       columnWidth?: string;
+      horizontal?: boolean;
     };
     pie?: {
       donut?: {
@@ -156,6 +163,7 @@ export const BarChart = ({
     chart: {
       type: 'bar',
       height,
+      width: '100%',
       toolbar: {
         show: false,
       },
@@ -180,6 +188,8 @@ export const BarChart = ({
         style: {
           colors: '#9ca3af',
         },
+        rotate: -45,
+        trim: true
       },
       axisBorder: {
         show: false,
@@ -198,6 +208,10 @@ export const BarChart = ({
     grid: {
       borderColor: '#27272a',
       strokeDashArray: 4,
+      padding: {
+        left: 0,
+        right: 0
+      },
       yaxis: {
         lines: {
           show: true,
@@ -239,6 +253,14 @@ export const BarChart = ({
               columnWidth: '80%',
             },
           },
+          xaxis: {
+            labels: {
+              rotate: 0,
+              style: {
+                fontSize: '8px'
+              }
+            }
+          }
         },
       },
     ],
@@ -252,13 +274,14 @@ export const BarChart = ({
   ];
 
   return (
-    <div className="h-full w-full">
+    <div className="w-full overflow-hidden">
       {typeof window !== 'undefined' && (
         <ReactApexChart
           options={options as ApexCharts.ApexOptions}
           series={series}
           type="bar"
           height={height}
+          width="100%"
         />
       )}
     </div>
@@ -365,13 +388,14 @@ export const DonutChart = ({
   const series = data.map(item => item.value);
 
   return (
-    <div className="h-full w-full">
+    <div className="w-full overflow-hidden">
       {typeof window !== 'undefined' && (
         <ReactApexChart
           options={options as ApexCharts.ApexOptions}
           series={series}
           type="donut"
           height={height}
+          width="100%"
         />
       )}
     </div>

@@ -31,7 +31,7 @@ export function DataTable<T>({
   isLoading = false,
   className = "",
 }: DataTableProps<T>) {
-  const { isMobile } = useIsMobile();
+  const { isMobile, isSmallMobile } = useIsMobile();
   
   // Filter kolom yang tidak ditampilkan di mobile
   const visibleColumns = isMobile 
@@ -39,17 +39,17 @@ export function DataTable<T>({
     : columns;
 
   return (
-    <div className={`overflow-hidden ${className}`}>
-      <div className="overflow-x-auto w-full">
-        <table className="w-full text-left text-sm">
+    <div className={`w-full ${className}`}>
+      <div className="overflow-x-auto w-full custom-scrollbar">
+        <table className="w-full text-left text-xs md:text-sm min-w-full table-fixed">
           <thead>
             <tr className="border-b font-medium text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
               {visibleColumns.map((column, index) => (
-                <th key={index} className={`px-2 py-3 md:px-4 ${column.className || ""}`}>
+                <th key={index} className={`px-1 py-2 md:px-4 md:py-3 ${column.className || ""}`} style={{ minWidth: '100px' }}>
                   {column.header}
                 </th>
               ))}
-              {onRowClick && <th className="px-2 py-3 text-right md:px-4">Aksi</th>}
+              {onRowClick && <th className="px-1 py-2 text-right md:px-4 md:py-3" style={{ minWidth: '60px' }}>Aksi</th>}
             </tr>
           </thead>
           <tbody>
@@ -57,7 +57,7 @@ export function DataTable<T>({
               <tr>
                 <td
                   colSpan={visibleColumns.length + (onRowClick ? 1 : 0)}
-                  className="px-2 py-8 text-center text-neutral-500 dark:text-neutral-400 md:px-4"
+                  className="px-1 py-6 text-center text-neutral-500 dark:text-neutral-400 md:px-4 md:py-8"
                 >
                   <LoadingIndicator message="Memuat data..." />
                 </td>
@@ -66,10 +66,11 @@ export function DataTable<T>({
               data.map((item) => (
                 <tr
                   key={String(item[keyField])}
-                  className="border-b dark:border-neutral-800"
+                  className="border-b dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/30 cursor-pointer"
+                  onClick={onRowClick ? () => onRowClick(item) : undefined}
                 >
                   {visibleColumns.map((column, index) => (
-                    <td key={index} className={`px-2 py-3 md:px-4 ${column.className || ""}`}>
+                    <td key={index} className={`px-1 py-2 md:px-4 md:py-3 ${column.className || ""}`}>
                       {column.cell
                         ? column.cell(item)
                         : column.accessorKey
@@ -78,14 +79,17 @@ export function DataTable<T>({
                     </td>
                   ))}
                   {onRowClick && (
-                    <td className="px-2 py-3 text-right md:px-4">
+                    <td className="px-1 py-2 text-right md:px-4 md:py-3">
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-8 w-8 p-0"
-                        onClick={() => onRowClick(item)}
+                        className={isSmallMobile ? "h-6 w-6 p-0" : "h-8 w-8 p-0"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRowClick(item);
+                        }}
                       >
-                        <ExternalLink className="h-4 w-4" />
+                        <ExternalLink className={isSmallMobile ? "h-3 w-3" : "h-4 w-4"} />
                         <span className="sr-only">Detail</span>
                       </Button>
                     </td>
@@ -96,7 +100,7 @@ export function DataTable<T>({
               <tr>
                 <td
                   colSpan={visibleColumns.length + (onRowClick ? 1 : 0)}
-                  className="px-2 py-8 text-center text-neutral-500 dark:text-neutral-400 md:px-4"
+                  className="px-1 py-6 text-center text-neutral-500 dark:text-neutral-400 md:px-4 md:py-8"
                 >
                   {emptyMessage}
                 </td>

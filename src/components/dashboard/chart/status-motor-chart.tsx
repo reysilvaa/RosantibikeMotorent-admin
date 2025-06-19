@@ -12,11 +12,13 @@ export function StatusMotorChart({ data }: StatusMotorChartProps) {
   }));
 
   return (
+    <div className="w-full overflow-hidden">
     <DonutChart
       data={chartData}
       height={300}
       formatter={(value) => `${value} unit`}
     />
+    </div>
   );
 }
 

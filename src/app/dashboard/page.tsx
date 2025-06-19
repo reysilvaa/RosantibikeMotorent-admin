@@ -88,7 +88,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 md:space-y-8">
+      <div className="space-y-6 md:space-y-8 pb-16 md:pb-20 overflow-hidden">
         <PageHeader
           title="Dashboard"
           description="Ringkasan dan statistik dari sistem rental motor"

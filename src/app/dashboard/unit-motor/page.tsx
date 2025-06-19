@@ -136,11 +136,6 @@ export default function UnitMotorPage() {
   // Columns untuk DataTable
   const columns = [
     {
-      header: "Plat",
-      accessorKey: "platNomor" as keyof UnitMotor,
-      className: "font-medium"
-    },
-    {
       header: "Jenis Motor",
       cell: (item: UnitMotor) => (
         <div>
@@ -175,7 +170,7 @@ export default function UnitMotorPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-6 md:space-y-8 overflow-hidden">
         <PageHeader 
           title="Unit Motor" 
           description="Kelola semua unit motor yang tersedia"
@@ -194,8 +189,8 @@ export default function UnitMotorPage() {
           onClose={() => setShowDialog(false)}
         />
 
-        <Card>
-          <CardHeader className="pb-3">
+        <Card className="overflow-hidden">
+          <CardHeader className="pb-3 px-4 py-4 md:px-5">
             <SearchBar
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
@@ -206,38 +201,47 @@ export default function UnitMotorPage() {
               showTitle={true}
             />
           </CardHeader>
-          <CardContent>
-            <StatusMessage error={error} success={success} />
-            
-            <FilterButtons
-              options={filterOptions}
-              currentValue={statusFilter}
-              onChange={handleStatusFilterChange}
-            />
+          <CardContent className="px-0 pb-4 md:px-2">
+            <div className="px-4 md:px-3">
+              <StatusMessage error={error} success={success} />
+              
+              <FilterButtons
+                options={filterOptions}
+                currentValue={statusFilter}
+                onChange={handleStatusFilterChange}
+                className="mb-3"
+              />
+            </div>
 
             {loading ? (
-              <LoadingIndicator />
+              <div className="px-4 md:px-3">
+                <LoadingIndicator />
+              </div>
             ) : (
               <>
-                <DataTable
-                  data={unitMotors}
-                  columns={columns}
-                  keyField="id"
-                  onRowClick={handleDetail}
-                  emptyMessage={
-                    searchQuery || statusFilter
-                      ? "Tidak ada unit motor yang sesuai dengan filter"
-                      : "Belum ada data unit motor"
-                  }
-                />
+                <div className="w-full overflow-hidden">
+                  <DataTable
+                    data={unitMotors}
+                    columns={columns}
+                    keyField="id"
+                    onRowClick={handleDetail}
+                    emptyMessage={
+                      searchQuery || statusFilter
+                        ? "Tidak ada unit motor yang sesuai dengan filter"
+                        : "Belum ada data unit motor"
+                    }
+                  />
+                </div>
 
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  totalData={totalData}
-                  limit={limit}
-                  onPageChange={handlePageChange}
-                />
+                <div className="mt-4 px-4 md:px-3">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalData={totalData}
+                    limit={limit}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
               </>
             )}
           </CardContent>

@@ -27,8 +27,6 @@ export function useIsMobile(mobileBreakpoint = 768, tabletBreakpoint = 1024, sma
     
     // Tambahkan event listener untuk perubahan ukuran layar
     window.addEventListener('resize', checkDeviceSize);
-    
-    // Cleanup event listener saat komponen unmount
     return () => window.removeEventListener('resize', checkDeviceSize);
   }, [mobileBreakpoint, tabletBreakpoint, smallMobileBreakpoint]);
 

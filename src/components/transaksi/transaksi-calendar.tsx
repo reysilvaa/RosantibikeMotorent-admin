@@ -1,299 +1,234 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Check } from "lucide-react";
-import { Transaksi, StatusTransaksi } from "@/lib/transaksi";
-import { cn } from "@/lib/utils";
-import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths, isSameDay } from "date-fns";
+import React, { useEffect, useState } from "react";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, getDay, addMonths, subMonths, isSameDay } from "date-fns";
 import { id } from "date-fns/locale";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight, Filter, Calendar as CalendarIcon } from "lucide-react";
 import { useTransaksiListStore } from "@/lib/store/transaksi/transaksi-store";
-import { LoadingIndicator } from "@/components/ui/loading-indicator";
+import { Transaksi, StatusTransaksi } from "@/lib/types/transaksi";
+import { cn } from "@/lib/utils";
+import { LoadingIndicator } from "../ui/loading-indicator";
 
-// Fungsi untuk mendapatkan warna berdasarkan status transaksi
-const getStatusColor = (status: StatusTransaksi) => {
-  switch (status) {
-    case StatusTransaksi.AKTIF:
-      return "bg-green-100 border-green-300 text-green-800";
-    case StatusTransaksi.BOOKING:
-      return "bg-blue-100 border-blue-300 text-blue-800";
-    case StatusTransaksi.BERJALAN:
-      return "bg-yellow-100 border-yellow-300 text-yellow-800";
-    case StatusTransaksi.SELESAI:
-      return "bg-gray-100 border-gray-300 text-gray-800";
-    case StatusTransaksi.BATAL:
-      return "bg-red-100 border-red-300 text-red-800";
-    case StatusTransaksi.OVERDUE:
-      return "bg-purple-100 border-purple-300 text-purple-800";
-    default:
-      return "bg-gray-100 border-gray-300 text-gray-800";
-  }
-};
+interface TransaksiPerDay {
+  [date: string]: Transaksi[];
+}
 
-// Komponen untuk menampilkan event transaksi dalam kalender
-const TransaksiEvent = React.memo(({ transaksi }: { transaksi: Transaksi }) => {
-  return (
-    <div className={cn(
-      "px-1 sm:px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-xs mb-1",
-      getStatusColor(transaksi.status)
-    )}>
-      <div className="flex items-center gap-1">
-        <span>{transaksi.jamMulai} - {transaksi.jamSelesai}</span>
-        {transaksi.status === StatusTransaksi.AKTIF && <Check className="h-2 w-2 sm:h-3 sm:w-3" />}
-      </div>
-      <div className="font-medium truncate">{transaksi.namaPenyewa}</div>
-      <div className="text-[8px] sm:text-[10px] truncate">{transaksi.unitMotor.platNomor} • {transaksi.unitMotor.jenis?.model}</div>
-    </div>
-  );
-});
+interface CalendarEvent {
+  id: string;
+  namaPenyewa: string;
+  status: StatusTransaksi;
+  time: string;
+  type: "clothes" | "recipes" | "rental";
+}
 
-TransaksiEvent.displayName = "TransaksiEvent";
-
-// Komponen hari kalender
-const CalendarDay = React.memo(({ 
-  day, 
-  transaksiForDate, 
-  isToday 
-}: { 
-  day: Date; 
-  transaksiForDate: Transaksi[];
-  isToday: boolean;
-}) => {
-  return (
-    <div 
-      className={cn(
-        "border-r last:border-r-0 border-b p-1 min-h-[80px] sm:min-h-[100px]",
-        isToday ? "bg-blue-50" : ""
-      )}
-    >
-      <div className="font-medium text-right mb-1 text-xs sm:text-sm">
-        {format(day, 'd')}
-      </div>
-      
-      {transaksiForDate.length === 0 ? (
-        <div className="text-[10px] sm:text-xs text-gray-400 text-center mt-2 sm:mt-4">
-          Tidak ada booking
-        </div>
-      ) : (
-        <div className="space-y-1 max-h-[160px] sm:max-h-[200px] overflow-y-auto">
-          {transaksiForDate.map((transaksi) => (
-            <TransaksiEvent 
-              key={transaksi.id} 
-              transaksi={transaksi} 
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-});
-
-CalendarDay.displayName = "CalendarDay";
-
-// Komponen header kalender
-const CalendarHeader = React.memo(({ 
-  currentDate, 
-  goToPreviousMonth, 
-  goToToday, 
-  goToNextMonth,
-  totalBookings
-}: {
-  currentDate: Date;
-  goToPreviousMonth: () => void;
-  goToToday: () => void;
-  goToNextMonth: () => void;
-  totalBookings: number;
-}) => {
-  return (
-    <div className="p-2 sm:p-4 border-b">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 sm:mb-4 gap-1">
-        <h2 className="text-base sm:text-xl font-semibold">Data Booking</h2>
-        <div className="text-xs sm:text-sm text-gray-500">
-          Menampilkan {totalBookings} dari {totalBookings} booking
-        </div>
-      </div>
-      
-      <div className="flex justify-between items-center">
-        <h3 className="text-sm sm:text-lg font-medium truncate max-w-[120px] sm:max-w-none">
-          {format(currentDate, 'MMMM yyyy', { locale: id })}
-        </h3>
-        
-        <div className="flex gap-1 sm:gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="h-7 sm:h-8 px-1.5 sm:px-3 text-xs"
-            onClick={goToPreviousMonth}
-          >
-            <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="h-7 sm:h-8 px-1.5 sm:px-3 text-xs"
-            onClick={goToToday}
-          >
-            Hari Ini
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="h-7 sm:h-8 px-1.5 sm:px-3 text-xs"
-            onClick={goToNextMonth}
-          >
-            <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-});
-
-CalendarHeader.displayName = "CalendarHeader";
-
-// Komponen utama kalender
-export function TransaksiCalendar() {
+export default function TransaksiCalendar() {
+  const { transaksi, fetchTransaksi } = useTransaksiListStore();
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [calendarData, setCalendarData] = useState<TransaksiPerDay>({});
+  const [isCalendarLoading, setIsCalendarLoading] = useState(false);
   
-  const { 
-    transaksi: transaksiData, 
-    loading: isLoading, 
-    fetchTransaksi 
-  } = useTransaksiListStore();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Mendapatkan tanggal awal dan akhir bulan
+        const startDate = startOfMonth(currentDate);
+        const endDate = endOfMonth(currentDate);
+        
+        // Format tanggal untuk filter
+        const startDateStr = format(startDate, "yyyy-MM-dd");
+        const endDateStr = format(endDate, "yyyy-MM-dd");
+        
+        // Mengambil data transaksi untuk rentang bulan ini
+        await fetchTransaksi(1, {
+          startDate: startDateStr,
+          endDate: endDateStr,
+          limit: 100, // Ambil lebih banyak data untuk kalender
+        });
+      } catch (error) {
+        console.error("Gagal memuat data kalender:", error);
+      } finally {
+        setIsCalendarLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [currentDate, fetchTransaksi]);
   
-  // Mendapatkan tanggal awal dan akhir bulan
-  const firstDayOfMonth = useMemo(() => startOfMonth(currentDate), [currentDate]);
-  const lastDayOfMonth = useMemo(() => endOfMonth(currentDate), [currentDate]);
+  // Mengorganisir transaksi berdasarkan tanggal
+  useEffect(() => {
+    if (transaksi.length > 0) {
+      const transaksiByDate: TransaksiPerDay = {};
+      
+      transaksi.forEach((t) => {
+        // Format tanggal dari transaksi
+        const startDate = t.tanggalMulai.split("T")[0];
+        const endDate = t.tanggalSelesai.split("T")[0];
+        
+        // Tambahkan transaksi ke tanggal mulai
+        if (!transaksiByDate[startDate]) {
+          transaksiByDate[startDate] = [];
+        }
+        transaksiByDate[startDate].push(t);
+        
+        // Tambahkan juga ke tanggal selesai jika berbeda
+        if (startDate !== endDate) {
+          if (!transaksiByDate[endDate]) {
+            transaksiByDate[endDate] = [];
+          }
+          transaksiByDate[endDate].push(t);
+        }
+      });
+      
+      setCalendarData(transaksiByDate);
+    }
+  }, [transaksi]);
   
-  // Mendapatkan semua hari dalam bulan
-  const daysInMonth = useMemo(() => 
-    eachDayOfInterval({ start: firstDayOfMonth, end: lastDayOfMonth }), 
-    [firstDayOfMonth, lastDayOfMonth]
-  );
-  
-  // Mendapatkan hari pertama dalam minggu (0 = Minggu, 1 = Senin, dst.)
-  const startDay = useMemo(() => getDay(firstDayOfMonth), [firstDayOfMonth]);
-  
-  // Nama hari dalam bahasa Indonesia
-  const dayNames = useMemo(() => ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"], []);
-  
-  // Fungsi untuk navigasi bulan
-  const goToPreviousMonth = () => {
-    setCurrentDate(subMonths(currentDate, 1));
-  };
-  
-  const goToNextMonth = () => {
+  const nextMonth = () => {
     setCurrentDate(addMonths(currentDate, 1));
   };
   
-  const goToToday = () => {
+  const prevMonth = () => {
+    setCurrentDate(subMonths(currentDate, 1));
+  };
+  
+  const resetToToday = () => {
     setCurrentDate(new Date());
   };
   
-  // Fungsi untuk mendapatkan transaksi pada tanggal tertentu
-  const getTransaksiForDate = (date: Date) => {
-    return transaksiData.filter(transaksi => {
-      try {
-        const startDate = parseISO(transaksi.tanggalMulai);
-        const endDate = parseISO(transaksi.tanggalSelesai);
-        return date >= startDate && date <= endDate;
-      } catch {
-        return false;
-      }
-    });
-  };
+  // Mendapatkan hari-hari untuk bulan saat ini
+  const monthStart = startOfMonth(currentDate);
+  const monthEnd = endOfMonth(currentDate);
+  const startDate = monthStart;
+  const endDate = monthEnd;
   
-  useEffect(() => {
-    // Format tanggal untuk API
-    const startDateStr = format(firstDayOfMonth, 'yyyy-MM-dd');
-    const endDateStr = format(lastDayOfMonth, 'yyyy-MM-dd');
-    
-    // Panggil API untuk mendapatkan data transaksi dengan filter tanggal
-    fetchTransaksi(1, {
-      startDate: startDateStr,
-      endDate: endDateStr,
-      limit: 100 // Meningkatkan limit untuk mendapatkan lebih banyak data
-    });
-  }, [currentDate, fetchTransaksi, firstDayOfMonth, lastDayOfMonth]);
+  const dateFormat = "d";
+  const days = eachDayOfInterval({ start: startDate, end: endDate });
   
-  // Mendapatkan jumlah transaksi
-  const totalBookings = transaksiData.length;
-  
-  // Membuat array untuk sel kosong sebelum hari pertama bulan
-  const emptyCellsBefore = useMemo(() => 
-    Array.from({ length: startDay }).map((_, index) => (
-      <div 
-        key={`empty-start-${index}`} 
-        className="border-r last:border-r-0 border-b p-1 min-h-[80px] bg-gray-50"
-      />
-    )),
-    [startDay]
-  );
-  
-  // Membuat array untuk sel kosong setelah hari terakhir bulan
-  const emptyCellsAfter = useMemo(() => 
-    Array.from({ length: 42 - (daysInMonth.length + startDay) }).map((_, index) => (
-      <div 
-        key={`empty-end-${index}`} 
-        className="border-r last:border-r-0 border-b p-1 min-h-[80px] bg-gray-50"
-      />
-    )),
-    [daysInMonth.length, startDay]
-  );
-  
-  // Membuat array untuk hari-hari dalam bulan
-  const calendarDays = useMemo(() => 
-    daysInMonth.map((day, index) => {
-      const transaksiForDate = getTransaksiForDate(day);
-      const isToday = isSameDay(day, new Date());
+  // Mendapatkan semua hari dalam sebulan
+  const daysInMonth = () => {
+    const daysList = days.map((day) => {
+      const formattedDate = format(day, "yyyy-MM-dd");
+      const eventsForDay = calendarData[formattedDate] || [];
       
       return (
-        <CalendarDay 
-          key={index} 
-          day={day} 
-          transaksiForDate={transaksiForDate} 
-          isToday={isToday} 
-        />
-      );
-    }),
-    [daysInMonth, getTransaksiForDate]
-  );
-  
-  if (isLoading) {
-    return <LoadingIndicator message="Memuat data..." />;
-  }
-  
-  return (
-    <div className="flex flex-col h-full border rounded-lg overflow-hidden">
-      <CalendarHeader 
-        currentDate={currentDate}
-        goToPreviousMonth={goToPreviousMonth}
-        goToToday={goToToday}
-        goToNextMonth={goToNextMonth}
-        totalBookings={totalBookings}
-      />
-      
-      <div className="overflow-auto flex-1">
-        <div className="min-w-full">
-          {/* Header hari */}
-          <div className="grid grid-cols-7 border-b bg-gray-50">
-            {dayNames.map(day => (
-              <div key={day} className="text-center py-2 font-medium text-sm">
-                {day}
-              </div>
+        <div
+          key={day.toString()}
+          className={cn(
+            "border min-h-[120px] p-2 relative",
+            !isSameMonth(day, monthStart) && "bg-gray-100",
+            isSameDay(day, new Date()) && "bg-gray-50"
+          )}
+        >
+          <div className="text-sm font-medium mb-1">{format(day, dateFormat)}</div>
+          <div className="space-y-1">
+            {eventsForDay.map((event, idx) => (
+              <CalendarEvent key={`${event.id}-${idx}`} event={event} />
             ))}
           </div>
-          
-          {/* Kalender */}
-          <div className="grid grid-cols-7">
-            {emptyCellsBefore}
-            {calendarDays}
-            {emptyCellsAfter}
-          </div>
         </div>
+      );
+    });
+
+    // Mengisi array dengan sel kosong untuk posisi hari yang benar
+    const firstDayOfMonth = getDay(monthStart);
+    const blanks = Array(firstDayOfMonth).fill(null).map((_, idx) => (
+      <div key={`blank-${idx}`} className="border min-h-[120px] bg-gray-50" />
+    ));
+
+    return [...blanks, ...daysList];
+  };
+  
+  return (
+    <div className="p-4 bg-white rounded-lg shadow">
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2">
+          <CalendarIcon className="h-5 w-5 text-gray-500" />
+          <h2 className="text-xl font-semibold">
+            {format(currentDate, "MMMM yyyy", { locale: id })}
+          </h2>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <Button onClick={resetToToday} variant="outline" size="sm">
+            Hari Ini
+          </Button>
+          
+          <div className="flex items-center border rounded-md">
+            <Button onClick={prevMonth} variant="ghost" size="icon" className="p-0 h-8 w-8">
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button onClick={nextMonth} variant="ghost" size="icon" className="p-0 h-8 w-8">
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          <Button variant="outline" size="sm" className="flex items-center gap-1">
+            <Filter className="h-4 w-4" />
+            <span>Filter</span>
+          </Button>
+          
+          <Button variant="outline" size="sm" className="ml-2" onClick={() => {}}>
+            Clear All
+          </Button>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-7 gap-0">
+        {["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"].map((day) => (
+          <div key={day} className="text-center font-medium py-2 border-b">
+            {day}
+          </div>
+        ))}
+        {isCalendarLoading ? (
+          <div className="col-span-7 h-40 flex justify-center items-center">
+            <LoadingIndicator />
+          </div>
+        ) : (
+          daysInMonth()
+        )}
       </div>
     </div>
   );
-} 
+}
+
+interface CalendarEventProps {
+  event: Transaksi;
+}
+
+function CalendarEvent({ event }: CalendarEventProps) {
+  const getEventTypeColor = (status: StatusTransaksi) => {
+    switch (status) {
+      case StatusTransaksi.BOOKING:
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case StatusTransaksi.BERJALAN:
+      case StatusTransaksi.AKTIF:
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case StatusTransaksi.SELESAI:
+        return "bg-green-100 text-green-800 border-green-200";
+      case StatusTransaksi.BATAL:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+      case StatusTransaksi.OVERDUE:
+        return "bg-red-100 text-red-800 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const getEventTime = (event: Transaksi) => {
+    return event.jamMulai ? event.jamMulai : "4:15p";
+  };
+
+  return (
+    <div
+      className={cn(
+        "text-xs p-1 rounded border flex flex-col",
+        getEventTypeColor(event.status)
+      )}
+    >
+      <div className="font-medium">{getEventTime(event)}</div>
+      <div>{event.namaPenyewa}</div>
+      <div>Rental motor</div>
+    </div>
+  );
+}

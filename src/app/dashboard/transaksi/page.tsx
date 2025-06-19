@@ -2,35 +2,45 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShoppingCart, Table, Calendar } from "lucide-react";
+import { ShoppingCart, Clock, User, Bike, CreditCard, Tag } from "lucide-react";
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { SearchBar } from "@/components/ui/search-bar";
-import { LoadingIndicator } from "@/components/ui/loading-indicator";
 import { DataTable } from "@/components/ui/data-table";
+import { MobileDataList } from "@/components/ui/mobile-data-list";
 import { FilterButtons, FilterOption } from "@/components/ui/filter-buttons";
 import { useTransaksiListStore } from "@/lib/store/transaksi/transaksi-store";
 import { formatRupiah, formatTanggal } from "@/lib/helper";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Pagination } from "@/components/ui/pagination";
 import { StatusTransaksi, Transaksi } from "@/lib/transaksi";
-import { TransaksiCalendar } from "@/components/transaksi/transaksi-calendar";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TransaksiCalendar  from "@/components/transaksi/transaksi-calendar";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { TableViewSelector, ViewMode } from "@/components/transaksi/table-view-selector";
+import { LoadingIndicator } from "@/components/ui/loading-indicator";
 
 export default function TransaksiPage() {
   const router = useRouter();
-  const [viewMode, setViewMode] = useState<"table" | "calendar">("table");
+  const [viewMode, setViewMode] = useState<ViewMode>("table");
+  const { isMobile } = useIsMobile();
+  
+  // Gunakan card view sebagai default untuk mobile
+  useEffect(() => {
+    if (isMobile && viewMode === "table") {
+      setViewMode("card");
+    }
+  }, [isMobile, viewMode]);
   
   const {
     transaksi,
-    loading,
     searchQuery,
     statusFilter,
     currentPage,
     totalPages,
     totalData,
     limit,
+    loading,
     fetchTransaksi,
     setSearchQuery,
     handleStatusFilterChange,
@@ -47,6 +57,7 @@ export default function TransaksiPage() {
     fetchTransaksi(1);
   };
 
+ 
   const handleDetailClick = (id: string) => {
     router.push(`/dashboard/transaksi/${id}`);
   };
@@ -120,13 +131,119 @@ export default function TransaksiPage() {
     }
   ];
 
+  // Columns untuk MobileDataList
+  const mobileColumns = [
+    {
+      header: "Penyewa",
+      accessorKey: "namaPenyewa" as const,
+      isMainField: true,
+      cell: (item: Transaksi) => (
+        <div>
+          <div className="font-medium">{item.namaPenyewa}</div>
+          <div className="text-xs text-neutral-500">{item.noWhatsapp}</div>
+        </div>
+      ),
+      icon: <User className="h-3 w-3" />
+    },
+    {
+      header: "Motor",
+      cell: (item: Transaksi) => (
+        <div>
+          <div>{item.unitMotor?.jenis?.merk || "-"} {item.unitMotor?.jenis?.model || ""}</div>
+          <div className="text-xs text-neutral-500">{item.unitMotor?.platNomor || "-"}</div>
+        </div>
+      ),
+      icon: <Bike className="h-3 w-3" />
+    },
+    {
+      header: "Waktu Sewa",
+      cell: (item: Transaksi) => (
+        <div>
+          <div>{formatTanggal(item.tanggalMulai)}, {item.jamMulai}</div>
+          <div className="text-xs text-neutral-500">s/d {formatTanggal(item.tanggalSelesai)}, {item.jamSelesai}</div>
+        </div>
+      ),
+      icon: <Clock className="h-3 w-3" />
+    },
+    {
+      header: "Status",
+      cell: (item: Transaksi) => <StatusBadge status={item.status} />,
+      icon: <Tag className="h-3 w-3" />
+    },
+    {
+      header: "Total",
+      cell: (item: Transaksi) => (
+        <span className="font-medium">{formatRupiah(item.totalBiaya)}</span>
+      ),
+      icon: <CreditCard className="h-3 w-3" />
+    }
+  ];
+
   const handleRowClick = (item: Transaksi) => {
     handleDetailClick(item.id);
   };
 
+ const renderContent = () => {
+  if (viewMode === "table") {
+    return (
+      loading ? (
+        <div className="w-full overflow-hidden">
+          <LoadingIndicator />
+        </div>
+      ) : (
+        <div className="w-full overflow-hidden">
+          <DataTable
+            data={transaksi}
+            columns={columns}
+            keyField="id"
+            onRowClick={handleRowClick}
+            emptyMessage={
+              searchQuery || statusFilter
+                ? "Tidak ada transaksi yang sesuai dengan filter"
+                : "Belum ada data transaksi"
+            }
+          />
+        </div>
+      )
+    )
+  }
+
+    if (viewMode === "card") {
+      return (
+        loading ? (
+          <div className="w-full overflow-hidden">
+            <LoadingIndicator />
+          </div>
+        ) : (
+          <MobileDataList
+            data={transaksi}
+            columns={mobileColumns}
+            keyField="id"
+            onItemClick={handleRowClick}
+            emptyMessage={
+            searchQuery || statusFilter
+              ? "Tidak ada transaksi yang sesuai dengan filter"
+              : "Belum ada data transaksi"
+            }
+          />
+        )
+      )
+    }
+
+    if (viewMode === "calendar") {
+      return (
+        <div className="w-full overflow-hidden">
+          <TransaksiCalendar />
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <DashboardLayout>
-      <div className="space-y-6 md:space-y-8">
+      <div className="space-y-6 md:space-y-8 pb-16 md:pb-20 overflow-hidden">
         <PageHeader 
           title="Daftar Transaksi" 
           description="Kelola semua transaksi rental motor"
@@ -135,8 +252,8 @@ export default function TransaksiPage() {
           actionHref="/dashboard/transaksi/tambah"
         />
 
-        <Card>
-          <CardHeader className="pb-3 px-4 py-4 md:px-6">
+        <Card className="overflow-hidden">
+          <CardHeader className="pb-3 px-4 py-4 md:px-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <SearchBar
                 searchQuery={searchQuery}
@@ -148,72 +265,39 @@ export default function TransaksiPage() {
                 showTitle={true}
               />
               
-              <Tabs 
-                value={viewMode} 
-                onValueChange={(value) => setViewMode(value as "table" | "calendar")}
+              <TableViewSelector 
+                viewMode={viewMode}
+                onChange={setViewMode}
                 className="w-auto"
-              >
-                <TabsList>
-                  <TabsTrigger value="table">
-                    <Table className="h-4 w-4 mr-2" />
-                    Tabel
-                  </TabsTrigger>
-                  <TabsTrigger value="calendar">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Kalender
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
+              />
             </div>
           </CardHeader>
-          <CardContent className="px-4 pb-4 md:px-6">
-            <FilterButtons
-              options={filterOptions}
-              currentValue={statusFilter}
-              onChange={handleStatusFilterChange}
-              className="mb-4"
-            />
+          <CardContent className="px-4 pb-4 md:px-5">
+            <div className="mb-3">
+              <FilterButtons
+                options={filterOptions}
+                currentValue={statusFilter}
+                onChange={handleStatusFilterChange}
+              />
+            </div>
 
-            {viewMode === "table" && (
-              <>
-                {loading ? (
-                  <LoadingIndicator />
-                ) : (
-                  <>
-                    <DataTable
-                      data={transaksi}
-                      columns={columns}
-                      keyField="id"
-                      onRowClick={handleRowClick}
-                      emptyMessage={
-                        searchQuery || statusFilter
-                          ? "Tidak ada transaksi yang sesuai dengan filter"
-                          : "Belum ada data transaksi"
-                      }
-                    />
-                    
-                    <div className="mt-4">
-                      <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        totalData={totalData}
-                        limit={limit}
-                        onPageChange={handlePageChange}
-                      />
-                    </div>
-                  </>
-                )}
-              </>
-            )}
+            {/* {renderContent()} */}
             
-            {viewMode === "calendar" && (
-              <div className="w-full">
-                <TransaksiCalendar />
+            {viewMode !== "calendar" && (
+              <div className="mt-4">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalData={totalData}
+                  limit={limit}
+                  onPageChange={handlePageChange}
+                  />
               </div>
             )}
           </CardContent>
         </Card>
       </div>
+      {renderContent()}
     </DashboardLayout>
   );
 } 

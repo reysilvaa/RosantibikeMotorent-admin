@@ -75,14 +75,22 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         />
         
         <main className={cn(
-          "flex-1 flex flex-col",
-          isSmallMobile ? "px-2 pt-2 pb-20" : "px-3 pt-3 pb-20",
-          "md:p-6"
+          "flex-1 w-full overflow-hidden",
+          isSmallMobile ? 
+            "px-2 pt-2 pb-16" :
+            "px-3 pt-3 pb-16",
+          "md:p-5 md:pb-6"
         )}>
+          <div className="w-full h-full">
           {children}
+          </div>
         </main>
         
-        {isMobile && <BottomNavigation />}
+        {isMobile && (
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white">
+            <BottomNavigation />
+          </div>
+        )}
       </div>
     </div>
   );

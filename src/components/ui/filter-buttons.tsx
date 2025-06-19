@@ -1,5 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { cn } from "@/lib/utils";
 
 export interface FilterOption<T> {
   value: T;
@@ -23,12 +25,15 @@ export function FilterButtons<T>({
   className = "",
   showAllOption = true,
 }: FilterButtonsProps<T>) {
+  const { isSmallMobile } = useIsMobile();
+  
   return (
-    <div className={`mb-4 flex flex-wrap items-center gap-2 ${className}`}>
+    <div className={cn("mb-3 flex flex-wrap items-center gap-1.5", className)}>
       {showAllOption && (
         <Button
           variant={currentValue === options[0].value ? "default" : "outline"}
-          size="sm"
+          size={isSmallMobile ? "xs" : "sm"}
+          className={cn(isSmallMobile && "text-xs h-7 px-2")}
           onClick={() => onChange(options[0].value)}
         >
           {allLabel}
@@ -39,7 +44,8 @@ export function FilterButtons<T>({
         <Button
           key={`filter-${index}`}
           variant={currentValue === option.value ? "default" : "outline"}
-          size="sm"
+          size={isSmallMobile ? "xs" : "sm"}
+          className={cn(isSmallMobile && "text-xs h-7 px-2")}
           onClick={() => onChange(option.value)}
         >
           {option.label}

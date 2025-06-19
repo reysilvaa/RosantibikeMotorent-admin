@@ -33,7 +33,7 @@ export function PageHeader({
   showBackButton = false,
 }: PageHeaderProps) {
   const router = useRouter();
-  const { isMobile } = useIsMobile();
+  const { isMobile, isSmallMobile } = useIsMobile();
 
   const handleBack = () => {
     if (backHref) {
@@ -52,28 +52,32 @@ export function PageHeader({
   };
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center">
+    <div className="flex flex-wrap items-center justify-between gap-3 w-full overflow-hidden">
+      <div className={cn(
+        "flex items-center",
+        "max-w-full",
+        (actionLabel || actionIcon) ? "w-auto" : "w-full"
+      )}>
         {showBackButton && (
           <Button
             variant="outline"
             size="icon"
-            className="mr-3 md:mr-4"
+            className="mr-2 flex-shrink-0 md:mr-4"
             onClick={handleBack}
           >
             <ArrowLeft className="h-4 w-4" />
             <span className="sr-only">Kembali</span>
           </Button>
         )}
-        <div>
-          <h2 className="text-xl font-bold tracking-tight md:text-3xl">{title}</h2>
+        <div className="min-w-0 max-w-full">
+          <h2 className="text-lg font-bold tracking-tight truncate md:text-2xl lg:text-3xl">{title}</h2>
           {description && (
-            <p className="text-sm text-neutral-500 dark:text-neutral-400 md:text-base">
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 md:text-sm truncate">
               {description}
             </p>
           )}
           {id && (
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 md:text-sm">
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">
               ID: {id}
             </p>
           )}
@@ -87,7 +91,9 @@ export function PageHeader({
           disabled={actionDisabled}
           size={isMobile && !actionLabel ? "icon" : "default"}
           className={cn(
-            isMobile && actionLabel ? "text-xs px-3 py-1.5 h-9" : "",
+            "flex-shrink-0",
+            isSmallMobile && actionLabel ? "text-xs px-2 py-1 h-8" : "",
+            isMobile && !isSmallMobile && actionLabel ? "text-xs px-3 py-1.5 h-9" : "",
             actionHref && isMobile && !actionLabel ? "p-2" : ""
           )}
         >
@@ -98,7 +104,7 @@ export function PageHeader({
               {actionIcon || <Plus className="h-4 w-4" />}
             </span>
           )}
-          {actionLabel && <span>{actionLabel}</span>}
+          {actionLabel && <span className="truncate">{actionLabel}</span>}
         </Button>
       )}
     </div>

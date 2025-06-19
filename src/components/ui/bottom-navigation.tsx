@@ -32,20 +32,19 @@ const BottomNavItem = ({ href, icon, label, isCenter = false }: BottomNavItemPro
         className={cn(
           "flex flex-col items-center justify-center relative",
           "transition-colors duration-200",
-          "-mt-6"
+          "-mt-4"
         )}
       >
         <div className={cn(
           "flex items-center justify-center rounded-full",
-          "shadow-md border-4 border-white",
+          "shadow-md border-2 border-white",
           isActive ? "bg-blue-600 text-white" : "bg-blue-500 text-white",
-          isSmallMobile ? "h-14 w-14" : "h-16 w-16"
+          "h-10 w-10"
         )}>
           {icon}
         </div>
         <span className={cn(
-          "mt-1 text-center",
-          isSmallMobile ? "text-[10px]" : "text-xs",
+          "mt-0.5 text-center text-[10px]",
           isActive ? "text-blue-600" : "text-neutral-500"
         )}>
           {label}
@@ -66,10 +65,7 @@ const BottomNavItem = ({ href, icon, label, isCenter = false }: BottomNavItemPro
       <div className="flex items-center justify-center">
         {icon}
       </div>
-      <span className={cn(
-        "mt-1 text-center",
-        isSmallMobile ? "text-[10px]" : "text-xs"
-      )}>
+      <span className="mt-0.5 text-center text-[10px]">
         {label}
       </span>
     </Link>
@@ -77,21 +73,20 @@ const BottomNavItem = ({ href, icon, label, isCenter = false }: BottomNavItemPro
 };
 
 export function BottomNavigation() {
-  const { isSmallMobile } = useIsMobile();
-  const iconSize = isSmallMobile ? 18 : 20;
-  const centerIconSize = isSmallMobile ? 24 : 28;
+  const iconSize = 18;
+  const centerIconSize = 20;
 
   const navItems = [
     { href: "/dashboard", icon: <LayoutDashboard size={iconSize} />, label: "Dashboard" },
-    { href: "/dashboard/unit-motor", icon: <Bike size={centerIconSize} />, label: "Unit Motor" },
-    { href: "/dashboard/transaksi", icon: <ReceiptText size={iconSize} />, label: "Transaksi", isCenter: true },
+    { href: "/dashboard/unit-motor", icon: <Bike size={iconSize} />, label: "Unit Motor" },
+    { href: "/dashboard/transaksi", icon: <ReceiptText size={centerIconSize} />, label: "Transaksi", isCenter: true },
     { href: "/dashboard/blog", icon: <FileText size={iconSize} />, label: "Blog" },
     { href: "/dashboard/more", icon: <Menu size={iconSize} />, label: "Lainnya" },
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-neutral-200">
-      <div className="grid grid-cols-5 h-16 pb-2">
+    <div className="w-full bg-white border-t border-neutral-200 shadow-md">
+      <div className="grid grid-cols-5 h-14">
         {navItems.map((item) => (
           <BottomNavItem
             key={item.href}
@@ -104,4 +99,4 @@ export function BottomNavigation() {
       </div>
     </div>
   );
-} 
+}
