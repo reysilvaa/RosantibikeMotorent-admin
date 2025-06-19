@@ -11,6 +11,7 @@ import { DashboardStats } from "@/components/dashboard/dashboard-stats";
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
 import { RecentTransactions } from "@/components/dashboard/recent-transactions";
 import { LoadingIndicator } from "@/components/ui/loading-indicator";
+import { PageHeader } from "@/components/ui/page-header";
 
 interface CustomStatistikData extends Omit<StatistikData, 'dataTransaksi'> {
   dataTransaksi: Transaksi[];
@@ -88,12 +89,10 @@ export default function DashboardPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6 md:space-y-8">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight md:text-3xl">Dashboard</h2>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400 md:text-base">
-            Ringkasan dan statistik dari sistem rental motor
-          </p>
-        </div>
+        <PageHeader
+          title="Dashboard"
+          description="Ringkasan dan statistik dari sistem rental motor"
+        />
         
         {loading ? (
           <LoadingIndicator message="Memuat data..." /> 

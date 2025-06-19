@@ -126,7 +126,7 @@ export default function TransaksiPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-full space-y-4 pb-16 md:pb-0">
+      <div className="space-y-6 md:space-y-8">
         <PageHeader 
           title="Daftar Transaksi" 
           description="Kelola semua transaksi rental motor"
@@ -135,8 +135,8 @@ export default function TransaksiPage() {
           actionHref="/dashboard/transaksi/tambah"
         />
 
-        <Card className="flex-1 flex flex-col min-h-0">
-          <CardHeader className="pb-3">
+        <Card>
+          <CardHeader className="pb-3 px-4 py-4 md:px-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <SearchBar
                 searchQuery={searchQuery}
@@ -166,55 +166,51 @@ export default function TransaksiPage() {
               </Tabs>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 flex flex-col min-h-0">
+          <CardContent className="px-4 pb-4 md:px-6">
             <FilterButtons
               options={filterOptions}
               currentValue={statusFilter}
               onChange={handleStatusFilterChange}
-              className="mb-2"
+              className="mb-4"
             />
 
-            <div className="flex-1 flex flex-col min-h-0">
-              {viewMode === "table" && (
-                <div className="flex-1 flex flex-col overflow-hidden">
-                  {loading ? (
-                    <LoadingIndicator />
-                  ) : (
-                    <>
-                      <div className="flex-1 overflow-auto">
-                        <DataTable
-                          data={transaksi}
-                          columns={columns}
-                          keyField="id"
-                          onRowClick={handleRowClick}
-                          emptyMessage={
-                            searchQuery || statusFilter
-                              ? "Tidak ada transaksi yang sesuai dengan filter"
-                              : "Belum ada data transaksi"
-                          }
-                        />
-                      </div>
-                      
-                      <div className="mt-4">
-                        <Pagination
-                          currentPage={currentPage}
-                          totalPages={totalPages}
-                          totalData={totalData}
-                          limit={limit}
-                          onPageChange={handlePageChange}
-                        />
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-              
-              {viewMode === "calendar" && (
-                <div className="flex-1 overflow-auto">
-                  <TransaksiCalendar />
-                </div>
-              )}
-            </div>
+            {viewMode === "table" && (
+              <>
+                {loading ? (
+                  <LoadingIndicator />
+                ) : (
+                  <>
+                    <DataTable
+                      data={transaksi}
+                      columns={columns}
+                      keyField="id"
+                      onRowClick={handleRowClick}
+                      emptyMessage={
+                        searchQuery || statusFilter
+                          ? "Tidak ada transaksi yang sesuai dengan filter"
+                          : "Belum ada data transaksi"
+                      }
+                    />
+                    
+                    <div className="mt-4">
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        totalData={totalData}
+                        limit={limit}
+                        onPageChange={handlePageChange}
+                      />
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+            
+            {viewMode === "calendar" && (
+              <div className="w-full">
+                <TransaksiCalendar />
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
