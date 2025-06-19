@@ -34,9 +34,15 @@ export const login = async (credentials: LoginCredentials): Promise<LoginRespons
 
 export const logout = async (): Promise<void> => {
   try {
-    await axios.post(`/auth/logout`, {});
+    await axios.post(`/auth/logout`);
   } catch (error) {
     console.error('Logout error:', error);
-    throw new Error('Gagal logout');
+  } finally {
+    if (typeof window !== 'undefined') {
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      window.location.replace('/auth/login');
+    }
   }
 }; 
