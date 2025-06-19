@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { LoadingIndicator } from "./loading-indicator";
 
 interface Column<T> {
   header: string;
@@ -58,7 +59,7 @@ export function DataTable<T>({
                   colSpan={visibleColumns.length + (onRowClick ? 1 : 0)}
                   className="px-2 py-8 text-center text-neutral-500 dark:text-neutral-400 md:px-4"
                 >
-                  Memuat data...
+                  <LoadingIndicator message="Memuat data..." />
                 </td>
               </tr>
             ) : data.length > 0 ? (

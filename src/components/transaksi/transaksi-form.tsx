@@ -19,7 +19,7 @@ import { useTransaksiFormStore } from "@/lib/store/transaksi/transaksi-form-stor
 import { getUnitMotor } from "@/lib/api/unit-motor";
 import { UnitMotor } from "@/lib/types/unit-motor";
 import { toast } from "sonner";
-
+import { LoadingIndicator } from "@/components/ui/loading-indicator";
 interface TransaksiFormProps {
   onCancel: () => void;
 }
@@ -154,9 +154,7 @@ export function TransaksiForm({ onCancel }: TransaksiFormProps) {
                 </SelectTrigger>
                 <SelectContent>
                   {loadingUnitMotor ? (
-                    <SelectItem value="loading" disabled>
-                      Memuat data...
-                    </SelectItem>
+                    <LoadingIndicator message="Memuat transaksi..." />
                   ) : unitMotorList.length > 0 ? (
                     unitMotorList.map((unit: UnitMotor) => (
                       <SelectItem key={unit.id} value={unit.id}>

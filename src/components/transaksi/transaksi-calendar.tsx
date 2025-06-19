@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths, isSameDay } from "date-fns";
 import { id } from "date-fns/locale";
 import { useTransaksiListStore } from "@/lib/store/transaksi/transaksi-store";
+import { LoadingIndicator } from "@/components/ui/loading-indicator";
 
 // Fungsi untuk mendapatkan warna berdasarkan status transaksi
 const getStatusColor = (status: StatusTransaksi) => {
@@ -204,7 +205,6 @@ export function TransaksiCalendar() {
     });
   };
   
-  // Effect untuk memuat data transaksi ketika komponen dimount atau filter berubah
   useEffect(() => {
     // Format tanggal untuk API
     const startDateStr = format(firstDayOfMonth, 'yyyy-MM-dd');
@@ -262,11 +262,7 @@ export function TransaksiCalendar() {
   );
   
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
-      </div>
-    );
+    return <LoadingIndicator message="Memuat data..." />;
   }
   
   return (
