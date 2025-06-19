@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "@/lib/store/auth/auth-store";
 import DashboardLayout from "@/components/layout/dashboard-layout";
+import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface MenuItemProps {
   href: string;
@@ -21,17 +23,29 @@ interface MenuItemProps {
 }
 
 const MenuItem = ({ href, icon, title, onClick }: MenuItemProps) => {
+  const { isSmallMobile } = useIsMobile();
+  
   return (
     <Link
       href={href}
-      className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-4 shadow-sm transition-all hover:bg-neutral-50"
+      className={cn(
+        "flex items-center justify-between p-4 rounded-lg border border-neutral-100 bg-white",
+        "transition-all duration-200 hover:bg-blue-50"
+      )}
       onClick={onClick}
     >
       <div className="flex items-center gap-3">
-        <div className="rounded-full bg-blue-100 p-2 text-blue-700">{icon}</div>
-        <span className="font-medium">{title}</span>
+        <div className={cn(
+          "flex items-center justify-center rounded-lg bg-blue-100 text-blue-600",
+          isSmallMobile ? "p-2" : "p-2.5"
+        )}>
+          {icon}
+        </div>
+        <span className="font-medium text-neutral-800">
+          {title}
+        </span>
       </div>
-      <ChevronRight className="text-neutral-400" size={20} />
+      <ChevronRight className="text-neutral-400" size={isSmallMobile ? 18 : 20} />
     </Link>
   );
 };
@@ -39,31 +53,33 @@ const MenuItem = ({ href, icon, title, onClick }: MenuItemProps) => {
 export default function MorePage() {
   const router = useRouter();
   const { logout } = useAuthStore();
+  const { isSmallMobile } = useIsMobile();
 
   const handleLogout = () => {
     logout();
     router.push("/auth/login");
   };
 
+  const iconSize = isSmallMobile ? 18 : 20;
+  
+  const menuItems = [
+    { href: "/dashboard/jenis-motor", icon: <Tags size={iconSize} />, title: "Jenis Motor" },
+    { href: "/dashboard/whatsapp", icon: <MessageSquare size={iconSize} />, title: "WhatsApp" },
+    { href: "/dashboard/admin", icon: <Users size={iconSize} />, title: "Admin" },
+  ];
+
   return (
     <DashboardLayout>
       <div className="space-y-4">
         <div className="space-y-3">
-          <MenuItem
-            href="/dashboard/jenis-motor"
-            icon={<Tags size={18} />}
-            title="Jenis Motor"
-          />
-          <MenuItem
-            href="/dashboard/whatsapp"
-            icon={<MessageSquare size={18} />}
-            title="WhatsApp"
-          />
-          <MenuItem
-            href="/dashboard/admin"
-            icon={<Users size={18} />}
-            title="Admin"
-          />
+          {menuItems.map((item) => (
+            <MenuItem
+              key={item.href}
+              href={item.href}
+              icon={item.icon}
+              title={item.title}
+            />
+          ))}
         </div>
 
         <div className="pt-4">

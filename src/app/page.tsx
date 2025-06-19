@@ -2,20 +2,22 @@
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/lib/store/auth/auth-store";
+import { Login } from "@/components/login/login-container";
 
 export default function Home() {
   const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
-    // Redirect ke halaman dashboard
-    router.push("/dashboard");
-  }, [router]);
+    if (isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [router, isAuthenticated]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-50 dark:bg-neutral-950">
-      <div className="animate-pulse text-xl font-medium text-neutral-500">
-        Mengalihkan...
-      </div>
+    <div>
+      {isAuthenticated ? null : <Login />}
     </div>
   );
 } 

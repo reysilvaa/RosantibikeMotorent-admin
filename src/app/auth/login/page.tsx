@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { LoginContainer } from "@/components/login/login-container";
+import { Login } from "@/components/login/login-container";
 import { useAuthStore } from "@/lib/store/auth/auth-store";
 
 export default function LoginPage() {
@@ -21,5 +21,5 @@ export default function LoginPage() {
   }
   
   // Tampilkan halaman login
-  return <LoginContainer />;
+  return <Login />;
 } 

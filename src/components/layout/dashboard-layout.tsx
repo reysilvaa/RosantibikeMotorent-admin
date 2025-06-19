@@ -76,7 +76,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         
         <main className={cn(
           "flex-1 flex flex-col",
-          isSmallMobile ? "px-2 pt-2 pb-14" : "px-3 pt-3 pb-16",
+          isSmallMobile ? "px-2 pt-2 pb-20" : "px-3 pt-3 pb-20",
           "md:p-6"
         )}>
           {children}
