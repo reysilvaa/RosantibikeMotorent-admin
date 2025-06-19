@@ -12,13 +12,14 @@ export function TransactionChart({ data }: TransactionChartProps) {
   }));
 
   return (
-    <div className="w-full overflow-hidden">
-    <BarChart
-      data={chartData}
-      height={300}
-      formatter={(value) => `${value} transaksi`}
-      title="Transaksi"
-    />
+    <div className="w-full h-full overflow-hidden">
+      <BarChart
+        data={chartData}
+        height={300}
+        formatter={(value) => `${value} transaksi`}
+        title="Transaksi"
+        colors={['#6366f1', '#8b5cf6']}
+      />
     </div>
   );
 }

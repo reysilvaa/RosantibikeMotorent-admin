@@ -15,6 +15,7 @@ export type ApexOptions = {
       show?: boolean;
     };
     background?: string;
+    fontFamily?: string;
   };
   colors?: string[];
   labels?: string[];
@@ -23,30 +24,45 @@ export type ApexOptions = {
     labels?: {
       style?: {
         colors?: string | string[];
+        fontSize?: string;
+        fontFamily?: string;
       };
       rotate?: number;
       trim?: boolean;
     };
     axisBorder?: {
       show?: boolean;
+      color?: string;
     };
     axisTicks?: {
       show?: boolean;
+      color?: string;
     };
   };
   yaxis?: {
     labels?: {
       style?: {
         colors?: string | string[];
+        fontSize?: string;
+        fontFamily?: string;
       };
+      formatter?: (val: number) => string;
     };
+    min?: number;
+    max?: number;
+    tickAmount?: number;
   };
   dataLabels?: {
     enabled?: boolean;
+    style?: {
+      fontSize?: string;
+      colors?: string[];
+    };
   };
   stroke?: {
     curve?: string;
     width?: number;
+    colors?: string[];
   };
   grid?: {
     borderColor?: string;
@@ -54,6 +70,8 @@ export type ApexOptions = {
     padding?: {
       left?: number;
       right?: number;
+      top?: number;
+      bottom?: number;
     };
     yaxis?: {
       lines?: {
@@ -64,6 +82,10 @@ export type ApexOptions = {
       lines?: {
         show?: boolean;
       };
+    };
+    row?: {
+      colors?: string[];
+      opacity?: number;
     };
   };
   fill?: {
@@ -82,8 +104,15 @@ export type ApexOptions = {
   };
   tooltip?: {
     theme?: string;
+    style?: {
+      fontSize?: string;
+      fontFamily?: string;
+    };
     y?: {
       formatter?: (val: number) => string;
+    };
+    marker?: {
+      show?: boolean;
     };
   };
   responsive?: Array<{
@@ -95,21 +124,28 @@ export type ApexOptions = {
       borderRadius?: number;
       columnWidth?: string;
       horizontal?: boolean;
+      distributed?: boolean;
+      dataLabels?: {
+        position?: string;
+      };
     };
     pie?: {
       donut?: {
         size?: string;
+        background?: string;
         labels?: {
           show?: boolean;
           name?: {
             show?: boolean;
             fontSize?: string;
             color?: string;
+            fontFamily?: string;
           };
           value?: {
             show?: boolean;
             fontSize?: string;
             color?: string;
+            fontFamily?: string;
             formatter?: (val: number) => string;
           };
           total?: {
@@ -124,15 +160,21 @@ export type ApexOptions = {
     };
   };
   legend?: {
+    show?: boolean;
     position?: string;
     horizontalAlign?: string;
     fontSize?: string;
+    fontFamily?: string;
+    offsetX?: number;
+    offsetY?: number;
     labels?: {
       colors?: string | string[];
+      useSeriesColors?: boolean;
     };
     markers?: {
       size?: number;
       strokeWidth?: number;
+      strokeColor?: string;
       fillColors?: string[];
       radius?: number;
       offsetX?: number;
@@ -142,6 +184,28 @@ export type ApexOptions = {
       horizontal?: number;
       vertical?: number;
     };
+    onItemClick?: {
+      toggleDataSeries?: boolean;
+    };
+    formatter?: (legendName: string, opts?: Record<string, unknown>) => string;
+  };
+  theme?: {
+    mode?: string;
+    palette?: string;
+  };
+  states?: {
+    hover?: {
+      filter?: {
+        type?: string;
+        value?: number;
+      };
+    };
+    active?: {
+      filter?: {
+        type?: string;
+        value?: number;
+      };
+    };
   };
 };
 
@@ -149,7 +213,7 @@ export type ApexOptions = {
 export const BarChart = ({ 
   data, 
   height = 300,
-  colors = ['#3b82f6'],
+  colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e'],
   formatter = (value: number) => `${value}`,
   title = '',
 }: { 
@@ -168,15 +232,24 @@ export const BarChart = ({
         show: false,
       },
       background: 'transparent',
+      fontFamily: 'inherit',
     },
     plotOptions: {
       bar: {
-        borderRadius: 4,
-        columnWidth: '60%',
+        borderRadius: 6,
+        columnWidth: '65%',
+        distributed: true,
+        dataLabels: {
+          position: 'top',
+        },
       },
     },
     dataLabels: {
       enabled: false,
+      style: {
+        fontSize: '12px',
+        colors: ['#f8fafc'],
+      },
     },
     stroke: {
       curve: 'smooth',
@@ -186,7 +259,9 @@ export const BarChart = ({
       categories: data.map(item => item.label),
       labels: {
         style: {
-          colors: '#9ca3af',
+          colors: '#94a3b8',
+          fontSize: '12px',
+          fontFamily: 'inherit',
         },
         rotate: -45,
         trim: true
@@ -201,16 +276,28 @@ export const BarChart = ({
     yaxis: {
       labels: {
         style: {
-          colors: '#9ca3af',
+          colors: '#94a3b8',
+          fontSize: '12px',
+          fontFamily: 'inherit',
         },
+        formatter: (val) => {
+          if (val === Math.floor(val)) {
+            return val.toString();
+          }
+          return '';
+        }
       },
+      min: 0,
+      tickAmount: 4,
     },
     grid: {
-      borderColor: '#27272a',
+      borderColor: '#334155',
       strokeDashArray: 4,
       padding: {
-        left: 0,
-        right: 0
+        left: 10,
+        right: 10,
+        top: 0,
+        bottom: 0
       },
       yaxis: {
         lines: {
@@ -229,35 +316,79 @@ export const BarChart = ({
       gradient: {
         shade: 'dark',
         type: 'vertical',
-        shadeIntensity: 0.5,
+        shadeIntensity: 0.4,
         gradientToColors: undefined,
-        inverseColors: true,
-        opacityFrom: 0.8,
-        opacityTo: 0.5,
-        stops: [0, 100],
+        inverseColors: false,
+        opacityFrom: 0.9,
+        opacityTo: 0.6,
+        stops: [0, 90, 100],
       },
     },
     colors,
     tooltip: {
       theme: 'dark',
+      style: {
+        fontSize: '12px',
+        fontFamily: 'inherit',
+      },
       y: {
         formatter,
+      },
+      marker: {
+        show: false,
       },
     },
     responsive: [
       {
-        breakpoint: 640,
+        breakpoint: 768,
         options: {
           plotOptions: {
             bar: {
-              columnWidth: '80%',
+              columnWidth: '70%',
+              borderRadius: 4,
             },
           },
           xaxis: {
             labels: {
-              rotate: 0,
+              rotate: -45,
               style: {
-                fontSize: '8px'
+                fontSize: '10px'
+              }
+            }
+          },
+          yaxis: {
+            labels: {
+              style: {
+                fontSize: '10px'
+              }
+            }
+          }
+        },
+      },
+      {
+        breakpoint: 480,
+        options: {
+          chart: {
+            height: 250,
+          },
+          plotOptions: {
+            bar: {
+              columnWidth: '85%',
+              borderRadius: 3,
+            },
+          },
+          xaxis: {
+            labels: {
+              rotate: -45,
+              style: {
+                fontSize: '9px'
+              }
+            }
+          },
+          yaxis: {
+            labels: {
+              style: {
+                fontSize: '9px'
               }
             }
           }
@@ -274,7 +405,7 @@ export const BarChart = ({
   ];
 
   return (
-    <div className="w-full overflow-hidden">
+    <div className="w-full h-full overflow-hidden">
       {typeof window !== 'undefined' && (
         <ReactApexChart
           options={options as ApexCharts.ApexOptions}
@@ -288,11 +419,11 @@ export const BarChart = ({
   );
 };
 
-// Komponen Donut Chart
-export const DonutChart = ({
+// Komponen Pie Chart
+export const PieChart = ({
   data,
   height = 300,
-  colors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'],
+  colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308'],
   formatter = (value: number) => `${value}`,
 }: {
   data: Array<{ label: string; value: number }>;
@@ -302,67 +433,56 @@ export const DonutChart = ({
 }) => {
   const options: ApexOptions = {
     chart: {
-      type: 'donut',
+      type: 'pie',
       height,
       toolbar: {
         show: false,
       },
       background: 'transparent',
+      fontFamily: 'inherit',
     },
     labels: data.map(item => item.label),
     colors,
     stroke: {
-      width: 0,
+      width: 2,
+      colors: ['#1e293b'],
     },
     plotOptions: {
       pie: {
-        donut: {
-          size: '50%',
-          labels: {
-            show: true,
-            name: {
-              show: true,
-              fontSize: '16px',
-              color: '#9ca3af',
-            },
-            value: {
-              show: true,
-              fontSize: '20px',
-              color: '#9ca3af',
-              formatter: (val) => formatter(val),
-            },
-            total: {
-              show: true,
-              label: 'Total',
-              color: '#9ca3af',
-              formatter: function (w) {
-                const total = (w as unknown as { globals: { seriesTotals: number[] } }).globals.seriesTotals.reduce((a: number, b: number) => a + b, 0);
-                return formatter(total);
-              }
-            }
-          }
-        },
         expandOnClick: false,
       }
     },
     legend: {
+      show: true,
       position: 'bottom',
       horizontalAlign: 'center',
-      fontSize: '14px',
+      fontSize: '12px',
+      fontFamily: 'inherit',
+      offsetY: 5,
       labels: {
-        colors: '#9ca3af',
+        colors: '#94a3b8',
       },
       markers: {
-        size: 12,
-        radius: 12,
+        size: 8,
+        strokeWidth: 0,
+        strokeColor: '#1e293b',
+        radius: 6,
+        offsetX: -2,
       },
       itemMargin: {
-        horizontal: 8,
-        vertical: 5,
+        horizontal: 10,
+        vertical: 3,
+      },
+      onItemClick: {
+        toggleDataSeries: false
       },
     },
     tooltip: {
       theme: 'dark',
+      style: {
+        fontSize: '12px',
+        fontFamily: 'inherit',
+      },
       y: {
         formatter,
       },
@@ -370,15 +490,53 @@ export const DonutChart = ({
     dataLabels: {
       enabled: false,
     },
+    states: {
+      hover: {
+        filter: {
+          type: 'darken',
+          value: 0.9,
+        }
+      },
+      active: {
+        filter: {
+          type: 'darken',
+          value: 0.6,
+        }
+      }
+    },
     responsive: [
       {
-        breakpoint: 480,
+        breakpoint: 768,
         options: {
           chart: {
             height: 280,
           },
           legend: {
-            position: 'bottom',
+            fontSize: '11px',
+            offsetY: 0,
+            itemMargin: {
+              horizontal: 8,
+              vertical: 2,
+            },
+          },
+        },
+      },
+      {
+        breakpoint: 480,
+        options: {
+          chart: {
+            height: 250,
+          },
+          legend: {
+            fontSize: '10px',
+            offsetY: -5,
+            itemMargin: {
+              horizontal: 6,
+              vertical: 1,
+            },
+            markers: {
+              size: 6,
+            },
           },
         },
       },
@@ -388,12 +546,12 @@ export const DonutChart = ({
   const series = data.map(item => item.value);
 
   return (
-    <div className="w-full overflow-hidden">
+    <div className="w-full h-full overflow-hidden">
       {typeof window !== 'undefined' && (
         <ReactApexChart
           options={options as ApexCharts.ApexOptions}
           series={series}
-          type="donut"
+          type="pie"
           height={height}
           width="100%"
         />

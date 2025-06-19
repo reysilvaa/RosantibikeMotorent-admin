@@ -1,5 +1,5 @@
 import React from "react";
-import { DonutChart } from "../../ui/chart";
+import { PieChart } from "../../ui/chart";
 
 interface StatusMotorChartProps {
   data: Array<{ status: string; jumlah: number }>;
@@ -11,13 +11,27 @@ export function StatusMotorChart({ data }: StatusMotorChartProps) {
     value: item.jumlah
   }));
 
+  // Warna yang berbeda untuk setiap status motor
+  const statusColors = {
+    'TERSEDIA': '#10b981', // hijau
+    'DISEWA': '#f97316',   // oranye
+    'DIPESAN': '#6366f1',  // indigo
+    'OVERDUE': '#ef4444',  // merah
+  };
+
+  // Memetakan warna berdasarkan label
+  const colors = chartData.map(item => 
+    statusColors[item.label as keyof typeof statusColors] || '#8b5cf6'
+  );
+
   return (
-    <div className="w-full overflow-hidden">
-    <DonutChart
-      data={chartData}
-      height={300}
-      formatter={(value) => `${value} unit`}
-    />
+    <div className="w-full h-full overflow-hidden">
+      <PieChart
+        data={chartData}
+        height={300}
+        formatter={(value) => `${value} unit`}
+        colors={colors}
+      />
     </div>
   );
 }
