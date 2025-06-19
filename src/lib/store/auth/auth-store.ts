@@ -8,7 +8,7 @@ interface AuthState {
   error: string | null;
   isAuthenticated: boolean;
   
-  login: (username: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string, redirect?: () => void) => Promise<boolean>;
   logout: () => void;
   checkAuth: () => boolean;
 }
@@ -18,7 +18,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   error: null,
   isAuthenticated: typeof window !== 'undefined' ? isAuthenticated() : false,
   
-  login: async (username: string, password: string) => {
+  login: async (username: string, password: string, redirect?: () => void) => {
     set({ isLoading: true, error: null });
     
     try {
@@ -27,6 +27,13 @@ export const useAuthStore = create<AuthState>((set) => ({
       Cookies.set('accessToken', response.access_token, { expires: 7 });
           
       set({ isLoading: false, isAuthenticated: true });
+      
+      if (redirect) {
+        setTimeout(() => {
+          redirect();
+        }, 100);
+      }
+      
       return true;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Username atau password salah';

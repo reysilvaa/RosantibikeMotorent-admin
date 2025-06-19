@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useAuthStore } from "@/lib/store/auth/auth-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export function LoginForm() {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   
@@ -19,7 +21,9 @@ export function LoginForm() {
       return;
     }
     
-    await login(username, password);
+    await login(username, password, () => {
+      router.push("/dashboard");
+    });
   };
   
   return (

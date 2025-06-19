@@ -7,7 +7,7 @@ import { useAuthStore } from "@/lib/store/auth/auth-store";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { checkAuth, isAuthenticated } = useAuthStore();
+  const { checkAuth } = useAuthStore();
   
   useEffect(() => {
     const isLoggedIn = checkAuth();    
@@ -15,11 +15,5 @@ export default function LoginPage() {
       router.push("/dashboard");
     }
   }, [router, checkAuth]);
-  
-  if (isAuthenticated) {
-    return null;
-  }
-  
-  // Tampilkan halaman login
   return <Login />;
 } 

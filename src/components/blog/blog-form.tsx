@@ -7,7 +7,7 @@ import { StatusMessage } from "@/components/ui/status-message";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BlogStatus } from "@/lib/types/blog";
 import { searchBlogTags, BlogTag } from "@/lib/api/blog";
-import { useDebounce } from "@/hooks/use-debounce";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface BlogFormProps {
   initialValues?: {

@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Loader2, RefreshCcw, LogOut, MessageSquare, CheckCircle, XCircle, Info } from "lucide-react";
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +20,8 @@ import {
   logoutSession, 
   startAllSessions 
 } from "@/lib/whatsapp";
+import { CheckCircle, Info, LogOut, MessageSquare, RefreshCcw, XCircle } from "lucide-react";
+import { LoadingIndicator } from "@/components/ui/loading-indicator";
 
 export default function WhatsappPage() {
   const [status, setStatus] = useState({
@@ -245,7 +246,7 @@ export default function WhatsappPage() {
     if (loading) {
       return (
         <div className="flex items-center justify-center py-6">
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <LoadingIndicator />
           <span>Memuat status...</span>
         </div>
       );
@@ -324,7 +325,7 @@ export default function WhatsappPage() {
           <CardFooter className="flex justify-between">
             <Button onClick={handleRefresh} disabled={refreshing}>
               {refreshing ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <LoadingIndicator className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <RefreshCcw className="mr-2 h-4 w-4" />
               )}
@@ -362,7 +363,7 @@ export default function WhatsappPage() {
               </div>
             ) : qrLoading ? (
               <div className="flex flex-col items-center justify-center py-6">
-                <Loader2 className="h-16 w-16 animate-spin mb-4 text-blue-500" />
+                <LoadingIndicator />
                 <p className="text-sm text-center">Memuat QR code...</p>
               </div>
             ) : qrCode ? (
