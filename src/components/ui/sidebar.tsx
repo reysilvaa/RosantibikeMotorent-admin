@@ -88,7 +88,7 @@ const SidebarNavItem = ({
         {title}
       </span>
       {isActive && (
-        <ChevronRight size={15} className="ml-auto text-white" />
+        <ChevronRight size={16} className="ml-auto text-white" />
       )}
     </Link>
   );
@@ -131,7 +131,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
           "flex items-center justify-center rounded-full bg-blue-600 text-white",
           isSmallMobile ? "h-7 w-7" : "h-8 w-8 md:h-9 md:w-9"
         )}>
-          <LayoutDashboard size={isSmallMobile ? 14 : 16} className="md:size-18" />
+          <LayoutDashboard size={isSmallMobile ? 18 : 20} />
         </div>
         {isOpen && (
           <span className={cn(
@@ -193,7 +193,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
                   )}
                   onClick={handleLogout}
                 >
-                  <LogOut size={isSmallMobile ? 14 : 16} className="md:size-18" />
+                  <LogOut size={isSmallMobile ? 18 : 20} />
                 </div>
               </TooltipTrigger>
               <TooltipContent side="right" className="border border-neutral-200 bg-white text-neutral-800">
@@ -207,7 +207,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
             className="flex w-full items-center gap-2 rounded-lg text-left text-neutral-600 hover:bg-red-50 hover:text-red-600 transition-all duration-300 ease-in-out"
             onClick={handleLogout}
           >
-            <LogOut size={isSmallMobile ? 14 : 16} className="md:size-18" />
+            <LogOut size={isSmallMobile ? 18 : 20} />
             <span className={cn(
               "font-medium",
               isSmallMobile ? "text-xs" : "text-sm"

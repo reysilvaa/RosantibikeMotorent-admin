@@ -174,7 +174,7 @@ export function Header({ isSidebarOpen, toggleSidebar }: HeaderProps) {
             )}
             onClick={toggleSidebar}
           >
-            {isSidebarOpen ? <X size={isSmallMobile ? 16 : 18} /> : <Menu size={isSmallMobile ? 16 : 18} />}
+            {isSidebarOpen ? <X size={isSmallMobile ? 18 : 20} /> : <Menu size={isSmallMobile ? 18 : 20} />}
           </Button>
 
           <div className="flex items-center overflow-x-auto hide-scrollbar">
@@ -185,7 +185,7 @@ export function Header({ isSidebarOpen, toggleSidebar }: HeaderProps) {
               {displayedBreadcrumbs.map((item, index) => (
                 <React.Fragment key={index}>
                   {index > 0 && (
-                    <ChevronRight size={isSmallMobile ? 10 : 12} className="mx-0.5 md:mx-1 flex-shrink-0 text-neutral-400" />
+                    <ChevronRight size={isSmallMobile ? 14 : 16} className="mx-0.5 md:mx-1 flex-shrink-0 text-neutral-400" />
                   )}
                   {item.path ? (
                     <Link
@@ -199,7 +199,7 @@ export function Header({ isSidebarOpen, toggleSidebar }: HeaderProps) {
                         index === 0 ? "flex-shrink-0" : "flex-shrink"
                       )}
                     >
-                      {index === 0 && !isSmallMobile && <Home size={12} className="mr-1 md:mr-1.5 md:size-14" />}
+                      {index === 0 && !isSmallMobile && <Home size={14} className="mr-1 md:mr-1.5" />}
                       <span className={cn(
                         index === displayedBreadcrumbs.length - 1 ? "" : "truncate",
                         isSmallMobile ? "max-w-[60px]" : "max-w-[80px] md:max-w-[150px]"
@@ -209,7 +209,7 @@ export function Header({ isSidebarOpen, toggleSidebar }: HeaderProps) {
                     </Link>
                   ) : (
                     <span className="flex items-center px-0.5 md:px-1 flex-shrink-0">
-                      <MoreHorizontal size={isSmallMobile ? 12 : 14} className="text-neutral-400" />
+                      <MoreHorizontal size={isSmallMobile ? 14 : 16} className="text-neutral-400" />
                     </span>
                   )}
                 </React.Fragment>
@@ -222,7 +222,7 @@ export function Header({ isSidebarOpen, toggleSidebar }: HeaderProps) {
         <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
           <div className="hidden md:flex relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <Search size={16} className="text-neutral-400" />
+              <Search size={18} className="text-neutral-400" />
             </div>
             <input
               type="search"
@@ -239,7 +239,7 @@ export function Header({ isSidebarOpen, toggleSidebar }: HeaderProps) {
               isSmallMobile ? "h-7 w-7" : "h-8 w-8 md:h-9 md:w-9"
             )}
           >
-            <Bell size={isSmallMobile ? 14 : 16} className="md:size-18" />
+            <Bell size={isSmallMobile ? 18 : 20} />
             <span className="absolute top-1 right-1 flex h-1.5 w-1.5 md:h-2 md:w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 md:h-2 md:w-2 bg-red-500"></span>
