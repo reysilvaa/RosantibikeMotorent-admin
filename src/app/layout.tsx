@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import NextTopLoader from 'nextjs-toploader';
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import "@/lib/axios";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {

@@ -18,6 +18,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const loginFormSchema = z.object({
   username: z.string().min(1, { message: "Username harus diisi" }),
@@ -28,7 +29,7 @@ type LoginFormValues = z.infer<typeof loginFormSchema>;
 
 export function LoginForm() {
   const router = useRouter();
-  const { login, isLoading } = useAuthStore();
+  const { login, isLoading, error } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   
   const form = useForm<LoginFormValues>({
@@ -69,6 +70,14 @@ export function LoginForm() {
         onSubmit={form.handleSubmit(onSubmit)} 
         className="space-y-5"
       >
+        {error && (
+          <motion.div variants={itemVariants}>
+            <Alert variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20 py-2">
+              <AlertDescription className="text-sm">{error}</AlertDescription>
+            </Alert>
+          </motion.div>
+        )}
+        
         <motion.div variants={itemVariants}>
           <FormField
             control={form.control}

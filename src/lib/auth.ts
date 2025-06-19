@@ -6,7 +6,7 @@ export {
   getAdminById,
 } from './api/admin';
 
-export { loginAdmin } from './api/auth';
+export { login, logout } from './api/auth';
 
 export type {
   LoginCredentials,

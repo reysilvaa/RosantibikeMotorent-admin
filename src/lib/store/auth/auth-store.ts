@@ -1,15 +1,15 @@
 import { create } from 'zustand';
-import { loginAdmin } from '@/lib/auth';
-import { isAuthenticated, removeToken } from '@/lib/cookies';
-import Cookies from 'js-cookie';
+import { login, logout } from '@/lib/api/auth';
+import { isAuthenticated, removeAdminData, setAdminData } from '@/lib/cookies';
 
 interface AuthState {
   isLoading: boolean;
   error: string | null;
   isAuthenticated: boolean;
+  adminData: { id: string; username: string; nama: string } | null;
   
   login: (username: string, password: string, redirect?: () => void) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   checkAuth: () => boolean;
 }
 
@@ -17,16 +17,21 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: false,
   error: null,
   isAuthenticated: typeof window !== 'undefined' ? isAuthenticated() : false,
+  adminData: null,
   
   login: async (username: string, password: string, redirect?: () => void) => {
     set({ isLoading: true, error: null });
     
     try {
-      const response = await loginAdmin({ username, password });
+      const response = await login({ username, password });
       
-      Cookies.set('accessToken', response.access_token, { expires: 7 });
+      setAdminData(response.admin);
           
-      set({ isLoading: false, isAuthenticated: true });
+      set({ 
+        isLoading: false, 
+        isAuthenticated: true,
+        adminData: response.admin
+      });
       
       if (redirect) {
         setTimeout(() => {
@@ -42,9 +47,23 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
   
-  logout: () => {
-    removeToken();
-    set({ isAuthenticated: false });
+  logout: async () => {
+    set({ isLoading: true });
+    
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Error during logout:', error);
+    } finally {
+      removeAdminData();
+      set({ 
+        isLoading: false, 
+        isAuthenticated: false, 
+        adminData: null 
+      });
+      
+      window.location.href = '/auth/login';
+    }
   },
   
   checkAuth: () => {

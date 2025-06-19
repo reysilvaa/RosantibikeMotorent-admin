@@ -1,17 +1,10 @@
-import axios from 'axios';
-import { API_URL } from '../config';
-import { getToken } from '../cookies';
+import axios from '../axios';
 import { Admin } from '../types/admin';
 
 // Fungsi untuk mendapatkan daftar admin
 export const getAdmins = async (): Promise<Admin[]> => {
   try {
-    const token = getToken();
-    const response = await axios.get(`${API_URL}/admin`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(`/admin`);
     return response.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response?.data?.message) {
@@ -24,12 +17,7 @@ export const getAdmins = async (): Promise<Admin[]> => {
 // Fungsi untuk membuat admin baru
 export const createAdmin = async (data: { username: string; password: string; nama: string }): Promise<Admin> => {
   try {
-    const token = getToken();
-    const response = await axios.post(`${API_URL}/admin`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(`/admin`, data);
     return response.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response?.data?.message) {
@@ -42,12 +30,7 @@ export const createAdmin = async (data: { username: string; password: string; na
 // Fungsi untuk mengupdate admin
 export const updateAdmin = async (id: string, data: { username?: string; password?: string; nama?: string }): Promise<Admin> => {
   try {
-    const token = getToken();
-    const response = await axios.put(`${API_URL}/admin/${id}`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.put(`/admin/${id}`, data);
     return response.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response?.data?.message) {
@@ -60,12 +43,7 @@ export const updateAdmin = async (id: string, data: { username?: string; passwor
 // Fungsi untuk menghapus admin
 export const deleteAdmin = async (id: string): Promise<Admin> => {
   try {
-    const token = getToken();
-    const response = await axios.delete(`${API_URL}/admin/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.delete(`/admin/${id}`);
     return response.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response?.data?.message) {
@@ -78,12 +56,7 @@ export const deleteAdmin = async (id: string): Promise<Admin> => {
 // Fungsi untuk mendapatkan detail admin berdasarkan ID
 export const getAdminById = async (id: string): Promise<Admin> => {
   try {
-    const token = getToken();
-    const response = await axios.get(`${API_URL}/admin/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(`/admin/${id}`);
     return response.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response?.data?.message) {

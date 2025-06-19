@@ -6,7 +6,6 @@ export interface LoginCredentials {
 
 // Tipe data untuk respons login
 export interface LoginResponse {
-  access_token: string;
   admin: {
     id: string;
     username: string;
@@ -21,4 +20,4 @@ export interface Admin {
   nama: string;
   createdAt: string;
   updatedAt: string;
-} 
+}

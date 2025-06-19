@@ -1,116 +1,81 @@
-import axios from 'axios';
-import { API_URL } from '../config';
-import { getToken } from '../cookies';
+import axios from '../axios';
 import { PaginationResponse } from '../types/common';
 import { FilterTransaksi, Transaksi } from '../types/transaksi';
 
-// Fungsi untuk mendapatkan semua transaksi
 export const getTransaksi = async (filter: FilterTransaksi = {}): Promise<PaginationResponse<Transaksi>> => {
   try {
-    const token = getToken();
-    const response = await axios.get(`${API_URL}/transaksi`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const response = await axios.get(`/transaksi`, {
       params: filter,
     });
     return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.data && error.response.data.message) {
+  } catch (error: unknown) {
+    console.error('Error response:', axios.isAxiosError(error) ? error.response?.data : error);
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
     throw new Error('Gagal mendapatkan data transaksi');
   }
 };
 
-// Fungsi untuk mendapatkan detail transaksi
 export const getTransaksiDetail = async (id: string): Promise<Transaksi> => {
   try {
-    const token = getToken();
-    const response = await axios.get(`${API_URL}/transaksi/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(`/transaksi/${id}`);
     return response.data.data;
-  } catch (error: any) {
-    if (error.response && error.response.data && error.response.data.message) {
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
     throw new Error('Gagal mendapatkan detail transaksi');
   }
 };
 
-// Fungsi untuk mengupdate status transaksi menjadi selesai
 export const selesaikanTransaksi = async (id: string): Promise<Transaksi> => {
   try {
-    const token = getToken();
-    const response = await axios.post(`${API_URL}/transaksi/${id}/selesai`, {}, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(`/transaksi/${id}/selesai`, {});
     return response.data.data;
-  } catch (error: any) {
-    if (error.response && error.response.data && error.response.data.message) {
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
     throw new Error('Gagal menyelesaikan transaksi');
   }
 };
 
-// Fungsi untuk mendapatkan laporan denda
-export const getLaporanDenda = async (startDate: string, endDate: string): Promise<any> => {
+export const getLaporanDenda = async (startDate: string, endDate: string): Promise<Record<string, unknown>> => {
   try {
-    const token = getToken();
-    const response = await axios.get(`${API_URL}/transaksi/laporan/denda`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const response = await axios.get(`/transaksi/laporan/denda`, {
       params: { startDate, endDate },
     });
     return response.data.data;
-  } catch (error: any) {
-    if (error.response && error.response.data && error.response.data.message) {
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
     throw new Error('Gagal mendapatkan laporan denda');
   }
 };
 
-// Fungsi untuk mendapatkan laporan fasilitas
-export const getLaporanFasilitas = async (startDate: string, endDate: string): Promise<any> => {
+export const getLaporanFasilitas = async (startDate: string, endDate: string): Promise<Record<string, unknown>> => {
   try {
-    const token = getToken();
-    const response = await axios.get(`${API_URL}/transaksi/laporan/fasilitas`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const response = await axios.get(`/transaksi/laporan/fasilitas`, {
       params: { startDate, endDate },
     });
     return response.data.data;
-  } catch (error: any) {
-    if (error.response && error.response.data && error.response.data.message) {
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
     throw new Error('Gagal mendapatkan laporan fasilitas');
   }
 };
 
-// Fungsi untuk membuat transaksi baru
 export const createTransaksi = async (data: Partial<Transaksi>): Promise<Transaksi> => {
   try {
-    const token = getToken();
-    
-    const response = await axios.post(`${API_URL}/transaksi`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(`/transaksi`, data);
     return response.data.data;
-  } catch (error: any) {
-    console.error('Error response:', error.response?.data);
-    if (error.response && error.response.data && error.response.data.message) {
+  } catch (error: unknown) {
+    console.error('Error response:', axios.isAxiosError(error) ? error.response?.data : error);
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
       throw new Error(`Gagal membuat transaksi: ${error.response.data.message}`);
     }
     throw new Error('Gagal membuat transaksi baru');

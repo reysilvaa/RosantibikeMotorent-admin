@@ -1,8 +1,5 @@
-import axios from 'axios';
-import { API_URL } from '../config';
-import { getToken } from '../cookies';
+import axios from '../axios';
 
-// Interface untuk parameter filter blog
 export interface BlogParams {
   page?: number;
   limit?: number;
@@ -11,23 +8,17 @@ export interface BlogParams {
   category?: string;
 }
 
-// Interface untuk tag
+
 export interface BlogTag {
   id: string;
   nama: string;
 }
 
-// Fungsi untuk mendapatkan semua blog post
 export const getBlogPosts = async (params?: BlogParams) => {
   try {
-    const token = getToken();
     console.log('Fetching blog posts with params:', params);
-    console.log('API URL:', `${API_URL}/blog`);
     
-    const response = await axios.get(`${API_URL}/blog`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const response = await axios.get(`/blog`, {
       params,
     });
     console.log('Blog posts response:', response.data);
@@ -41,18 +32,11 @@ export const getBlogPosts = async (params?: BlogParams) => {
   }
 };
 
-// Fungsi untuk mendapatkan detail blog post berdasarkan ID
 export const getBlogPost = async (id: string) => {
   try {
-    const token = getToken();
     console.log('Fetching blog post with ID:', id);
-    console.log('API URL:', `${API_URL}/blog/${id}`);
     
-    const response = await axios.get(`${API_URL}/blog/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(`/blog/${id}`);
     console.log('Blog post detail response:', response.data);
     return response.data;
   } catch (error: unknown) {
@@ -64,17 +48,11 @@ export const getBlogPost = async (id: string) => {
   }
 };
 
-// Fungsi untuk mendapatkan blog post berdasarkan slug
 export const getBlogPostBySlug = async (slug: string) => {
   try {
-    const token = getToken();
     console.log('Fetching blog post with slug:', slug);
     
-    const response = await axios.get(`${API_URL}/blog/by-slug/${slug}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(`/blog/by-slug/${slug}`);
     console.log('Blog post by slug response:', response.data);
     return response.data;
   } catch (error: unknown) {
@@ -86,17 +64,11 @@ export const getBlogPostBySlug = async (slug: string) => {
   }
 };
 
-// Fungsi untuk mendapatkan semua tag
 export const getBlogTags = async () => {
   try {
-    const token = getToken();
     console.log('Fetching blog tags');
     
-    const response = await axios.get(`${API_URL}/blog/tags`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(`/blog/tags`);
     console.log('Blog tags response:', response.data);
     return response.data;
   } catch (error: unknown) {
@@ -108,16 +80,11 @@ export const getBlogTags = async () => {
   }
 };
 
-// Fungsi untuk mencari tag berdasarkan query
 export const searchBlogTags = async (query: string) => {
   try {
-    const token = getToken();
     console.log('Searching blog tags with query:', query);
     
-    const response = await axios.get(`${API_URL}/blog/tags/search`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const response = await axios.get(`/blog/tags/search`, {
       params: { q: query },
     });
     console.log('Search blog tags response:', response.data);
@@ -131,15 +98,12 @@ export const searchBlogTags = async (query: string) => {
   }
 };
 
-// Fungsi untuk membuat blog post baru
 export const createBlogPost = async (formData: FormData) => {
   try {
-    const token = getToken();
     console.log('Creating new blog post');
     
-    const response = await axios.post(`${API_URL}/blog`, formData, {
+    const response = await axios.post(`/blog`, formData, {
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data',
       },
     });
@@ -154,16 +118,12 @@ export const createBlogPost = async (formData: FormData) => {
   }
 };
 
-// Fungsi untuk mengupdate blog post berdasarkan ID
 export const updateBlogPost = async (id: string, formData: FormData) => {
   try {
-    const token = getToken();
     console.log('Updating blog post with ID:', id);
-    console.log('API URL:', `${API_URL}/blog/${id}`);
     
-    const response = await axios.patch(`${API_URL}/blog/${id}`, formData, {
+    const response = await axios.patch(`/blog/${id}`, formData, {
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data',
       },
     });
@@ -178,17 +138,11 @@ export const updateBlogPost = async (id: string, formData: FormData) => {
   }
 };
 
-// Fungsi untuk menghapus blog post
 export const deleteBlogPost = async (id: string) => {
   try {
-    const token = getToken();
     console.log('Deleting blog post with ID:', id);
     
-    const response = await axios.delete(`${API_URL}/blog/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.delete(`/blog/${id}`);
     console.log('Delete blog post response:', response.data);
     return response.data;
   } catch (error: unknown) {
