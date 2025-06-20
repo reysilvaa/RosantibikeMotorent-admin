@@ -1,6 +1,8 @@
-// Konfigurasi PM2 untuk admin-frontend - format CommonJS
-/* eslint-disable no-undef */
-/** @type {import('pm2').Payload} */
+
+
+
+
+
 module.exports = {
   apps: [
     {

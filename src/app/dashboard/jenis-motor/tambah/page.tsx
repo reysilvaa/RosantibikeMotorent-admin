@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import DashboardLayout from "@/components/layout/dashboard-layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageHeader } from "@/components/ui/page-header";
-import { JenisMotorForm } from "@/components/jenis-motor/jenis-motor-form";
-import { useJenisMotorFormStore } from "@/lib/store/jenis-motor/jenis-motor-form-store";
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { JenisMotorForm } from '@/components/jenis-motor/jenis-motor-form';
+import DashboardLayout from '@/components/layout/dashboard-layout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { useJenisMotorFormStore } from '@/lib/store/jenis-motor/jenis-motor-form-store';
 
 export default function TambahJenisMotorPage() {
   const router = useRouter();
@@ -21,15 +21,15 @@ export default function TambahJenisMotorPage() {
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => {
-        router.push("/dashboard/jenis-motor");
+        router.push('/dashboard/jenis-motor');
       }, 2000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [success, router]);
 
   const handleCancel = () => {
-    router.push("/dashboard/jenis-motor");
+    router.push('/dashboard/jenis-motor');
   };
 
   return (
@@ -53,4 +53,4 @@ export default function TambahJenisMotorPage() {
       </div>
     </DashboardLayout>
   );
-} 
+}

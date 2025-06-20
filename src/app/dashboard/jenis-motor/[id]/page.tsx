@@ -1,38 +1,40 @@
-"use client";
+'use client';
 
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import DashboardLayout from "@/components/layout/dashboard-layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageHeader } from "@/components/ui/page-header";
-import { JenisMotorEditForm } from "@/components/jenis-motor/jenis-motor-edit-form";
-import { useJenisMotorEditStore } from "@/lib/store/jenis-motor/jenis-motor-edit-store";
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { JenisMotorEditForm } from '@/components/jenis-motor/jenis-motor-edit-form';
+import DashboardLayout from '@/components/layout/dashboard-layout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { useJenisMotorEditStore } from '@/lib/store/jenis-motor/jenis-motor-edit-store';
 
-export default function EditJenisMotorPage({ params }: { params: Promise<{ id: string }> }) {
+export default function EditJenisMotorPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const router = useRouter();
   const { id } = React.use(params);
   const { success, resetForm } = useJenisMotorEditStore();
 
-  // Reset form ketika komponen unmount
   useEffect(() => {
     return () => {
       resetForm();
     };
   }, [resetForm]);
 
-  // Redirect ke halaman jenis motor setelah sukses
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => {
-        router.push("/dashboard/jenis-motor");
+        router.push('/dashboard/jenis-motor');
       }, 2000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [success, router]);
 
   const handleCancel = () => {
-    router.push("/dashboard/jenis-motor");
+    router.push('/dashboard/jenis-motor');
   };
 
   return (
@@ -56,4 +58,4 @@ export default function EditJenisMotorPage({ params }: { params: Promise<{ id: s
       </div>
     </DashboardLayout>
   );
-} 
+}

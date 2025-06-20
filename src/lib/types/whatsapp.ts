@@ -42,11 +42,10 @@ export interface WhatsAppQrCodeResponse {
   message?: string;
   qrCode?: string;
   connected?: boolean;
-  data?: string; // Untuk menampung QR code dalam format base64
+  data?: string;
 }
 
 export interface WhatsAppState {
-  // Status
   status: WhatsAppStatus;
   qrCode: string;
   qrError: string;

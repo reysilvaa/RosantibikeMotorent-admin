@@ -1,7 +1,7 @@
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LucideIcon } from "lucide-react";
-import { useIsMobile } from "@/hooks/useIsMobile";
+import React from 'react';
+import { LucideIcon } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface InfoItem {
   icon?: LucideIcon;
@@ -21,20 +21,20 @@ interface InfoCardProps {
 export function InfoCard({
   title,
   items,
-  className = "",
+  className = '',
   columns = 1,
   isLoading = false,
-  emptyMessage = "Tidak ada data",
+  emptyMessage = 'Tidak ada data',
 }: InfoCardProps) {
   const { isMobile } = useIsMobile();
-  
-  const effectiveColumns = isMobile ? Math.min(columns, 2) as 1 | 2 : columns;
-  
+
+  const effectiveColumns = isMobile ? (Math.min(columns, 2) as 1 | 2) : columns;
+
   const gridCols = {
-    1: "",
-    2: "grid-cols-2",
-    3: "md:grid-cols-3",
-    4: "md:grid-cols-4",
+    1: '',
+    2: 'grid-cols-2',
+    3: 'md:grid-cols-3',
+    4: 'md:grid-cols-4',
   };
 
   if (isLoading) {
@@ -45,8 +45,8 @@ export function InfoCard({
         </CardHeader>
         <CardContent className="px-4 py-4 md:px-6">
           <div className="animate-pulse space-y-4">
-            <div className="h-4 rounded bg-neutral-200 dark:bg-neutral-700 w-3/4"></div>
-            <div className="h-4 rounded bg-neutral-200 dark:bg-neutral-700 w-1/2"></div>
+            <div className="h-4 w-3/4 rounded bg-neutral-200 dark:bg-neutral-700"></div>
+            <div className="h-4 w-1/2 rounded bg-neutral-200 dark:bg-neutral-700"></div>
           </div>
         </CardContent>
       </Card>
@@ -77,15 +77,17 @@ export function InfoCard({
         <div className={`grid gap-4 ${gridCols[effectiveColumns]}`}>
           {items.map((item, index) => (
             <div key={index} className="space-y-1">
-              <div className="flex items-center text-sm text-neutral-500 dark:text-neutral-400 md:text-base">
+              <div className="flex items-center text-sm text-neutral-500 md:text-base dark:text-neutral-400">
                 {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                 <span>{item.label}</span>
               </div>
-              <div className="text-base font-medium md:text-lg">{item.value}</div>
+              <div className="text-base font-medium md:text-lg">
+                {item.value}
+              </div>
             </div>
           ))}
         </div>
       </CardContent>
     </Card>
   );
-} 
+}

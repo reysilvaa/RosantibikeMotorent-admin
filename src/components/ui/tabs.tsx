@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { cn } from "@/lib/utils";
+import * as React from 'react';
+import { cn } from '@/lib/utils';
 
 interface TabsProps {
   defaultValue?: string;
@@ -35,7 +35,7 @@ const TabsContext = React.createContext<{
   value: string;
   onValueChange: (value: string) => void;
 }>({
-  value: "",
+  value: '',
   onValueChange: () => {},
 });
 
@@ -46,30 +46,33 @@ export function Tabs({
   className,
   children,
 }: TabsProps) {
-  const [tabValue, setTabValue] = React.useState(defaultValue || "");
-  
-  const contextValue = React.useMemo(() => ({
-    value: value !== undefined ? value : tabValue,
-    onValueChange: (newValue: string) => {
-      onValueChange?.(newValue);
-      if (value === undefined) {
-        setTabValue(newValue);
-      }
-    },
-  }), [value, tabValue, onValueChange]);
+  const [tabValue, setTabValue] = React.useState(defaultValue || '');
+
+  const contextValue = React.useMemo(
+    () => ({
+      value: value !== undefined ? value : tabValue,
+      onValueChange: (newValue: string) => {
+        onValueChange?.(newValue);
+        if (value === undefined) {
+          setTabValue(newValue);
+        }
+      },
+    }),
+    [value, tabValue, onValueChange]
+  );
 
   return (
     <TabsContext.Provider value={contextValue}>
-      <div className={cn("w-full", className)}>
-        {children}
-      </div>
+      <div className={cn('w-full', className)}>{children}</div>
     </TabsContext.Provider>
   );
 }
 
 export function TabsList({ className, children }: TabsListProps) {
   return (
-    <div className={cn("flex space-x-1 rounded-lg bg-neutral-100 p-1", className)}>
+    <div
+      className={cn('flex space-x-1 rounded-lg bg-neutral-100 p-1', className)}
+    >
       {children}
     </div>
   );
@@ -90,12 +93,12 @@ export function TabsTrigger({
       type="button"
       role="tab"
       aria-selected={isActive}
-      data-state={isActive ? "active" : "inactive"}
+      data-state={isActive ? 'active' : 'inactive'}
       className={cn(
-        "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+        'inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium whitespace-nowrap ring-offset-white transition-all focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
         isActive
-          ? "bg-white text-neutral-900 shadow-sm"
-          : "text-neutral-500 hover:text-neutral-900",
+          ? 'bg-white text-neutral-900 shadow-sm'
+          : 'text-neutral-500 hover:text-neutral-900',
         className
       )}
       onClick={() => {
@@ -115,19 +118,20 @@ export function TabsContent({
   children,
 }: TabsContentProps) {
   const { value: selectedValue } = React.useContext(TabsContext);
-  const isSelected = currentValue !== undefined 
-    ? currentValue === value 
-    : selectedValue === value;
+  const isSelected =
+    currentValue !== undefined
+      ? currentValue === value
+      : selectedValue === value;
 
   if (!isSelected) return null;
 
   return (
     <div
       role="tabpanel"
-      data-state={isSelected ? "active" : "inactive"}
-      className={cn("mt-2", className)}
+      data-state={isSelected ? 'active' : 'inactive'}
+      className={cn('mt-2', className)}
     >
       {children}
     </div>
   );
-} 
+}

@@ -1,24 +1,24 @@
-"use client";
+'use client';
 
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Plus, Edit, Trash2 } from "lucide-react";
-import DashboardLayout from "@/components/layout/dashboard-layout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Admin } from "@/lib/types/admin";
-import { DataTable } from "@/components/ui/data-table";
-import { SearchBar } from "@/components/ui/search-bar";
-import { StatusMessage } from "@/components/ui/status-message";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { LoadingIndicator } from "@/components/ui/loading-indicator";
-import { PageHeader } from "@/components/ui/page-header";
-import { Badge } from "@/components/ui/badge";
-import { useAdminStore } from "@/lib/store/admin/admin-store";
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Edit, Plus, Trash2 } from 'lucide-react';
+import DashboardLayout from '@/components/layout/dashboard-layout';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { DataTable } from '@/components/ui/data-table';
+import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import { PageHeader } from '@/components/ui/page-header';
+import { SearchBar } from '@/components/ui/search-bar';
+import { StatusMessage } from '@/components/ui/status-message';
+import { useAdminStore } from '@/lib/store/admin/admin-store';
+import { Admin } from '@/lib/types/admin';
 
 export default function AdminPage() {
   const router = useRouter();
-  
+
   const {
     admins,
     currentAdmin,
@@ -33,20 +33,19 @@ export default function AdminPage() {
     confirmDelete,
     cancelDelete,
     deleteAdmin: handleDeleteAdmin,
-    setSearchQuery
+    setSearchQuery,
   } = useAdminStore();
 
   useEffect(() => {
     fetchAdmins();
-    
-    // Membersihkan pesan error/success saat komponen unmount
+
     return () => {
       useAdminStore.getState().clearMessages();
     };
   }, [fetchAdmins]);
 
   const handleAddAdmin = () => {
-    router.push("/dashboard/admin/tambah");
+    router.push('/dashboard/admin/tambah');
   };
 
   const handleEditAdmin = (id: string) => {
@@ -55,35 +54,37 @@ export default function AdminPage() {
 
   const columns = [
     {
-      header: "Nama",
-      accessorKey: "nama" as keyof Admin,
+      header: 'Nama',
+      accessorKey: 'nama' as keyof Admin,
       cell: (item: Admin) => (
         <div className="font-medium">
           {item.nama}
           {currentAdmin?.id === item.id && (
-            <Badge className="ml-2" variant="secondary">Anda</Badge>
+            <Badge className="ml-2" variant="secondary">
+              Anda
+            </Badge>
           )}
         </div>
       ),
     },
     {
-      header: "Username",
-      accessorKey: "username" as keyof Admin,
+      header: 'Username',
+      accessorKey: 'username' as keyof Admin,
     },
     {
-      header: "Tanggal Dibuat",
+      header: 'Tanggal Dibuat',
       cell: (item: Admin) => (
         <span>
-          {new Date(item.createdAt).toLocaleDateString("id-ID", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
+          {new Date(item.createdAt).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
           })}
         </span>
       ),
     },
     {
-      header: "Aksi",
+      header: 'Aksi',
       cell: (item: Admin) => (
         <div className="flex justify-end gap-2">
           <Button
@@ -107,7 +108,7 @@ export default function AdminPage() {
           </Button>
         </div>
       ),
-      className: "text-right",
+      className: 'text-right',
     },
   ];
 
@@ -142,7 +143,7 @@ export default function AdminPage() {
           <CardContent>
             {error && <StatusMessage error={error} className="mb-4" />}
             {success && <StatusMessage success={success} className="mb-4" />}
-            
+
             {loading ? (
               <LoadingIndicator message="Memuat data admin..." />
             ) : (
@@ -150,7 +151,11 @@ export default function AdminPage() {
                 data={admins}
                 columns={columns}
                 keyField="id"
-                emptyMessage={searchQuery ? "Tidak ada admin yang sesuai dengan pencarian" : "Belum ada data admin"}
+                emptyMessage={
+                  searchQuery
+                    ? 'Tidak ada admin yang sesuai dengan pencarian'
+                    : 'Belum ada data admin'
+                }
               />
             )}
           </CardContent>
@@ -170,4 +175,4 @@ export default function AdminPage() {
       />
     </DashboardLayout>
   );
-} 
+}

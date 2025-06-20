@@ -1,8 +1,8 @@
-import React from "react";
-import Image from "next/image";
-import { Edit, Trash2, ImageIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import React from 'react';
+import Image from 'next/image';
+import { Edit, ImageIcon, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface ItemCardProps {
   title: string;
@@ -21,24 +21,19 @@ export function ItemCard({
   title,
   subtitle,
   imageSrc,
-  imageAlt = "Image",
+  imageAlt = 'Image',
   onEdit,
   onDelete,
-  editLabel = "Edit",
-  deleteLabel = "Hapus",
-  className = "",
+  editLabel = 'Edit',
+  deleteLabel = 'Hapus',
+  className = '',
   actionButtons,
 }: ItemCardProps) {
   return (
     <Card className={`overflow-hidden ${className}`}>
-      <div className="h-40 w-full relative bg-neutral-100 dark:bg-neutral-800">
+      <div className="relative h-40 w-full bg-neutral-100 dark:bg-neutral-800">
         {imageSrc ? (
-          <Image
-            src={imageSrc}
-            alt={imageAlt}
-            fill
-            className="object-cover"
-          />
+          <Image src={imageSrc} alt={imageAlt} fill className="object-cover" />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
             <ImageIcon className="h-12 w-12 text-neutral-300 dark:text-neutral-600" />
@@ -46,7 +41,9 @@ export function ItemCard({
         )}
       </div>
       <CardContent className="p-4">
-        <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">{title}</h3>
+        <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">
+          {title}
+        </h3>
         {subtitle && (
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
             {subtitle}
@@ -85,4 +82,4 @@ export function ItemCard({
       </CardContent>
     </Card>
   );
-} 
+}

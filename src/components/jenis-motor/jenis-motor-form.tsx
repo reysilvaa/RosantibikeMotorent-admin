@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import Image from "next/image";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ImageIcon } from "lucide-react";
-import { StatusMessage } from "@/components/ui/status-message";
-import { FormActions } from "@/components/ui/form-actions";
-import { useJenisMotorFormStore } from "@/lib/store/jenis-motor/jenis-motor-form-store";
+import React, { useState } from 'react';
+import Image from 'next/image';
+import { ImageIcon } from 'lucide-react';
+import { FormActions } from '@/components/ui/form-actions';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { StatusMessage } from '@/components/ui/status-message';
+import { useJenisMotorFormStore } from '@/lib/store/jenis-motor/jenis-motor-form-store';
 
 interface JenisMotorFormProps {
   onCancel: () => void;
@@ -26,12 +26,10 @@ export function JenisMotorForm({ onCancel }: JenisMotorFormProps) {
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // Handler untuk perubahan input
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    
+
     if (name === 'cc') {
-      // Pastikan CC adalah angka
       const numValue = parseInt(value, 10);
       if (!isNaN(numValue)) {
         setFormData({ [name]: numValue });
@@ -41,15 +39,13 @@ export function JenisMotorForm({ onCancel }: JenisMotorFormProps) {
     }
   };
 
-  // Handler untuk perubahan file
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setSelectedFile(file);
-      
-      // Membuat URL preview untuk gambar
+
       const fileReader = new FileReader();
-      fileReader.onload = (event) => {
+      fileReader.onload = event => {
         if (event.target?.result) {
           setPreviewUrl(event.target.result as string);
         }
@@ -58,7 +54,6 @@ export function JenisMotorForm({ onCancel }: JenisMotorFormProps) {
     }
   };
 
-  // Handler untuk submit form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await submitForm();
@@ -66,8 +61,11 @@ export function JenisMotorForm({ onCancel }: JenisMotorFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <StatusMessage error={error} success={success ? "Jenis motor berhasil ditambahkan" : undefined} />
-      
+      <StatusMessage
+        error={error}
+        success={success ? 'Jenis motor berhasil ditambahkan' : undefined}
+      />
+
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-4">
           <div className="space-y-2">
@@ -81,7 +79,7 @@ export function JenisMotorForm({ onCancel }: JenisMotorFormProps) {
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="model">Model</Label>
             <Input
@@ -93,7 +91,7 @@ export function JenisMotorForm({ onCancel }: JenisMotorFormProps) {
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="cc">CC</Label>
             <Input
@@ -101,14 +99,14 @@ export function JenisMotorForm({ onCancel }: JenisMotorFormProps) {
               name="cc"
               type="number"
               min="50"
-              value={formData.cc || ""}
+              value={formData.cc || ''}
               onChange={handleInputChange}
               placeholder="Contoh: 125"
               required
             />
           </div>
         </div>
-        
+
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Gambar</Label>
@@ -127,7 +125,7 @@ export function JenisMotorForm({ onCancel }: JenisMotorFormProps) {
                   </div>
                 )}
               </div>
-              
+
               <Input
                 id="file"
                 name="file"
@@ -143,7 +141,7 @@ export function JenisMotorForm({ onCancel }: JenisMotorFormProps) {
           </div>
         </div>
       </div>
-      
+
       <FormActions
         isLoading={loading}
         onCancel={onCancel}
@@ -151,4 +149,4 @@ export function JenisMotorForm({ onCancel }: JenisMotorFormProps) {
       />
     </form>
   );
-} 
+}

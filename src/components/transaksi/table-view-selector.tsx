@@ -1,8 +1,8 @@
-import React from "react";
-import { Table, Calendar, LayoutGrid } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React from 'react';
+import { Calendar, LayoutGrid, Table } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export type ViewMode = "table" | "card" | "calendar";
+export type ViewMode = 'table' | 'card' | 'calendar';
 
 interface TableViewSelectorProps {
   viewMode: ViewMode;
@@ -17,34 +17,34 @@ export function TableViewSelector({
   onChange,
   showCardOption = true,
   showCalendarOption = true,
-  className = "",
+  className = '',
 }: TableViewSelectorProps) {
   return (
     <Tabs
       value={viewMode}
-      onValueChange={(value) => onChange(value as ViewMode)}
+      onValueChange={value => onChange(value as ViewMode)}
       className={className}
     >
       <TabsList>
         <TabsTrigger value="table">
-          <Table className="h-4 w-4 mr-2" />
+          <Table className="mr-2 h-4 w-4" />
           Tabel
         </TabsTrigger>
-        
+
         {showCardOption && (
           <TabsTrigger value="card">
-            <LayoutGrid className="h-4 w-4 mr-2" />
+            <LayoutGrid className="mr-2 h-4 w-4" />
             Card
           </TabsTrigger>
         )}
-        
+
         {showCalendarOption && (
           <TabsTrigger value="calendar">
-            <Calendar className="h-4 w-4 mr-2" />
+            <Calendar className="mr-2 h-4 w-4" />
             Kalender
           </TabsTrigger>
         )}
       </TabsList>
     </Tabs>
   );
-} 
+}

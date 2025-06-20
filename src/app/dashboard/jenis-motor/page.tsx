@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Plus, ImageIcon } from "lucide-react";
-import DashboardLayout from "@/components/layout/dashboard-layout";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { PageHeader } from "@/components/ui/page-header";
-import { SearchBar } from "@/components/ui/search-bar";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { EmptyState } from "@/components/ui/empty-state";
-import { LoadingIndicator } from "@/components/ui/loading-indicator";
-import { StatusMessage } from "@/components/ui/status-message";
-import { ItemCard } from "@/components/ui/item-card";
-import { useJenisMotorStore } from "@/lib/store/jenis-motor/jenis-motor-store";
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { ImageIcon, Plus } from 'lucide-react';
+import DashboardLayout from '@/components/layout/dashboard-layout';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { EmptyState } from '@/components/ui/empty-state';
+import { ItemCard } from '@/components/ui/item-card';
+import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import { PageHeader } from '@/components/ui/page-header';
+import { SearchBar } from '@/components/ui/search-bar';
+import { StatusMessage } from '@/components/ui/status-message';
+import { useJenisMotorStore } from '@/lib/store/jenis-motor/jenis-motor-store';
 
 export default function JenisMotorPage() {
   const router = useRouter();
@@ -30,7 +30,7 @@ export default function JenisMotorPage() {
     resetSearch,
     confirmDelete,
     cancelDelete,
-    deleteJenis
+    deleteJenis,
   } = useJenisMotorStore();
 
   useEffect(() => {
@@ -38,14 +38,13 @@ export default function JenisMotorPage() {
   }, [fetchJenisMotor]);
 
   const handleAdd = () => {
-    router.push("/dashboard/jenis-motor/tambah");
+    router.push('/dashboard/jenis-motor/tambah');
   };
 
   const handleEdit = (id: string) => {
     router.push(`/dashboard/jenis-motor/${id}`);
   };
 
-  // Temukan jenis motor yang akan dihapus untuk pesan konfirmasi
   const jenisMotorToDelete = filteredData.find(j => j.id === jenisToDelete);
 
   return (
@@ -60,7 +59,7 @@ export default function JenisMotorPage() {
         />
 
         <Card>
-          <CardHeader className="pb-3 px-4 py-4 md:px-6">
+          <CardHeader className="px-4 py-4 pb-3 md:px-6">
             <SearchBar
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
@@ -73,13 +72,13 @@ export default function JenisMotorPage() {
           </CardHeader>
           <CardContent className="px-4 pb-4 md:px-6">
             <StatusMessage error={error} success={success} />
-            
+
             {loading ? (
               <LoadingIndicator />
             ) : (
               <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
                 {filteredData.length > 0 ? (
-                  filteredData.map((jenis) => (
+                  filteredData.map(jenis => (
                     <ItemCard
                       key={jenis.id}
                       title={`${jenis.merk} ${jenis.model}`}
@@ -93,9 +92,17 @@ export default function JenisMotorPage() {
                 ) : (
                   <EmptyState
                     icon={ImageIcon}
-                    title={searchQuery ? "Tidak ada jenis motor yang sesuai dengan pencarian" : "Belum ada data jenis motor"}
-                    description={searchQuery ? "Coba kata kunci lain atau reset pencarian" : "Mulai dengan menambahkan jenis motor baru"}
-                    actionLabel={searchQuery ? undefined : "Tambah Jenis Motor"}
+                    title={
+                      searchQuery
+                        ? 'Tidak ada jenis motor yang sesuai dengan pencarian'
+                        : 'Belum ada data jenis motor'
+                    }
+                    description={
+                      searchQuery
+                        ? 'Coba kata kunci lain atau reset pencarian'
+                        : 'Mulai dengan menambahkan jenis motor baru'
+                    }
+                    actionLabel={searchQuery ? undefined : 'Tambah Jenis Motor'}
                     actionHandler={searchQuery ? undefined : handleAdd}
                     className="col-span-full"
                   />
@@ -107,9 +114,10 @@ export default function JenisMotorPage() {
               isOpen={showDeleteDialog}
               loading={loading}
               title="Konfirmasi Hapus"
-              description={jenisMotorToDelete 
-                ? `Apakah Anda yakin ingin menghapus ${jenisMotorToDelete.merk} ${jenisMotorToDelete.model}? Tindakan ini tidak dapat dibatalkan.`
-                : "Apakah Anda yakin ingin menghapus jenis motor ini? Tindakan ini tidak dapat dibatalkan."
+              description={
+                jenisMotorToDelete
+                  ? `Apakah Anda yakin ingin menghapus ${jenisMotorToDelete.merk} ${jenisMotorToDelete.model}? Tindakan ini tidak dapat dibatalkan.`
+                  : 'Apakah Anda yakin ingin menghapus jenis motor ini? Tindakan ini tidak dapat dibatalkan.'
               }
               confirmLabel="Hapus"
               variant="destructive"

@@ -1,17 +1,17 @@
-import React from "react";
-import { Inter } from "next/font/google";
+import React from 'react';
+import { Inter } from 'next/font/google';
 import NextTopLoader from 'nextjs-toploader';
-import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
-import "@/lib/axios";
+import './globals.css';
+import { Toaster } from '@/components/ui/toaster';
+import '@/lib/axios';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: "Admin Rental Motor",
-  description: "Dashboard admin untuk aplikasi rental motor",
+  title: 'Admin Rental Motor',
+  description: 'Dashboard admin untuk aplikasi rental motor',
   viewport: {
-    width: "device-width",
+    width: 'device-width',
     initialScale: 1,
     maximumScale: 1,
   },
@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="id" suppressHydrationWarning>
       <body className={inter.className}>
-        <NextTopLoader 
+        <NextTopLoader
           color="#2563eb"
           initialPosition={0.08}
           crawlSpeed={200}

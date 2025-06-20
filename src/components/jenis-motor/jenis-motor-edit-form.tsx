@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ImageIcon } from "lucide-react";
-import { StatusMessage } from "@/components/ui/status-message";
-import { FormActions } from "@/components/ui/form-actions";
-import { LoadingIndicator } from "@/components/ui/loading-indicator";
-import { useJenisMotorEditStore } from "@/lib/store/jenis-motor/jenis-motor-edit-store";
+import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { ImageIcon } from 'lucide-react';
+import { FormActions } from '@/components/ui/form-actions';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import { StatusMessage } from '@/components/ui/status-message';
+import { useJenisMotorEditStore } from '@/lib/store/jenis-motor/jenis-motor-edit-store';
 
 interface JenisMotorEditFormProps {
   id: string;
@@ -31,24 +31,20 @@ export function JenisMotorEditForm({ id, onCancel }: JenisMotorEditFormProps) {
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // Ambil data jenis motor saat komponen mount
   useEffect(() => {
     fetchJenisMotor(id);
   }, [id, fetchJenisMotor]);
 
-  // Set preview gambar dari data yang sudah ada
   useEffect(() => {
     if (jenisMotor?.gambar) {
       setPreviewUrl(jenisMotor.gambar);
     }
   }, [jenisMotor]);
 
-  // Handler untuk perubahan input
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    
+
     if (name === 'cc') {
-      // Pastikan CC adalah angka
       const numValue = parseInt(value, 10);
       if (!isNaN(numValue)) {
         setFormData({ [name]: numValue });
@@ -58,15 +54,13 @@ export function JenisMotorEditForm({ id, onCancel }: JenisMotorEditFormProps) {
     }
   };
 
-  // Handler untuk perubahan file
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setSelectedFile(file);
-      
-      // Membuat URL preview untuk gambar
+
       const fileReader = new FileReader();
-      fileReader.onload = (event) => {
+      fileReader.onload = event => {
         if (event.target?.result) {
           setPreviewUrl(event.target.result as string);
         }
@@ -75,7 +69,6 @@ export function JenisMotorEditForm({ id, onCancel }: JenisMotorEditFormProps) {
     }
   };
 
-  // Handler untuk submit form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await submitForm(id);
@@ -87,8 +80,11 @@ export function JenisMotorEditForm({ id, onCancel }: JenisMotorEditFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <StatusMessage error={error} success={success ? "Jenis motor berhasil diperbarui" : undefined} />
-      
+      <StatusMessage
+        error={error}
+        success={success ? 'Jenis motor berhasil diperbarui' : undefined}
+      />
+
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-4">
           <div className="space-y-2">
@@ -102,7 +98,7 @@ export function JenisMotorEditForm({ id, onCancel }: JenisMotorEditFormProps) {
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="model">Model</Label>
             <Input
@@ -114,7 +110,7 @@ export function JenisMotorEditForm({ id, onCancel }: JenisMotorEditFormProps) {
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="cc">CC</Label>
             <Input
@@ -129,7 +125,7 @@ export function JenisMotorEditForm({ id, onCancel }: JenisMotorEditFormProps) {
             />
           </div>
         </div>
-        
+
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Gambar</Label>
@@ -148,7 +144,7 @@ export function JenisMotorEditForm({ id, onCancel }: JenisMotorEditFormProps) {
                   </div>
                 )}
               </div>
-              
+
               <Input
                 id="file"
                 name="file"
@@ -164,7 +160,7 @@ export function JenisMotorEditForm({ id, onCancel }: JenisMotorEditFormProps) {
           </div>
         </div>
       </div>
-      
+
       <FormActions
         isLoading={loadingSubmit}
         onCancel={onCancel}
@@ -172,4 +168,4 @@ export function JenisMotorEditForm({ id, onCancel }: JenisMotorEditFormProps) {
       />
     </form>
   );
-} 
+}

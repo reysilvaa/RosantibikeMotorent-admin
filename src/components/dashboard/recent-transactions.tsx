@@ -1,24 +1,27 @@
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DataTable } from "@/components/ui/data-table";
-import { MobileDataList } from "@/components/ui/mobile-data-list";
-import { formatRupiah, formatTanggal } from "@/lib/helper";
-import { Transaksi } from "@/lib/transaksi";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { useIsMobile } from "@/hooks/useIsMobile";
-import { User, Bike, Clock, Tag, CreditCard } from "lucide-react";
+import React from 'react';
+import { Bike, Clock, CreditCard, Tag, User } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DataTable } from '@/components/ui/data-table';
+import { MobileDataList } from '@/components/ui/mobile-data-list';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { formatRupiah, formatTanggal } from '@/lib/helper';
+import { Transaksi } from '@/lib/transaksi';
 
 interface RecentTransactionsProps {
   data: Transaksi[];
   isLoading?: boolean;
 }
 
-export function RecentTransactions({ data, isLoading = false }: RecentTransactionsProps) {
+export function RecentTransactions({
+  data,
+  isLoading = false,
+}: RecentTransactionsProps) {
   const { isMobile } = useIsMobile();
 
   const transaksiColumns = [
     {
-      header: "Penyewa",
+      header: 'Penyewa',
       cell: (transaksi: Transaksi) => (
         <div>
           {transaksi.namaPenyewa}
@@ -29,18 +32,20 @@ export function RecentTransactions({ data, isLoading = false }: RecentTransactio
       ),
     },
     {
-      header: "Motor",
+      header: 'Motor',
       cell: (transaksi: Transaksi) => (
         <div>
-          {transaksi.unitMotor?.jenis ? `${transaksi.unitMotor.jenis.merk} ${transaksi.unitMotor.jenis.model}` : "-"}
+          {transaksi.unitMotor?.jenis
+            ? `${transaksi.unitMotor.jenis.merk} ${transaksi.unitMotor.jenis.model}`
+            : '-'}
           <div className="text-xs text-neutral-500 dark:text-neutral-400">
-            {transaksi.unitMotor?.platNomor || "-"}
+            {transaksi.unitMotor?.platNomor || '-'}
           </div>
         </div>
       ),
     },
     {
-      header: "Mulai",
+      header: 'Mulai',
       cell: (transaksi: Transaksi) => (
         <div>
           {formatTanggal(transaksi.tanggalMulai)}
@@ -51,7 +56,7 @@ export function RecentTransactions({ data, isLoading = false }: RecentTransactio
       ),
     },
     {
-      header: "Selesai",
+      header: 'Selesai',
       cell: (transaksi: Transaksi) => (
         <div>
           {formatTanggal(transaksi.tanggalSelesai)}
@@ -62,22 +67,23 @@ export function RecentTransactions({ data, isLoading = false }: RecentTransactio
       ),
     },
     {
-      header: "Status",
+      header: 'Status',
       cell: (transaksi: Transaksi) => <StatusBadge status={transaksi.status} />,
     },
     {
-      header: "Total",
+      header: 'Total',
       cell: (transaksi: Transaksi) => (
-        <span className="font-medium">{formatRupiah(Number(transaksi.totalBiaya))}</span>
+        <span className="font-medium">
+          {formatRupiah(Number(transaksi.totalBiaya))}
+        </span>
       ),
     },
   ];
 
-  // Kolom untuk tampilan mobile
   const mobileColumns = [
     {
-      header: "Penyewa",
-      accessorKey: "namaPenyewa" as const,
+      header: 'Penyewa',
+      accessorKey: 'namaPenyewa' as const,
       isMainField: true,
       cell: (transaksi: Transaksi) => (
         <div>
@@ -85,40 +91,53 @@ export function RecentTransactions({ data, isLoading = false }: RecentTransactio
           <div className="text-xs text-neutral-500">{transaksi.noWhatsapp}</div>
         </div>
       ),
-      icon: <User className="h-3 w-3" />
+      icon: <User className="h-3 w-3" />,
     },
     {
-      header: "Motor",
+      header: 'Motor',
       cell: (transaksi: Transaksi) => (
         <div>
-          <div>{transaksi.unitMotor?.jenis ? `${transaksi.unitMotor.jenis.merk} ${transaksi.unitMotor.jenis.model}` : "-"}</div>
-          <div className="text-xs text-neutral-500">{transaksi.unitMotor?.platNomor || "-"}</div>
+          <div>
+            {transaksi.unitMotor?.jenis
+              ? `${transaksi.unitMotor.jenis.merk} ${transaksi.unitMotor.jenis.model}`
+              : '-'}
+          </div>
+          <div className="text-xs text-neutral-500">
+            {transaksi.unitMotor?.platNomor || '-'}
+          </div>
         </div>
       ),
-      icon: <Bike className="h-3 w-3" />
+      icon: <Bike className="h-3 w-3" />,
     },
     {
-      header: "Waktu Sewa",
+      header: 'Waktu Sewa',
       cell: (transaksi: Transaksi) => (
         <div>
-          <div>{formatTanggal(transaksi.tanggalMulai)}, {transaksi.jamMulai}</div>
-          <div className="text-xs text-neutral-500">s/d {formatTanggal(transaksi.tanggalSelesai)}, {transaksi.jamSelesai}</div>
+          <div>
+            {formatTanggal(transaksi.tanggalMulai)}, {transaksi.jamMulai}
+          </div>
+          <div className="text-xs text-neutral-500">
+            s/d {formatTanggal(transaksi.tanggalSelesai)},{' '}
+            {transaksi.jamSelesai}
+          </div>
         </div>
       ),
-      icon: <Clock className="h-3 w-3" />
+      icon: <Clock className="h-3 w-3" />,
     },
     {
-      header: "Status",
+      header: 'Status',
       cell: (transaksi: Transaksi) => <StatusBadge status={transaksi.status} />,
-      icon: <Tag className="h-3 w-3" />
+      icon: <Tag className="h-3 w-3" />,
     },
     {
-      header: "Total",
+      header: 'Total',
       cell: (transaksi: Transaksi) => (
-        <span className="font-medium">{formatRupiah(Number(transaksi.totalBiaya))}</span>
+        <span className="font-medium">
+          {formatRupiah(Number(transaksi.totalBiaya))}
+        </span>
       ),
-      icon: <CreditCard className="h-3 w-3" />
-    }
+      icon: <CreditCard className="h-3 w-3" />,
+    },
   ];
 
   const handleTransaksiClick = (transaksi: Transaksi) => {
@@ -127,7 +146,7 @@ export function RecentTransactions({ data, isLoading = false }: RecentTransactio
 
   return (
     <Card className="overflow-hidden">
-      <CardHeader className="pb-3 px-4 py-4 md:px-5">
+      <CardHeader className="px-4 py-4 pb-3 md:px-5">
         <CardTitle>Transaksi Terbaru</CardTitle>
       </CardHeader>
       <CardContent className="px-4 pb-4 md:px-5">
@@ -142,17 +161,17 @@ export function RecentTransactions({ data, isLoading = false }: RecentTransactio
           />
         ) : (
           <div className="w-full overflow-hidden">
-        <DataTable
-          data={data}
-          columns={transaksiColumns}
-          keyField="id"
-          onRowClick={handleTransaksiClick}
-          emptyMessage="Belum ada data transaksi"
-          isLoading={isLoading}
-        />
+            <DataTable
+              data={data}
+              columns={transaksiColumns}
+              keyField="id"
+              onRowClick={handleTransaksiClick}
+              emptyMessage="Belum ada data transaksi"
+              isLoading={isLoading}
+            />
           </div>
         )}
       </CardContent>
     </Card>
   );
-} 
+}

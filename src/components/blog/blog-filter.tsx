@@ -1,18 +1,17 @@
-import React from "react";
-import { FilterButtons, FilterOption } from "@/components/ui/filter-buttons";
-import { BlogStatus } from "@/lib/types/blog";
+import React from 'react';
+import { FilterButtons, FilterOption } from '@/components/ui/filter-buttons';
+import { BlogStatus } from '@/lib/types/blog';
 
 interface BlogFilterProps {
-  currentValue: BlogStatus | "";
-  onChange: (value: BlogStatus | "") => void;
+  currentValue: BlogStatus | '';
+  onChange: (value: BlogStatus | '') => void;
 }
 
 export function BlogFilter({ currentValue, onChange }: BlogFilterProps) {
-  // Filter options untuk status blog
-  const filterOptions: FilterOption<BlogStatus | "">[] = [
-    { value: "", label: "Semua" },
-    { value: BlogStatus.PUBLISHED, label: "Terbit" },
-    { value: BlogStatus.DRAFT, label: "Draft" }
+  const filterOptions: FilterOption<BlogStatus | ''>[] = [
+    { value: '', label: 'Semua' },
+    { value: BlogStatus.PUBLISHED, label: 'Terbit' },
+    { value: BlogStatus.DRAFT, label: 'Draft' },
   ];
 
   return (
@@ -22,4 +21,4 @@ export function BlogFilter({ currentValue, onChange }: BlogFilterProps) {
       onChange={onChange}
     />
   );
-} 
+}

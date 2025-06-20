@@ -1,8 +1,8 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/useIsMobile";
+import React from 'react';
+import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { cn } from '@/lib/utils';
 
 interface FormActionsProps {
   isLoading?: boolean;
@@ -17,21 +17,23 @@ interface FormActionsProps {
 export function FormActions({
   isLoading = false,
   onCancel,
-  submitLabel = "Simpan",
-  cancelLabel = "Batal",
+  submitLabel = 'Simpan',
+  cancelLabel = 'Batal',
   submitIcon,
   fullWidth = false,
   className,
 }: FormActionsProps) {
   const { isMobile } = useIsMobile();
-  
+
   return (
-    <div className={cn(
-      "flex items-center gap-2", 
-      isMobile || fullWidth ? "flex-col w-full" : "", 
-      !isMobile && fullWidth ? "sm:flex-row" : "",
-      className
-    )}>
+    <div
+      className={cn(
+        'flex items-center gap-2',
+        isMobile || fullWidth ? 'w-full flex-col' : '',
+        !isMobile && fullWidth ? 'sm:flex-row' : '',
+        className
+      )}
+    >
       {onCancel && (
         <Button
           type="button"
@@ -39,8 +41,8 @@ export function FormActions({
           onClick={onCancel}
           disabled={isLoading}
           className={cn(
-            (isMobile || fullWidth) && "w-full",
-            !isMobile && fullWidth && "sm:w-auto"
+            (isMobile || fullWidth) && 'w-full',
+            !isMobile && fullWidth && 'sm:w-auto'
           )}
         >
           {cancelLabel}
@@ -50,13 +52,17 @@ export function FormActions({
         type="submit"
         disabled={isLoading}
         className={cn(
-          (isMobile || fullWidth) && "w-full",
-          !isMobile && fullWidth && "sm:w-auto"
+          (isMobile || fullWidth) && 'w-full',
+          !isMobile && fullWidth && 'sm:w-auto'
         )}
       >
-        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : submitIcon}
+        {isLoading ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          submitIcon
+        )}
         {submitLabel}
       </Button>
     </div>
   );
-} 
+}

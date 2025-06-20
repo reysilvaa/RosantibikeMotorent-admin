@@ -15,7 +15,7 @@ interface JenisMotorEditState {
   loadingSubmit: boolean;
   error: string;
   success: boolean;
-  
+
   fetchJenisMotor: (id: string) => Promise<void>;
   setFormData: (data: Partial<JenisMotorEditState['formData']>) => void;
   setSelectedFile: (file: File | null) => void;
@@ -23,104 +23,104 @@ interface JenisMotorEditState {
   resetForm: () => void;
 }
 
-export const useJenisMotorEditStore = create<JenisMotorEditState>((set, get) => ({
-  jenisMotor: null,
-  formData: {
-    merk: '',
-    model: '',
-    cc: 0,
-    gambar: '',
-  },
-  selectedFile: null,
-  loading: false,
-  loadingSubmit: false,
-  error: '',
-  success: false,
-  
-  fetchJenisMotor: async (id: string) => {
-    try {
-      set({ loading: true, error: '' });
-      const data = await getJenisMotorDetail(id);
-      set({ 
-        jenisMotor: data,
-        formData: {
-          merk: data.merk,
-          model: data.model,
-          cc: data.cc,
-          gambar: data.gambar || '',
-        },
-        loading: false 
-      });
-    } catch (error) {
-      console.error("Gagal mengambil data jenis motor:", error);
-      set({ 
-        error: "Gagal mengambil data jenis motor", 
-        loading: false 
-      });
-    }
-  },
-  
-  setFormData: (data) => {
-    set({ formData: { ...get().formData, ...data } });
-  },
-  
-  setSelectedFile: (file) => {
-    set({ selectedFile: file });
-  },
-  
-  submitForm: async (id: string) => {
-    try {
-      set({ loadingSubmit: true, error: '', success: false });
-      const { formData, selectedFile } = get();
-      
-      // Validasi form
-      if (!formData.merk || !formData.model || !formData.cc) {
-        set({ 
-          error: "Merk, model, dan CC harus diisi", 
-          loadingSubmit: false 
+export const useJenisMotorEditStore = create<JenisMotorEditState>(
+  (set, get) => ({
+    jenisMotor: null,
+    formData: {
+      merk: '',
+      model: '',
+      cc: 0,
+      gambar: '',
+    },
+    selectedFile: null,
+    loading: false,
+    loadingSubmit: false,
+    error: '',
+    success: false,
+
+    fetchJenisMotor: async (id: string) => {
+      try {
+        set({ loading: true, error: '' });
+        const data = await getJenisMotorDetail(id);
+        set({
+          jenisMotor: data,
+          formData: {
+            merk: data.merk,
+            model: data.model,
+            cc: data.cc,
+            gambar: data.gambar || '',
+          },
+          loading: false,
         });
-        return;
+      } catch (error) {
+        console.error('Gagal mengambil data jenis motor:', error);
+        set({
+          error: 'Gagal mengambil data jenis motor',
+          loading: false,
+        });
       }
-      
-      // Persiapkan FormData untuk dikirim
-      const formDataToSubmit = new FormData();
-      formDataToSubmit.append('merk', formData.merk);
-      formDataToSubmit.append('model', formData.model);
-      formDataToSubmit.append('cc', formData.cc.toString());
-      
-      if (selectedFile) {
-        formDataToSubmit.append('file', selectedFile);
+    },
+
+    setFormData: data => {
+      set({ formData: { ...get().formData, ...data } });
+    },
+
+    setSelectedFile: file => {
+      set({ selectedFile: file });
+    },
+
+    submitForm: async (id: string) => {
+      try {
+        set({ loadingSubmit: true, error: '', success: false });
+        const { formData, selectedFile } = get();
+
+        if (!formData.merk || !formData.model || !formData.cc) {
+          set({
+            error: 'Merk, model, dan CC harus diisi',
+            loadingSubmit: false,
+          });
+          return;
+        }
+
+        const formDataToSubmit = new FormData();
+        formDataToSubmit.append('merk', formData.merk);
+        formDataToSubmit.append('model', formData.model);
+        formDataToSubmit.append('cc', formData.cc.toString());
+
+        if (selectedFile) {
+          formDataToSubmit.append('file', selectedFile);
+        }
+
+        await updateJenisMotor(id, formDataToSubmit);
+
+        set({
+          loadingSubmit: false,
+          success: true,
+        });
+      } catch (error) {
+        console.error('Gagal memperbarui jenis motor:', error);
+        set({
+          error: 'Gagal memperbarui jenis motor',
+          loadingSubmit: false,
+        });
       }
-      
-      await updateJenisMotor(id, formDataToSubmit);
-      
-      set({ 
+    },
+
+    resetForm: () => {
+      set({
+        jenisMotor: null,
+        formData: {
+          merk: '',
+          model: '',
+          cc: 0,
+          gambar: '',
+        },
+        selectedFile: null,
+        loading: false,
         loadingSubmit: false,
-        success: true
+        error: '',
+        success: false,
       });
-    } catch (error) {
-      console.error("Gagal memperbarui jenis motor:", error);
-      set({ 
-        error: "Gagal memperbarui jenis motor", 
-        loadingSubmit: false 
-      });
-    }
-  },
-  
-  resetForm: () => {
-    set({
-      jenisMotor: null,
-      formData: {
-        merk: '',
-        model: '',
-        cc: 0,
-        gambar: '',
-      },
-      selectedFile: null,
-      loading: false,
-      loadingSubmit: false,
-      error: '',
-      success: false
-    });
-  }
-})); 
+    },
+  })
+);

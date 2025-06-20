@@ -8,7 +8,6 @@ export interface BlogParams {
   category?: string;
 }
 
-
 export interface BlogTag {
   id: string;
   nama: string;
@@ -17,7 +16,7 @@ export interface BlogTag {
 export const getBlogPosts = async (params?: BlogParams) => {
   try {
     console.log('Fetching blog posts with params:', params);
-    
+
     const response = await axios.get(`/blog`, {
       params,
     });
@@ -35,7 +34,7 @@ export const getBlogPosts = async (params?: BlogParams) => {
 export const getBlogPost = async (id: string) => {
   try {
     console.log('Fetching blog post with ID:', id);
-    
+
     const response = await axios.get(`/blog/${id}`);
     console.log('Blog post detail response:', response.data);
     return response.data;
@@ -51,7 +50,7 @@ export const getBlogPost = async (id: string) => {
 export const getBlogPostBySlug = async (slug: string) => {
   try {
     console.log('Fetching blog post with slug:', slug);
-    
+
     const response = await axios.get(`/blog/by-slug/${slug}`);
     console.log('Blog post by slug response:', response.data);
     return response.data;
@@ -67,7 +66,7 @@ export const getBlogPostBySlug = async (slug: string) => {
 export const getBlogTags = async () => {
   try {
     console.log('Fetching blog tags');
-    
+
     const response = await axios.get(`/blog/tags`);
     console.log('Blog tags response:', response.data);
     return response.data;
@@ -83,7 +82,7 @@ export const getBlogTags = async () => {
 export const searchBlogTags = async (query: string) => {
   try {
     console.log('Searching blog tags with query:', query);
-    
+
     const response = await axios.get(`/blog/tags/search`, {
       params: { q: query },
     });
@@ -101,7 +100,7 @@ export const searchBlogTags = async (query: string) => {
 export const createBlogPost = async (formData: FormData) => {
   try {
     console.log('Creating new blog post');
-    
+
     const response = await axios.post(`/blog`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -121,7 +120,7 @@ export const createBlogPost = async (formData: FormData) => {
 export const updateBlogPost = async (id: string, formData: FormData) => {
   try {
     console.log('Updating blog post with ID:', id);
-    
+
     const response = await axios.patch(`/blog/${id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -141,7 +140,7 @@ export const updateBlogPost = async (id: string, formData: FormData) => {
 export const deleteBlogPost = async (id: string) => {
   try {
     console.log('Deleting blog post with ID:', id);
-    
+
     const response = await axios.delete(`/blog/${id}`);
     console.log('Delete blog post response:', response.data);
     return response.data;
@@ -152,4 +151,4 @@ export const deleteBlogPost = async (id: string) => {
     }
     throw new Error('Gagal menghapus blog post');
   }
-}; 
+};

@@ -1,6 +1,5 @@
 import { JenisMotor } from './jenis-motor';
 
-// Interface untuk unit motor
 export interface UnitMotor {
   id: string;
   platNomor: string;
@@ -12,11 +11,10 @@ export interface UnitMotor {
   jenis?: JenisMotor;
 }
 
-// Interface untuk filter unit motor
 export interface FilterUnitMotor {
   page?: number;
   limit?: number;
   search?: string;
   status?: string;
   jenis?: JenisMotor;
-} 
+}

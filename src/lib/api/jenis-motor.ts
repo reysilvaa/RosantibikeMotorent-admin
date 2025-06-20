@@ -4,7 +4,9 @@ import { JenisMotor } from '../types/jenis-motor';
 export const getJenisMotor = async (): Promise<JenisMotor[]> => {
   try {
     const response = await axios.get(`/jenis-motor`);
-    return Array.isArray(response.data) ? response.data : response.data.data || [];
+    return Array.isArray(response.data)
+      ? response.data
+      : response.data.data || [];
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response?.data?.message) {
       throw new Error(error.response.data.message);
@@ -25,7 +27,9 @@ export const getJenisMotorDetail = async (id: string): Promise<JenisMotor> => {
   }
 };
 
-export const getJenisMotorBySlug = async (slug: string): Promise<JenisMotor> => {
+export const getJenisMotorBySlug = async (
+  slug: string
+): Promise<JenisMotor> => {
   try {
     const response = await axios.get(`/jenis-motor/slug/${slug}`);
     return response.data.data;
@@ -37,10 +41,12 @@ export const getJenisMotorBySlug = async (slug: string): Promise<JenisMotor> => 
   }
 };
 
-export const createJenisMotor = async (data: FormData | Record<string, unknown>): Promise<JenisMotor> => {
+export const createJenisMotor = async (
+  data: FormData | Record<string, unknown>
+): Promise<JenisMotor> => {
   try {
     const jsonData: Record<string, unknown> = {};
-    
+
     if (data instanceof FormData) {
       for (const [key, value] of data.entries()) {
         if (key === 'cc') {
@@ -49,10 +55,8 @@ export const createJenisMotor = async (data: FormData | Record<string, unknown>)
           jsonData[key] = value;
         }
       }
-      
-      // Jika ada file, gunakan FormData
+
       if (data.has('file')) {
-        // Gunakan FormData API langsung
         const response = await axios.post(`/jenis-motor`, data, {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -60,8 +64,7 @@ export const createJenisMotor = async (data: FormData | Record<string, unknown>)
         });
         return response.data.data;
       }
-      
-      // Jika tidak ada file, gunakan JSON API
+
       const response = await axios.post(`/jenis-motor`, jsonData, {
         headers: {
           'Content-Type': 'application/json',
@@ -69,13 +72,11 @@ export const createJenisMotor = async (data: FormData | Record<string, unknown>)
       });
       return response.data.data;
     } else {
-      // Jika data bukan FormData, kirim sebagai JSON
-      // Pastikan cc adalah number
       const dataObj = data as Record<string, unknown>;
       if (typeof dataObj.cc === 'string') {
         dataObj.cc = parseInt(dataObj.cc, 10);
       }
-      
+
       const response = await axios.post(`/jenis-motor`, dataObj, {
         headers: {
           'Content-Type': 'application/json',
@@ -91,7 +92,10 @@ export const createJenisMotor = async (data: FormData | Record<string, unknown>)
   }
 };
 
-export const updateJenisMotor = async (id: string, data: FormData): Promise<JenisMotor> => {
+export const updateJenisMotor = async (
+  id: string,
+  data: FormData
+): Promise<JenisMotor> => {
   try {
     const response = await axios.patch(`/jenis-motor/${id}`, data, {
       headers: {
@@ -117,4 +121,4 @@ export const deleteJenisMotor = async (id: string): Promise<JenisMotor> => {
     }
     throw new Error('Gagal menghapus jenis motor');
   }
-}; 
+};

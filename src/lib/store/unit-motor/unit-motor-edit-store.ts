@@ -1,8 +1,8 @@
-import { create } from "zustand";
-import { toast } from "sonner";
-import { getUnitMotorDetail, updateUnitMotor } from "@/lib/api/unit-motor";
-import { JenisMotor } from "@/lib/types/jenis-motor";
-import { UnitMotor } from "@/lib/types/unit-motor";
+import { toast } from 'sonner';
+import { create } from 'zustand';
+import { getUnitMotorDetail, updateUnitMotor } from '@/lib/api/unit-motor';
+import { JenisMotor } from '@/lib/types/jenis-motor';
+import { UnitMotor } from '@/lib/types/unit-motor';
 
 interface UnitMotorEditFormData {
   plat: string;
@@ -28,11 +28,11 @@ interface UnitMotorEditState {
 }
 
 const initialFormData: UnitMotorEditFormData = {
-  plat: "",
-  tahunPembuatan: "",
-  hargaSewa: "",
-  jenisMotorId: "",
-  status: "TERSEDIA"
+  plat: '',
+  tahunPembuatan: '',
+  hargaSewa: '',
+  jenisMotorId: '',
+  status: 'TERSEDIA',
 };
 
 export const useUnitMotorEditStore = create<UnitMotorEditState>((set, get) => ({
@@ -44,38 +44,38 @@ export const useUnitMotorEditStore = create<UnitMotorEditState>((set, get) => ({
   success: undefined,
   jenisMotorOptions: [],
 
-  fetchUnitMotor: async (id) => {
+  fetchUnitMotor: async id => {
     try {
       set({ loading: true, error: undefined });
       const data = await getUnitMotorDetail(id);
-      
+
       set({
         unitMotor: data,
         formData: {
-          plat: data.platNomor || "",
-          tahunPembuatan: data.tahunPembuatan?.toString() || "",
-          hargaSewa: data.hargaSewa?.toString() || "",
-          jenisMotorId: data.jenis?.id || "",
-          status: data.status || "TERSEDIA"
+          plat: data.platNomor || '',
+          tahunPembuatan: data.tahunPembuatan?.toString() || '',
+          hargaSewa: data.hargaSewa?.toString() || '',
+          jenisMotorId: data.jenis?.id || '',
+          status: data.status || 'TERSEDIA',
         },
-        loading: false
+        loading: false,
       });
     } catch (error) {
-      console.error("Gagal mengambil data unit motor:", error);
-      set({ 
-        loading: false, 
-        error: "Gagal mengambil data unit motor" 
+      console.error('Gagal mengambil data unit motor:', error);
+      set({
+        loading: false,
+        error: 'Gagal mengambil data unit motor',
       });
     }
   },
 
-  setFormData: (data) => {
-    set((state) => ({
+  setFormData: data => {
+    set(state => ({
       formData: { ...state.formData, ...data },
     }));
   },
 
-  setJenisMotorOptions: (options) => {
+  setJenisMotorOptions: options => {
     set({ jenisMotorOptions: options });
   },
 
@@ -83,37 +83,37 @@ export const useUnitMotorEditStore = create<UnitMotorEditState>((set, get) => ({
     set({ error: undefined, success: undefined });
   },
 
-  updateUnitMotor: async (id) => {
+  updateUnitMotor: async id => {
     const { formData } = get();
-    
-    // Validasi form
+
     if (!formData.plat.trim()) {
-      set({ error: "Plat nomor harus diisi" });
+      set({ error: 'Plat nomor harus diisi' });
       return false;
     }
-    
+
     if (!formData.tahunPembuatan.trim()) {
-      set({ error: "Tahun pembuatan harus diisi" });
+      set({ error: 'Tahun pembuatan harus diisi' });
       return false;
     }
-    
+
     if (!formData.hargaSewa) {
-      set({ error: "Harga sewa harus diisi" });
+      set({ error: 'Harga sewa harus diisi' });
       return false;
     }
-    
+
     if (!formData.jenisMotorId) {
-      set({ error: "Jenis motor harus dipilih" });
+      set({ error: 'Jenis motor harus dipilih' });
       return false;
     }
 
     try {
       set({ saving: true, error: undefined, success: undefined });
 
-      const hargaSewaNumber = typeof formData.hargaSewa === 'string' 
-        ? parseInt(formData.hargaSewa.replace(/\D/g, "")) 
-        : formData.hargaSewa;
-      
+      const hargaSewaNumber =
+        typeof formData.hargaSewa === 'string'
+          ? parseInt(formData.hargaSewa.replace(/\D/g, ''))
+          : formData.hargaSewa;
+
       const result = await updateUnitMotor(id, {
         plat: formData.plat,
         tahunPembuatan: formData.tahunPembuatan,
@@ -122,22 +122,23 @@ export const useUnitMotorEditStore = create<UnitMotorEditState>((set, get) => ({
         status: formData.status,
       });
 
-      set({ 
+      set({
         saving: false,
-        success: "Unit motor berhasil diperbarui",
-        unitMotor: result
+        success: 'Unit motor berhasil diperbarui',
+        unitMotor: result,
       });
-      
-      toast.success("Unit motor berhasil diperbarui");
+
+      toast.success('Unit motor berhasil diperbarui');
       return true;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Gagal memperbarui unit motor";
-      console.error("Gagal memperbarui unit motor:", error);
-      set({ 
-        saving: false, 
-        error: errorMessage
+      const errorMessage =
+        error instanceof Error ? error.message : 'Gagal memperbarui unit motor';
+      console.error('Gagal memperbarui unit motor:', error);
+      set({
+        saving: false,
+        error: errorMessage,
       });
       return false;
     }
   },
-})); 
+}));

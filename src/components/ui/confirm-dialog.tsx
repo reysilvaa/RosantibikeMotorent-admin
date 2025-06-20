@@ -1,5 +1,5 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
+import React from 'react';
+import { Button } from '@/components/ui/button';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -8,7 +8,7 @@ interface ConfirmDialogProps {
   description: string;
   confirmLabel?: string;
   cancelLabel?: string;
-  variant?: "default" | "destructive";
+  variant?: 'default' | 'destructive';
   onClose: () => void;
   onConfirm: () => void;
 }
@@ -18,9 +18,9 @@ export function ConfirmDialog({
   loading = false,
   title,
   description,
-  confirmLabel = "Konfirmasi",
-  cancelLabel = "Batal",
-  variant = "default",
+  confirmLabel = 'Konfirmasi',
+  cancelLabel = 'Batal',
+  variant = 'default',
   onClose,
   onConfirm,
 }: ConfirmDialogProps) {
@@ -51,4 +51,4 @@ export function ConfirmDialog({
       </div>
     </div>
   );
-} 
+}

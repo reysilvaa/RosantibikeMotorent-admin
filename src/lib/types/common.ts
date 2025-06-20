@@ -1,4 +1,3 @@
-// Interface untuk response pagination
 export interface PaginationResponse<T> {
   statusCode: number;
   success: boolean;
@@ -10,4 +9,4 @@ export interface PaginationResponse<T> {
     totalPages: number;
     currentPage: number;
   };
-} 
+}

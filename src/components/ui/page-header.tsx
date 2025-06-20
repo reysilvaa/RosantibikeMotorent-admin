@@ -1,9 +1,9 @@
-import React from "react";
-import { ArrowLeft, Loader2, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import { useIsMobile } from "@/hooks/useIsMobile";
-import { cn } from "@/lib/utils";
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, Loader2, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { cn } from '@/lib/utils';
 
 interface PageHeaderProps {
   title: string;
@@ -52,12 +52,14 @@ export function PageHeader({
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 w-full overflow-hidden">
-      <div className={cn(
-        "flex items-center",
-        "max-w-full",
-        (actionLabel || actionIcon) ? "w-auto" : "w-full"
-      )}>
+    <div className="flex w-full flex-wrap items-center justify-between gap-3 overflow-hidden">
+      <div
+        className={cn(
+          'flex items-center',
+          'max-w-full',
+          actionLabel || actionIcon ? 'w-auto' : 'w-full'
+        )}
+      >
         {showBackButton && (
           <Button
             variant="outline"
@@ -69,38 +71,42 @@ export function PageHeader({
             <span className="sr-only">Kembali</span>
           </Button>
         )}
-        <div className="min-w-0 max-w-full">
-          <h2 className="text-lg font-bold tracking-tight truncate md:text-2xl lg:text-3xl">{title}</h2>
+        <div className="max-w-full min-w-0">
+          <h2 className="truncate text-lg font-bold tracking-tight md:text-2xl lg:text-3xl">
+            {title}
+          </h2>
           {description && (
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 md:text-sm truncate">
+            <p className="truncate text-xs text-neutral-500 md:text-sm dark:text-neutral-400">
               {description}
             </p>
           )}
           {id && (
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">
+            <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">
               ID: {id}
             </p>
           )}
         </div>
       </div>
-      
+
       {(actionLabel || actionIcon) && (
         <Button
           variant="default"
           onClick={handleAction}
           disabled={actionDisabled}
-          size={isMobile && !actionLabel ? "icon" : "default"}
+          size={isMobile && !actionLabel ? 'icon' : 'default'}
           className={cn(
-            "flex-shrink-0",
-            isSmallMobile && actionLabel ? "text-xs px-2 py-1 h-8" : "",
-            isMobile && !isSmallMobile && actionLabel ? "text-xs px-3 py-1.5 h-9" : "",
-            actionHref && isMobile && !actionLabel ? "p-2" : ""
+            'flex-shrink-0',
+            isSmallMobile && actionLabel ? 'h-8 px-2 py-1 text-xs' : '',
+            isMobile && !isSmallMobile && actionLabel
+              ? 'h-9 px-3 py-1.5 text-xs'
+              : '',
+            actionHref && isMobile && !actionLabel ? 'p-2' : ''
           )}
         >
           {actionLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+            <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
           ) : (
-            <span className={actionLabel ? "mr-1.5" : ""}>
+            <span className={actionLabel ? 'mr-1.5' : ''}>
               {actionIcon || <Plus className="h-4 w-4" />}
             </span>
           )}
@@ -109,4 +115,4 @@ export function PageHeader({
       )}
     </div>
   );
-} 
+}

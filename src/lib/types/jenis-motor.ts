@@ -1,4 +1,3 @@
-// Interface untuk jenis motor
 export interface JenisMotor {
   id: string;
   model: string;
@@ -8,4 +7,4 @@ export interface JenisMotor {
   slug: string;
   createdAt: string;
   updatedAt: string;
-} 
+}

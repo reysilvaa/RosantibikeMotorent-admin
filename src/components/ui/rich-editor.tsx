@@ -1,41 +1,41 @@
-"use client";
+'use client';
 
-import React, { useEffect, useRef } from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Bold from "@tiptap/extension-bold";
-import Italic from "@tiptap/extension-italic";
-import Underline from "@tiptap/extension-underline";
-import Strike from "@tiptap/extension-strike";
-import Heading from "@tiptap/extension-heading";
-import Paragraph from "@tiptap/extension-paragraph";
-import BulletList from "@tiptap/extension-bullet-list";
-import OrderedList from "@tiptap/extension-ordered-list";
-import ListItem from "@tiptap/extension-list-item";
-import Link from "@tiptap/extension-link";
-import Image from "@tiptap/extension-image";
-import Code from "@tiptap/extension-code";
-import CodeBlock from "@tiptap/extension-code-block";
-import Blockquote from "@tiptap/extension-blockquote";
-import { 
-  Bold as BoldIcon, 
-  Italic as ItalicIcon, 
-  Underline as UnderlineIcon, 
-  Strikethrough as StrikeIcon, 
-  Heading1, 
-  Heading2, 
-  List, 
-  ListOrdered,
-  Link as LinkIcon,
-  Image as ImageIcon,
+import React, { useEffect, useRef } from 'react';
+import Blockquote from '@tiptap/extension-blockquote';
+import Bold from '@tiptap/extension-bold';
+import BulletList from '@tiptap/extension-bullet-list';
+import Code from '@tiptap/extension-code';
+import CodeBlock from '@tiptap/extension-code-block';
+import Heading from '@tiptap/extension-heading';
+import Image from '@tiptap/extension-image';
+import Italic from '@tiptap/extension-italic';
+import Link from '@tiptap/extension-link';
+import ListItem from '@tiptap/extension-list-item';
+import OrderedList from '@tiptap/extension-ordered-list';
+import Paragraph from '@tiptap/extension-paragraph';
+import Strike from '@tiptap/extension-strike';
+import Underline from '@tiptap/extension-underline';
+import { EditorContent, useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import {
+  Bold as BoldIcon,
   Code as CodeIcon,
-  Quote as QuoteIcon,
-  Undo,
-  Redo,
+  Heading1,
+  Heading2,
+  Image as ImageIcon,
+  Italic as ItalicIcon,
   Link2Off,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+  Link as LinkIcon,
+  List,
+  ListOrdered,
+  Quote as QuoteIcon,
+  Redo,
+  Strikethrough as StrikeIcon,
+  Underline as UnderlineIcon,
+  Undo,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface RichEditorProps {
   value: string;
@@ -54,7 +54,7 @@ export function RichEditor({
 }: RichEditorProps) {
   const isInitialMount = useRef(true);
   const isUpdatingFromExternalValue = useRef(false);
-  
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -99,7 +99,8 @@ export function RichEditor({
       CodeBlock,
       Blockquote.configure({
         HTMLAttributes: {
-          class: 'border-l-4 border-neutral-300 dark:border-neutral-700 pl-4 italic',
+          class:
+            'border-l-4 border-neutral-300 dark:border-neutral-700 pl-4 italic',
         },
       }),
     ],
@@ -113,7 +114,7 @@ export function RichEditor({
     editorProps: {
       attributes: {
         class: cn(
-          "prose prose-neutral dark:prose-invert max-w-none focus:outline-none min-h-[150px] p-4",
+          'prose prose-neutral dark:prose-invert min-h-[150px] max-w-none p-4 focus:outline-none',
           editorClassName
         ),
       },
@@ -128,7 +129,7 @@ export function RichEditor({
         isUpdatingFromExternalValue.current = false;
       }, 0);
     }
-    
+
     if (isInitialMount.current) {
       isInitialMount.current = false;
     }
@@ -150,36 +151,40 @@ export function RichEditor({
   const addLink = () => {
     const previousUrl = editor.getAttributes('link').href;
     const url = window.prompt('URL tautan', previousUrl);
-    
+
     if (url === null) {
       return;
     }
-    
+
     if (url === '') {
       editor.chain().focus().extendMarkRange('link').unsetLink().run();
       return;
     }
-    
+
     if (!isValidUrl(url)) {
       alert('URL tidak valid. Pastikan dimulai dengan http:// atau https://');
       return;
     }
-    
+
     if (editor.state.selection.empty) {
-      editor.chain().focus().insertContent({
-        type: 'text',
-        text: url,
-        marks: [
-          {
-            type: 'link',
-            attrs: {
-              href: url,
-              target: '_blank',
-              rel: 'noopener noreferrer',
+      editor
+        .chain()
+        .focus()
+        .insertContent({
+          type: 'text',
+          text: url,
+          marks: [
+            {
+              type: 'link',
+              attrs: {
+                href: url,
+                target: '_blank',
+                rel: 'noopener noreferrer',
+              },
             },
-          },
-        ],
-      }).run();
+          ],
+        })
+        .run();
     } else {
       editor
         .chain()
@@ -196,30 +201,39 @@ export function RichEditor({
 
   const addImage = () => {
     const url = window.prompt('URL gambar');
-    
+
     if (url === null) {
       return;
     }
-    
+
     if (url && !isValidUrl(url)) {
-      alert('URL gambar tidak valid. Pastikan dimulai dengan http:// atau https://');
+      alert(
+        'URL gambar tidak valid. Pastikan dimulai dengan http:// atau https://'
+      );
       return;
     }
-    
+
     if (url) {
       editor.chain().focus().setImage({ src: url, alt: 'Gambar' }).run();
     }
   };
 
   return (
-    <div className={cn("border rounded-md overflow-hidden border-neutral-200 dark:border-neutral-800", className)}>
-      <div className="flex flex-wrap gap-1 border-b bg-neutral-50 dark:bg-neutral-900 p-2">
+    <div
+      className={cn(
+        'overflow-hidden rounded-md border border-neutral-200 dark:border-neutral-800',
+        className
+      )}
+    >
+      <div className="flex flex-wrap gap-1 border-b bg-neutral-50 p-2 dark:bg-neutral-900">
         <Button
           type="button"
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleBold().run()}
-          className={cn(editor.isActive("bold") ? "bg-neutral-200 dark:bg-neutral-800" : "")}
+          className={cn(
+            editor.isActive('bold') ? 'bg-neutral-200 dark:bg-neutral-800' : ''
+          )}
           disabled={disabled}
           title="Bold (Ctrl+B)"
         >
@@ -230,7 +244,11 @@ export function RichEditor({
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={cn(editor.isActive("italic") ? "bg-neutral-200 dark:bg-neutral-800" : "")}
+          className={cn(
+            editor.isActive('italic')
+              ? 'bg-neutral-200 dark:bg-neutral-800'
+              : ''
+          )}
           disabled={disabled}
           title="Italic (Ctrl+I)"
         >
@@ -241,7 +259,11 @@ export function RichEditor({
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleUnderline().run()}
-          className={cn(editor.isActive("underline") ? "bg-neutral-200 dark:bg-neutral-800" : "")}
+          className={cn(
+            editor.isActive('underline')
+              ? 'bg-neutral-200 dark:bg-neutral-800'
+              : ''
+          )}
           disabled={disabled}
           title="Underline (Ctrl+U)"
         >
@@ -252,19 +274,29 @@ export function RichEditor({
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleStrike().run()}
-          className={cn(editor.isActive("strike") ? "bg-neutral-200 dark:bg-neutral-800" : "")}
+          className={cn(
+            editor.isActive('strike')
+              ? 'bg-neutral-200 dark:bg-neutral-800'
+              : ''
+          )}
           disabled={disabled}
           title="Strikethrough"
         >
           <StrikeIcon className="h-4 w-4" />
         </Button>
-        <div className="w-px h-6 bg-neutral-300 dark:bg-neutral-700 mx-1" />
+        <div className="mx-1 h-6 w-px bg-neutral-300 dark:bg-neutral-700" />
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-          className={cn(editor.isActive("heading", { level: 1 }) ? "bg-neutral-200 dark:bg-neutral-800" : "")}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 1 }).run()
+          }
+          className={cn(
+            editor.isActive('heading', { level: 1 })
+              ? 'bg-neutral-200 dark:bg-neutral-800'
+              : ''
+          )}
           disabled={disabled}
           title="Heading 1"
         >
@@ -274,20 +306,30 @@ export function RichEditor({
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={cn(editor.isActive("heading", { level: 2 }) ? "bg-neutral-200 dark:bg-neutral-800" : "")}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
+          className={cn(
+            editor.isActive('heading', { level: 2 })
+              ? 'bg-neutral-200 dark:bg-neutral-800'
+              : ''
+          )}
           disabled={disabled}
           title="Heading 2"
         >
           <Heading2 className="h-4 w-4" />
         </Button>
-        <div className="w-px h-6 bg-neutral-300 dark:bg-neutral-700 mx-1" />
+        <div className="mx-1 h-6 w-px bg-neutral-300 dark:bg-neutral-700" />
         <Button
           type="button"
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={cn(editor.isActive("bulletList") ? "bg-neutral-200 dark:bg-neutral-800" : "")}
+          className={cn(
+            editor.isActive('bulletList')
+              ? 'bg-neutral-200 dark:bg-neutral-800'
+              : ''
+          )}
           disabled={disabled}
           title="Bullet List"
         >
@@ -298,19 +340,25 @@ export function RichEditor({
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={cn(editor.isActive("orderedList") ? "bg-neutral-200 dark:bg-neutral-800" : "")}
+          className={cn(
+            editor.isActive('orderedList')
+              ? 'bg-neutral-200 dark:bg-neutral-800'
+              : ''
+          )}
           disabled={disabled}
           title="Ordered List"
         >
           <ListOrdered className="h-4 w-4" />
         </Button>
-        <div className="w-px h-6 bg-neutral-300 dark:bg-neutral-700 mx-1" />
+        <div className="mx-1 h-6 w-px bg-neutral-300 dark:bg-neutral-700" />
         <Button
           type="button"
           variant="ghost"
           size="sm"
           onClick={addLink}
-          className={cn(editor.isActive("link") ? "bg-neutral-200 dark:bg-neutral-800" : "")}
+          className={cn(
+            editor.isActive('link') ? 'bg-neutral-200 dark:bg-neutral-800' : ''
+          )}
           disabled={disabled}
           title="Add Link"
         >
@@ -341,7 +389,9 @@ export function RichEditor({
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleCode().run()}
-          className={cn(editor.isActive("code") ? "bg-neutral-200 dark:bg-neutral-800" : "")}
+          className={cn(
+            editor.isActive('code') ? 'bg-neutral-200 dark:bg-neutral-800' : ''
+          )}
           disabled={disabled}
           title="Inline Code"
         >
@@ -352,13 +402,17 @@ export function RichEditor({
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          className={cn(editor.isActive("blockquote") ? "bg-neutral-200 dark:bg-neutral-800" : "")}
+          className={cn(
+            editor.isActive('blockquote')
+              ? 'bg-neutral-200 dark:bg-neutral-800'
+              : ''
+          )}
           disabled={disabled}
           title="Blockquote"
         >
           <QuoteIcon className="h-4 w-4" />
         </Button>
-        <div className="w-px h-6 bg-neutral-300 dark:bg-neutral-700 mx-1" />
+        <div className="mx-1 h-6 w-px bg-neutral-300 dark:bg-neutral-700" />
         <Button
           type="button"
           variant="ghost"
@@ -383,4 +437,4 @@ export function RichEditor({
       <EditorContent editor={editor} />
     </div>
   );
-} 
+}

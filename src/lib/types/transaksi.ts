@@ -1,7 +1,6 @@
-import { UnitMotor } from './unit-motor';
 import { JenisMotor } from './jenis-motor';
+import { UnitMotor } from './unit-motor';
 
-// Enum untuk status transaksi
 export enum StatusTransaksi {
   BOOKING = 'BOOKING',
   BERJALAN = 'BERJALAN',
@@ -11,7 +10,6 @@ export enum StatusTransaksi {
   OVERDUE = 'OVERDUE',
 }
 
-// Interface untuk transaksi
 export interface Transaksi {
   id: string;
   namaPenyewa: string;
@@ -33,7 +31,6 @@ export interface Transaksi {
   jenis?: JenisMotor;
 }
 
-// Interface untuk filter transaksi
 export interface FilterTransaksi {
   page?: number;
   limit?: number;
@@ -41,4 +38,4 @@ export interface FilterTransaksi {
   status?: StatusTransaksi[] | StatusTransaksi;
   startDate?: string;
   endDate?: string;
-} 
+}

@@ -1,7 +1,7 @@
-import React from "react";
-import { ShoppingCart, Bike, TrendingUp, Clock } from "lucide-react";
-import { StatCard } from "./stat-card";
-import { formatRupiah } from "@/lib/helper";
+import React from 'react';
+import { Bike, Clock, ShoppingCart, TrendingUp } from 'lucide-react';
+import { formatRupiah } from '@/lib/helper';
+import { StatCard } from './stat-card';
 
 interface DashboardStatsProps {
   totalTransaksi: number;
@@ -41,13 +41,9 @@ export function DashboardStats({
         title="Transaksi Pending"
         value={transaksiPending}
         icon={<Clock className="h-4 w-4" />}
-        trend={transaksiPending > 5 ? "up" : "down"}
-        trendValue={
-          transaksiPending > 5
-            ? "Perlu perhatian"
-            : "Normal"
-        }
+        trend={transaksiPending > 5 ? 'up' : 'down'}
+        trendValue={transaksiPending > 5 ? 'Perlu perhatian' : 'Normal'}
       />
     </div>
   );
-} 
+}

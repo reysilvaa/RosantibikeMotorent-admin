@@ -3,11 +3,7 @@ export {
   getBlogPostBySlug,
   createBlogPost,
   updateBlogPost,
-  deleteBlogPost
-} from "./api/blog";
+  deleteBlogPost,
+} from './api/blog';
 
-export type {
-  Blog,
-  BlogStatus,
-  BlogPostFilter
-} from "./types/blog";
+export type { Blog, BlogStatus, BlogPostFilter } from './types/blog';

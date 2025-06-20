@@ -18,7 +18,7 @@ interface BlogEditState {
   loadingSubmit: boolean;
   error: string;
   success: boolean;
-  
+
   fetchBlog: (id: string) => Promise<void>;
   setFormData: (data: Partial<BlogEditFormData>) => void;
   setSelectedFile: (file: File | null) => void;
@@ -42,15 +42,18 @@ export const useBlogEditStore = create<BlogEditState>((set, get) => ({
   loadingSubmit: false,
   error: '',
   success: false,
-  
+
   fetchBlog: async (id: string) => {
     try {
       set({ loading: true, error: '', success: false });
       const data = await getBlogPost(id);
-      
-      const tags = data.tags?.map((tagItem: { tag: { id: string; nama: string } }) => tagItem.tag.id) || [];
-      
-      set({ 
+
+      const tags =
+        data.tags?.map(
+          (tagItem: { tag: { id: string; nama: string } }) => tagItem.tag.id
+        ) || [];
+
+      set({
         blog: data,
         formData: {
           judul: data.judul || '',
@@ -59,92 +62,86 @@ export const useBlogEditStore = create<BlogEditState>((set, get) => ({
           kategori: data.kategori || '',
           tags: tags,
         },
-        loading: false 
+        loading: false,
       });
     } catch (error) {
-      console.error("Gagal mengambil data blog:", error);
-      set({ 
-        error: "Gagal mengambil data blog", 
-        loading: false 
+      console.error('Gagal mengambil data blog:', error);
+      set({
+        error: 'Gagal mengambil data blog',
+        loading: false,
       });
     }
   },
-  
-  setFormData: (data) => {
+
+  setFormData: data => {
     set({ formData: { ...get().formData, ...data } });
   },
-  
-  setSelectedFile: (file) => {
+
+  setSelectedFile: file => {
     set({ selectedFile: file });
   },
-  
+
   submitForm: async (id: string) => {
     try {
       set({ loadingSubmit: true, error: '', success: false });
       const { formData, selectedFile } = get();
-      
-      // Validasi form
+
       if (!formData.judul || !formData.konten) {
-        set({ 
-          error: "Judul dan konten harus diisi", 
-          loadingSubmit: false 
+        set({
+          error: 'Judul dan konten harus diisi',
+          loadingSubmit: false,
         });
         return false;
       }
-      
-      // Persiapkan FormData untuk dikirim
+
       const formDataToSubmit = new FormData();
       formDataToSubmit.append('judul', formData.judul);
       formDataToSubmit.append('konten', formData.konten);
       formDataToSubmit.append('status', formData.status);
       formDataToSubmit.append('kategori', formData.kategori);
-      
-      // Tambahkan tags jika ada - pastikan tags adalah ID yang valid
+
       if (formData.tags && formData.tags.length > 0) {
-        // Pastikan tags adalah array
-        const tagsArray = Array.isArray(formData.tags) ? formData.tags : [formData.tags];
-        
-        // Tambahkan setiap tag ke formData
+        const tagsArray = Array.isArray(formData.tags)
+          ? formData.tags
+          : [formData.tags];
+
         tagsArray.forEach(tag => {
-          // Jika tag adalah string kosong, lewati
           if (tag && tag.trim() !== '') {
             formDataToSubmit.append('tags', tag);
           }
         });
       } else {
-        // Jika tidak ada tags, kirim array kosong untuk menghapus semua tags
         formDataToSubmit.append('tags', '');
       }
-      
-      // Tambahkan file jika ada
+
       if (selectedFile) {
         formDataToSubmit.append('file', selectedFile);
       }
-      
+
       await updateBlogPost(id, formDataToSubmit);
-      
+
       try {
         localStorage.removeItem(`blog_draft_${id}`);
       } catch (e) {
-        console.error("Gagal menghapus draft dari localStorage:", e);
+        console.error('Gagal menghapus draft dari localStorage:', e);
       }
-      
-      set({ 
+
+      set({
         loadingSubmit: false,
-        success: true
+        success: true,
       });
-      
+
       return true;
     } catch (error) {
-      console.error("Gagal memperbarui blog:", error);
-      set({ 
-        error: "Gagal memperbarui blog", 
-        loadingSubmit: false 
+      console.error('Gagal memperbarui blog:', error);
+      set({
+        error: 'Gagal memperbarui blog',
+        loadingSubmit: false,
       });
       return false;
     }
   },
-  
+
   resetForm: () => {
     set({
       blog: null,
@@ -153,7 +150,7 @@ export const useBlogEditStore = create<BlogEditState>((set, get) => ({
       loading: false,
       loadingSubmit: false,
       error: '',
-      success: false
+      success: false,
     });
-  }
+  },
 }));

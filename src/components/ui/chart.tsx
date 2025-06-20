@@ -1,14 +1,29 @@
-// use apex chart
 import React from 'react';
 import dynamic from 'next/dynamic';
 
-// Import ApexCharts secara dinamis untuk menghindari masalah SSR
-const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
+const ReactApexChart = dynamic(() => import('react-apexcharts'), {
+  ssr: false,
+});
 
-// Tipe data untuk opsi chart
 export type ApexOptions = {
   chart?: {
-    type?: 'bar' | 'donut' | 'line' | 'area' | 'pie' | 'radialBar' | 'scatter' | 'bubble' | 'heatmap' | 'candlestick' | 'boxPlot' | 'radar' | 'polarArea' | 'rangeBar' | 'rangeArea' | 'treemap';
+    type?:
+      | 'bar'
+      | 'donut'
+      | 'line'
+      | 'area'
+      | 'pie'
+      | 'radialBar'
+      | 'scatter'
+      | 'bubble'
+      | 'heatmap'
+      | 'candlestick'
+      | 'boxPlot'
+      | 'radar'
+      | 'polarArea'
+      | 'rangeBar'
+      | 'rangeArea'
+      | 'treemap';
     height?: number;
     width?: number | string;
     toolbar?: {
@@ -209,14 +224,13 @@ export type ApexOptions = {
   };
 };
 
-// Komponen Bar Chart
-export const BarChart = ({ 
-  data, 
+export const BarChart = ({
+  data,
   height = 300,
   colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e'],
   formatter = (value: number) => `${value}`,
   title = '',
-}: { 
+}: {
   data: Array<{ label: string; value: number }>;
   height?: number;
   colors?: string[];
@@ -264,7 +278,7 @@ export const BarChart = ({
           fontFamily: 'inherit',
         },
         rotate: -45,
-        trim: true
+        trim: true,
       },
       axisBorder: {
         show: false,
@@ -280,12 +294,12 @@ export const BarChart = ({
           fontSize: '12px',
           fontFamily: 'inherit',
         },
-        formatter: (val) => {
+        formatter: val => {
           if (val === Math.floor(val)) {
             return val.toString();
           }
           return '';
-        }
+        },
       },
       min: 0,
       tickAmount: 4,
@@ -297,7 +311,7 @@ export const BarChart = ({
         left: 10,
         right: 10,
         top: 0,
-        bottom: 0
+        bottom: 0,
       },
       yaxis: {
         lines: {
@@ -352,17 +366,17 @@ export const BarChart = ({
             labels: {
               rotate: -45,
               style: {
-                fontSize: '10px'
-              }
-            }
+                fontSize: '10px',
+              },
+            },
           },
           yaxis: {
             labels: {
               style: {
-                fontSize: '10px'
-              }
-            }
-          }
+                fontSize: '10px',
+              },
+            },
+          },
         },
       },
       {
@@ -381,17 +395,17 @@ export const BarChart = ({
             labels: {
               rotate: -45,
               style: {
-                fontSize: '9px'
-              }
-            }
+                fontSize: '9px',
+              },
+            },
           },
           yaxis: {
             labels: {
               style: {
-                fontSize: '9px'
-              }
-            }
-          }
+                fontSize: '9px',
+              },
+            },
+          },
         },
       },
     ],
@@ -405,7 +419,7 @@ export const BarChart = ({
   ];
 
   return (
-    <div className="w-full h-full overflow-hidden">
+    <div className="h-full w-full overflow-hidden">
       {typeof window !== 'undefined' && (
         <ReactApexChart
           options={options as ApexCharts.ApexOptions}
@@ -419,7 +433,6 @@ export const BarChart = ({
   );
 };
 
-// Komponen Pie Chart
 export const PieChart = ({
   data,
   height = 300,
@@ -450,7 +463,7 @@ export const PieChart = ({
     plotOptions: {
       pie: {
         expandOnClick: false,
-      }
+      },
     },
     legend: {
       show: true,
@@ -474,7 +487,7 @@ export const PieChart = ({
         vertical: 3,
       },
       onItemClick: {
-        toggleDataSeries: false
+        toggleDataSeries: false,
       },
     },
     tooltip: {
@@ -495,14 +508,14 @@ export const PieChart = ({
         filter: {
           type: 'darken',
           value: 0.9,
-        }
+        },
       },
       active: {
         filter: {
           type: 'darken',
           value: 0.6,
-        }
-      }
+        },
+      },
     },
     responsive: [
       {
@@ -546,7 +559,7 @@ export const PieChart = ({
   const series = data.map(item => item.value);
 
   return (
-    <div className="w-full h-full overflow-hidden">
+    <div className="h-full w-full overflow-hidden">
       {typeof window !== 'undefined' && (
         <ReactApexChart
           options={options as ApexCharts.ApexOptions}
@@ -561,6 +574,3 @@ export const PieChart = ({
 };
 
 export { ReactApexChart };
-
-
-

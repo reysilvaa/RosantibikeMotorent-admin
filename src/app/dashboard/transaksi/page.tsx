@@ -1,37 +1,39 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { ShoppingCart, Clock, User, Bike, CreditCard, Tag } from "lucide-react";
-import DashboardLayout from "@/components/layout/dashboard-layout";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { PageHeader } from "@/components/ui/page-header";
-import { SearchBar } from "@/components/ui/search-bar";
-import { DataTable } from "@/components/ui/data-table";
-import { MobileDataList } from "@/components/ui/mobile-data-list";
-import { FilterButtons, FilterOption } from "@/components/ui/filter-buttons";
-import { useTransaksiListStore } from "@/lib/store/transaksi/transaksi-store";
-import { formatRupiah, formatTanggal } from "@/lib/helper";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { Pagination } from "@/components/ui/pagination";
-import { StatusTransaksi, Transaksi } from "@/lib/transaksi";
-import TransaksiCalendar  from "@/components/transaksi/transaksi-calendar";
-import { useIsMobile } from "@/hooks/useIsMobile";
-import { TableViewSelector, ViewMode } from "@/components/transaksi/table-view-selector";
-import { LoadingIndicator } from "@/components/ui/loading-indicator";
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Bike, Clock, CreditCard, ShoppingCart, Tag, User } from 'lucide-react';
+import DashboardLayout from '@/components/layout/dashboard-layout';
+import {
+  TableViewSelector,
+  ViewMode,
+} from '@/components/transaksi/table-view-selector';
+import TransaksiCalendar from '@/components/transaksi/transaksi-calendar';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { DataTable } from '@/components/ui/data-table';
+import { FilterButtons, FilterOption } from '@/components/ui/filter-buttons';
+import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import { MobileDataList } from '@/components/ui/mobile-data-list';
+import { PageHeader } from '@/components/ui/page-header';
+import { Pagination } from '@/components/ui/pagination';
+import { SearchBar } from '@/components/ui/search-bar';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { formatRupiah, formatTanggal } from '@/lib/helper';
+import { useTransaksiListStore } from '@/lib/store/transaksi/transaksi-store';
+import { StatusTransaksi, Transaksi } from '@/lib/transaksi';
 
 export default function TransaksiPage() {
   const router = useRouter();
-  const [viewMode, setViewMode] = useState<ViewMode>("table");
+  const [viewMode, setViewMode] = useState<ViewMode>('table');
   const { isMobile } = useIsMobile();
-  
-  // Gunakan card view sebagai default untuk mobile
+
   useEffect(() => {
-    if (isMobile && viewMode === "table") {
-      setViewMode("card");
+    if (isMobile && viewMode === 'table') {
+      setViewMode('card');
     }
   }, [isMobile, viewMode]);
-  
+
   const {
     transaksi,
     searchQuery,
@@ -45,7 +47,7 @@ export default function TransaksiPage() {
     setSearchQuery,
     handleStatusFilterChange,
     handlePageChange,
-    handleResetFilter
+    handleResetFilter,
   } = useTransaksiListStore();
 
   useEffect(() => {
@@ -57,26 +59,23 @@ export default function TransaksiPage() {
     fetchTransaksi(1);
   };
 
- 
   const handleDetailClick = (id: string) => {
     router.push(`/dashboard/transaksi/${id}`);
   };
 
-  // Filter options untuk FilterButtons
-  const filterOptions: FilterOption<StatusTransaksi | "">[] = [
-    { value: "", label: "Semua" },
-    { value: StatusTransaksi.BOOKING, label: "Booking" },
-    { value: StatusTransaksi.AKTIF, label: "Aktif" },
-    { value: StatusTransaksi.SELESAI, label: "Selesai" },
-    { value: StatusTransaksi.BATAL, label: "Batal" },
-    { value: StatusTransaksi.OVERDUE, label: "Overdue" }
+  const filterOptions: FilterOption<StatusTransaksi | ''>[] = [
+    { value: '', label: 'Semua' },
+    { value: StatusTransaksi.BOOKING, label: 'Booking' },
+    { value: StatusTransaksi.AKTIF, label: 'Aktif' },
+    { value: StatusTransaksi.SELESAI, label: 'Selesai' },
+    { value: StatusTransaksi.BATAL, label: 'Batal' },
+    { value: StatusTransaksi.OVERDUE, label: 'Overdue' },
   ];
 
-  // Columns untuk DataTable
   const columns = [
     {
-      header: "Penyewa",
-      accessorKey: "namaPenyewa" as const,
+      header: 'Penyewa',
+      accessorKey: 'namaPenyewa' as const,
       cell: (item: Transaksi) => (
         <div>
           {item.namaPenyewa}
@@ -84,21 +83,22 @@ export default function TransaksiPage() {
             {item.noWhatsapp}
           </div>
         </div>
-      )
+      ),
     },
     {
-      header: "Motor",
+      header: 'Motor',
       cell: (item: Transaksi) => (
         <div>
-          {item.unitMotor?.jenis?.merk || "-"} {item.unitMotor?.jenis?.model || ""}
+          {item.unitMotor?.jenis?.merk || '-'}{' '}
+          {item.unitMotor?.jenis?.model || ''}
           <div className="text-xs text-neutral-500 dark:text-neutral-400">
-            {item.unitMotor?.platNomor || "-"}
+            {item.unitMotor?.platNomor || '-'}
           </div>
         </div>
-      )
+      ),
     },
     {
-      header: "Mulai",
+      header: 'Mulai',
       cell: (item: Transaksi) => (
         <div>
           {formatTanggal(item.tanggalMulai)}
@@ -106,10 +106,10 @@ export default function TransaksiPage() {
             {item.jamMulai}
           </div>
         </div>
-      )
+      ),
     },
     {
-      header: "Selesai",
+      header: 'Selesai',
       cell: (item: Transaksi) => (
         <div>
           {formatTanggal(item.tanggalSelesai)}
@@ -117,25 +117,24 @@ export default function TransaksiPage() {
             {item.jamSelesai}
           </div>
         </div>
-      )
+      ),
     },
     {
-      header: "Status",
-      cell: (item: Transaksi) => <StatusBadge status={item.status} />
+      header: 'Status',
+      cell: (item: Transaksi) => <StatusBadge status={item.status} />,
     },
     {
-      header: "Total",
+      header: 'Total',
       cell: (item: Transaksi) => (
         <span className="font-medium">{formatRupiah(item.totalBiaya)}</span>
-      )
-    }
+      ),
+    },
   ];
 
-  // Columns untuk MobileDataList
   const mobileColumns = [
     {
-      header: "Penyewa",
-      accessorKey: "namaPenyewa" as const,
+      header: 'Penyewa',
+      accessorKey: 'namaPenyewa' as const,
       isMainField: true,
       cell: (item: Transaksi) => (
         <div>
@@ -143,50 +142,58 @@ export default function TransaksiPage() {
           <div className="text-xs text-neutral-500">{item.noWhatsapp}</div>
         </div>
       ),
-      icon: <User className="h-3 w-3" />
+      icon: <User className="h-3 w-3" />,
     },
     {
-      header: "Motor",
+      header: 'Motor',
       cell: (item: Transaksi) => (
         <div>
-          <div>{item.unitMotor?.jenis?.merk || "-"} {item.unitMotor?.jenis?.model || ""}</div>
-          <div className="text-xs text-neutral-500">{item.unitMotor?.platNomor || "-"}</div>
+          <div>
+            {item.unitMotor?.jenis?.merk || '-'}{' '}
+            {item.unitMotor?.jenis?.model || ''}
+          </div>
+          <div className="text-xs text-neutral-500">
+            {item.unitMotor?.platNomor || '-'}
+          </div>
         </div>
       ),
-      icon: <Bike className="h-3 w-3" />
+      icon: <Bike className="h-3 w-3" />,
     },
     {
-      header: "Waktu Sewa",
+      header: 'Waktu Sewa',
       cell: (item: Transaksi) => (
         <div>
-          <div>{formatTanggal(item.tanggalMulai)}, {item.jamMulai}</div>
-          <div className="text-xs text-neutral-500">s/d {formatTanggal(item.tanggalSelesai)}, {item.jamSelesai}</div>
+          <div>
+            {formatTanggal(item.tanggalMulai)}, {item.jamMulai}
+          </div>
+          <div className="text-xs text-neutral-500">
+            s/d {formatTanggal(item.tanggalSelesai)}, {item.jamSelesai}
+          </div>
         </div>
       ),
-      icon: <Clock className="h-3 w-3" />
+      icon: <Clock className="h-3 w-3" />,
     },
     {
-      header: "Status",
+      header: 'Status',
       cell: (item: Transaksi) => <StatusBadge status={item.status} />,
-      icon: <Tag className="h-3 w-3" />
+      icon: <Tag className="h-3 w-3" />,
     },
     {
-      header: "Total",
+      header: 'Total',
       cell: (item: Transaksi) => (
         <span className="font-medium">{formatRupiah(item.totalBiaya)}</span>
       ),
-      icon: <CreditCard className="h-3 w-3" />
-    }
+      icon: <CreditCard className="h-3 w-3" />,
+    },
   ];
 
   const handleRowClick = (item: Transaksi) => {
     handleDetailClick(item.id);
   };
 
- const renderContent = () => {
-  if (viewMode === "table") {
-    return (
-      loading ? (
+  const renderContent = () => {
+    if (viewMode === 'table') {
+      return loading ? (
         <div className="w-full overflow-hidden">
           <LoadingIndicator />
         </div>
@@ -199,38 +206,35 @@ export default function TransaksiPage() {
             onRowClick={handleRowClick}
             emptyMessage={
               searchQuery || statusFilter
-                ? "Tidak ada transaksi yang sesuai dengan filter"
-                : "Belum ada data transaksi"
+                ? 'Tidak ada transaksi yang sesuai dengan filter'
+                : 'Belum ada data transaksi'
             }
           />
         </div>
-      )
-    )
-  }
-
-    if (viewMode === "card") {
-      return (
-        loading ? (
-          <div className="w-full overflow-hidden">
-            <LoadingIndicator />
-          </div>
-        ) : (
-          <MobileDataList
-            data={transaksi}
-            columns={mobileColumns}
-            keyField="id"
-            onItemClick={handleRowClick}
-            emptyMessage={
-            searchQuery || statusFilter
-              ? "Tidak ada transaksi yang sesuai dengan filter"
-              : "Belum ada data transaksi"
-            }
-          />
-        )
-      )
+      );
     }
 
-    if (viewMode === "calendar") {
+    if (viewMode === 'card') {
+      return loading ? (
+        <div className="w-full overflow-hidden">
+          <LoadingIndicator />
+        </div>
+      ) : (
+        <MobileDataList
+          data={transaksi}
+          columns={mobileColumns}
+          keyField="id"
+          onItemClick={handleRowClick}
+          emptyMessage={
+            searchQuery || statusFilter
+              ? 'Tidak ada transaksi yang sesuai dengan filter'
+              : 'Belum ada data transaksi'
+          }
+        />
+      );
+    }
+
+    if (viewMode === 'calendar') {
       return (
         <div className="w-full overflow-hidden">
           <TransaksiCalendar />
@@ -243,9 +247,9 @@ export default function TransaksiPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 md:space-y-8 pb-16 md:pb-20 overflow-hidden">
-        <PageHeader 
-          title="Daftar Transaksi" 
+      <div className="space-y-6 overflow-hidden pb-16 md:space-y-8 md:pb-20">
+        <PageHeader
+          title="Daftar Transaksi"
           description="Kelola semua transaksi rental motor"
           actionLabel="Tambah Transaksi"
           actionIcon={<ShoppingCart className="mr-2 h-4 w-4" />}
@@ -253,8 +257,8 @@ export default function TransaksiPage() {
         />
 
         <Card className="overflow-hidden">
-          <CardHeader className="pb-3 px-4 py-4 md:px-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <CardHeader className="px-4 py-4 pb-3 md:px-5">
+            <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               <SearchBar
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
@@ -264,8 +268,8 @@ export default function TransaksiPage() {
                 title="Transaksi"
                 showTitle={true}
               />
-              
-              <TableViewSelector 
+
+              <TableViewSelector
                 viewMode={viewMode}
                 onChange={setViewMode}
                 className="w-auto"
@@ -281,9 +285,9 @@ export default function TransaksiPage() {
               />
             </div>
 
-            {/* {renderContent()} */}
-            
-            {viewMode !== "calendar" && (
+            {}
+
+            {viewMode !== 'calendar' && (
               <div className="mt-4">
                 <Pagination
                   currentPage={currentPage}
@@ -291,7 +295,7 @@ export default function TransaksiPage() {
                   totalData={totalData}
                   limit={limit}
                   onPageChange={handlePageChange}
-                  />
+                />
               </div>
             )}
           </CardContent>
@@ -300,4 +304,4 @@ export default function TransaksiPage() {
       {renderContent()}
     </DashboardLayout>
   );
-} 
+}

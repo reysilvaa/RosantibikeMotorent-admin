@@ -8,8 +8,4 @@ export {
 
 export { login, logout } from './api/auth';
 
-export type {
-  LoginCredentials,
-  LoginResponse,
-  Admin
-} from './types/admin'; 
+export type { LoginCredentials, LoginResponse, Admin } from './types/admin';

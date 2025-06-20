@@ -23,19 +23,19 @@ const initialFormData: Partial<Transaksi> = {
 
 export const useTransaksiFormStore = create<TransaksiFormState>((set, get) => ({
   formData: { ...initialFormData },
-  
-  setFormData: (data) => {
-    set((state) => ({
+
+  setFormData: data => {
+    set(state => ({
       formData: { ...state.formData, ...data },
     }));
   },
-  
+
   resetForm: () => {
     set({ formData: { ...initialFormData } });
   },
-  
+
   submitForm: async () => {
     const { formData } = get();
     await createTransaksi(formData);
-  }
-})); 
+  },
+}));

@@ -12,13 +12,13 @@ export interface Blog {
     tag: {
       id: string;
       nama: string;
-    }
+    };
   }>;
 }
 
 export enum BlogStatus {
   DRAFT = 'DRAFT',
-  PUBLISHED = 'TERBIT'
+  PUBLISHED = 'TERBIT',
 }
 
 export interface BlogPostFilter {

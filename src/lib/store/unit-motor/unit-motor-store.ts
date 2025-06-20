@@ -1,7 +1,7 @@
-import { create } from "zustand";
-import { toast } from "sonner";
-import { createUnitMotor } from "@/lib/api/unit-motor";
-import { JenisMotor } from "@/lib/types/jenis-motor";
+import { toast } from 'sonner';
+import { create } from 'zustand';
+import { createUnitMotor } from '@/lib/api/unit-motor';
+import { JenisMotor } from '@/lib/types/jenis-motor';
 
 interface UnitMotorFormData {
   plat: string;
@@ -24,10 +24,10 @@ interface UnitMotorFormState {
 }
 
 const initialFormData: UnitMotorFormData = {
-  plat: "",
+  plat: '',
   tahunPembuatan: new Date().getFullYear().toString(),
-  hargaSewa: "",
-  jenisMotorId: "",
+  hargaSewa: '',
+  jenisMotorId: '',
 };
 
 export const useUnitMotorFormStore = create<UnitMotorFormState>((set, get) => ({
@@ -37,13 +37,13 @@ export const useUnitMotorFormStore = create<UnitMotorFormState>((set, get) => ({
   success: null,
   jenisMotorOptions: [],
 
-  setFormData: (data) => {
-    set((state) => ({
+  setFormData: data => {
+    set(state => ({
       formData: { ...state.formData, ...data },
     }));
   },
 
-  setJenisMotorOptions: (options) => {
+  setJenisMotorOptions: options => {
     set({ jenisMotorOptions: options });
   },
 
@@ -57,35 +57,35 @@ export const useUnitMotorFormStore = create<UnitMotorFormState>((set, get) => ({
 
   submitForm: async () => {
     const { formData } = get();
-    
-    // Validasi form
+
     if (!formData.plat.trim()) {
-      set({ error: "Plat nomor harus diisi" });
+      set({ error: 'Plat nomor harus diisi' });
       return false;
     }
-    
+
     if (!formData.tahunPembuatan.trim()) {
-      set({ error: "Tahun pembuatan harus diisi" });
+      set({ error: 'Tahun pembuatan harus diisi' });
       return false;
     }
-    
+
     if (!formData.hargaSewa) {
-      set({ error: "Harga sewa harus diisi" });
+      set({ error: 'Harga sewa harus diisi' });
       return false;
     }
-    
+
     if (!formData.jenisMotorId) {
-      set({ error: "Jenis motor harus dipilih" });
+      set({ error: 'Jenis motor harus dipilih' });
       return false;
     }
 
     try {
       set({ loading: true, error: null, success: null });
 
-      const hargaSewaNumber = typeof formData.hargaSewa === 'string' 
-        ? parseInt(formData.hargaSewa.replace(/\D/g, "")) 
-        : formData.hargaSewa;
-      
+      const hargaSewaNumber =
+        typeof formData.hargaSewa === 'string'
+          ? parseInt(formData.hargaSewa.replace(/\D/g, ''))
+          : formData.hargaSewa;
+
       await createUnitMotor({
         plat: formData.plat,
         tahunPembuatan: formData.tahunPembuatan,
@@ -93,21 +93,24 @@ export const useUnitMotorFormStore = create<UnitMotorFormState>((set, get) => ({
         jenisMotorId: formData.jenisMotorId,
       });
 
-      set({ 
+      set({
         loading: false,
-        success: "Unit motor berhasil ditambahkan",
-        formData: initialFormData 
+        success: 'Unit motor berhasil ditambahkan',
+        formData: initialFormData,
       });
-      
-      toast.success("Unit motor berhasil ditambahkan");
+
+      toast.success('Unit motor berhasil ditambahkan');
       return true;
     } catch (error: unknown) {
-      console.error("Gagal membuat unit motor:", error);
-      set({ 
-        loading: false, 
-        error: error instanceof Error ? error.message : "Gagal membuat unit motor baru" 
+      console.error('Gagal membuat unit motor:', error);
+      set({
+        loading: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Gagal membuat unit motor baru',
       });
       return false;
     }
   },
-})); 
+}));

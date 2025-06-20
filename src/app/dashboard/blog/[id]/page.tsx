@@ -1,23 +1,27 @@
-"use client";
+'use client';
 
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Edit, ArrowLeft } from "lucide-react";
-import { useBlogDetailStore } from "@/lib/store/blog/blog-detail-store";
-import { PageHeader } from "@/components/ui/page-header";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { LoadingIndicator } from "@/components/ui/loading-indicator";
-import { StatusMessage } from "@/components/ui/status-message";
-import { Button } from "@/components/ui/button";
-import { BlogStatus } from "@/lib/types/blog";
-import DashboardLayout from "@/components/layout/dashboard-layout";
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, Edit } from 'lucide-react';
+import DashboardLayout from '@/components/layout/dashboard-layout';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { StatusMessage } from '@/components/ui/status-message';
+import { useBlogDetailStore } from '@/lib/store/blog/blog-detail-store';
+import { BlogStatus } from '@/lib/types/blog';
 
-export default function BlogDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default function BlogDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const router = useRouter();
   const { blog, loading, error, fetchBlog } = useBlogDetailStore();
   const { id } = React.use(params);
-  
+
   useEffect(() => {
     if (id) {
       fetchBlog(id);
@@ -32,15 +36,15 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
       year: 'numeric',
     });
   };
-  
+
   const getStatusVariant = (status: BlogStatus) => {
     switch (status) {
       case BlogStatus.PUBLISHED:
-        return "success";
+        return 'success';
       case BlogStatus.DRAFT:
-        return "warning";
+        return 'warning';
       default:
-        return "neutral";
+        return 'neutral';
     }
   };
 
@@ -84,8 +88,10 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
         <Card>
           <CardHeader className="pb-0">
             <div className="flex items-center gap-2">
-              <StatusBadge 
-                status={blog.status === BlogStatus.PUBLISHED ? "Terbit" : "Draft"} 
+              <StatusBadge
+                status={
+                  blog.status === BlogStatus.PUBLISHED ? 'Terbit' : 'Draft'
+                }
                 variant={getStatusVariant(blog.status)}
               />
               <span className="text-sm text-neutral-500 dark:text-neutral-400">
@@ -95,16 +101,16 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
           </CardHeader>
           <CardContent className="space-y-4">
             {blog.thumbnail && (
-              <div className="relative h-64 w-full rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-800">
+              <div className="relative h-64 w-full overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800">
                 <img
                   src={blog.thumbnail}
                   alt={blog.judul}
-                  className="object-cover w-full h-full"
+                  className="h-full w-full object-cover"
                 />
               </div>
             )}
 
-            <div 
+            <div
               className="prose prose-neutral dark:prose-invert max-w-none"
               dangerouslySetInnerHTML={{ __html: blog.konten }}
             />
@@ -112,10 +118,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
         </Card>
 
         <div className="flex justify-between">
-          <Button
-            variant="outline"
-            onClick={() => router.back()}
-          >
+          <Button variant="outline" onClick={() => router.back()}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Kembali
           </Button>
@@ -129,4 +132,4 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
       </div>
     </DashboardLayout>
   );
-} 
+}

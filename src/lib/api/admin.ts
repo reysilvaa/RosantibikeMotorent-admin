@@ -1,7 +1,6 @@
 import axios from '../axios';
 import { Admin } from '../types/admin';
 
-// Fungsi untuk mendapatkan daftar admin
 export const getAdmins = async (): Promise<Admin[]> => {
   try {
     const response = await axios.get(`/admin`);
@@ -14,8 +13,11 @@ export const getAdmins = async (): Promise<Admin[]> => {
   }
 };
 
-// Fungsi untuk membuat admin baru
-export const createAdmin = async (data: { username: string; password: string; nama: string }): Promise<Admin> => {
+export const createAdmin = async (data: {
+  username: string;
+  password: string;
+  nama: string;
+}): Promise<Admin> => {
   try {
     const response = await axios.post(`/admin`, data);
     return response.data;
@@ -27,8 +29,10 @@ export const createAdmin = async (data: { username: string; password: string; na
   }
 };
 
-// Fungsi untuk mengupdate admin
-export const updateAdmin = async (id: string, data: { username?: string; password?: string; nama?: string }): Promise<Admin> => {
+export const updateAdmin = async (
+  id: string,
+  data: { username?: string; password?: string; nama?: string }
+): Promise<Admin> => {
   try {
     const response = await axios.put(`/admin/${id}`, data);
     return response.data;
@@ -40,7 +44,6 @@ export const updateAdmin = async (id: string, data: { username?: string; passwor
   }
 };
 
-// Fungsi untuk menghapus admin
 export const deleteAdmin = async (id: string): Promise<Admin> => {
   try {
     const response = await axios.delete(`/admin/${id}`);
@@ -53,7 +56,6 @@ export const deleteAdmin = async (id: string): Promise<Admin> => {
   }
 };
 
-// Fungsi untuk mendapatkan detail admin berdasarkan ID
 export const getAdminById = async (id: string): Promise<Admin> => {
   try {
     const response = await axios.get(`/admin/${id}`);
@@ -64,4 +66,4 @@ export const getAdminById = async (id: string): Promise<Admin> => {
     }
     throw new Error('Gagal mendapatkan detail admin');
   }
-}; 
+};

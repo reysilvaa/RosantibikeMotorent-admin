@@ -4,9 +4,7 @@ export {
   getJenisMotorBySlug,
   createJenisMotor,
   updateJenisMotor,
-  deleteJenisMotor
+  deleteJenisMotor,
 } from './api/jenis-motor';
 
-export type {
-  JenisMotor
-} from './types/jenis-motor'; 
+export type { JenisMotor } from './types/jenis-motor';

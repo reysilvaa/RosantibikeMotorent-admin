@@ -3,14 +3,9 @@ export {
   getUnitMotorDetail,
   createUnitMotor,
   updateUnitMotor,
-  deleteUnitMotor
+  deleteUnitMotor,
 } from './api/unit-motor';
 
-export type {
-  UnitMotor,
-  FilterUnitMotor
-} from './types/unit-motor';
+export type { UnitMotor, FilterUnitMotor } from './types/unit-motor';
 
-export type {
-  PaginationResponse
-} from './types/common'; 
+export type { PaginationResponse } from './types/common';

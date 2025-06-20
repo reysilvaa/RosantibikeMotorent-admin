@@ -2,7 +2,9 @@ import axios from '../axios';
 import { PaginationResponse } from '../types/common';
 import { FilterUnitMotor, UnitMotor } from '../types/unit-motor';
 
-export const getUnitMotor = async (filter: FilterUnitMotor = {}): Promise<PaginationResponse<UnitMotor>> => {
+export const getUnitMotor = async (
+  filter: FilterUnitMotor = {}
+): Promise<PaginationResponse<UnitMotor>> => {
   try {
     const response = await axios.get(`/unit-motor`, {
       params: filter,
@@ -76,4 +78,4 @@ export const deleteUnitMotor = async (id: string): Promise<UnitMotor> => {
     }
     throw new Error('Gagal menghapus unit motor');
   }
-}; 
+};

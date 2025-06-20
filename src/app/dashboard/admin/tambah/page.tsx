@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import DashboardLayout from "@/components/layout/dashboard-layout";
-import { Card, CardContent } from "@/components/ui/card";
-import { PageHeader } from "@/components/ui/page-header";
-import { AdminForm } from "@/components/admin/admin-form";
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { AdminForm } from '@/components/admin/admin-form';
+import DashboardLayout from '@/components/layout/dashboard-layout';
+import { Card, CardContent } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 
 export default function TambahAdminPage() {
   const router = useRouter();
 
   const handleCancel = () => {
-    router.push("/dashboard/admin");
+    router.push('/dashboard/admin');
   };
 
   const handleSuccess = () => {
-    router.push("/dashboard/admin");
+    router.push('/dashboard/admin');
   };
 
   return (
@@ -36,4 +36,4 @@ export default function TambahAdminPage() {
       </div>
     </DashboardLayout>
   );
-} 
+}

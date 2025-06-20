@@ -16,7 +16,7 @@ interface BlogFormState {
   loading: boolean;
   error: string;
   success: boolean;
-  
+
   setFormData: (data: Partial<BlogFormData>) => void;
   setSelectedFile: (file: File | null) => void;
   submitForm: () => Promise<boolean>;
@@ -38,156 +38,144 @@ export const useBlogFormStore = create<BlogFormState>((set, get) => ({
   loading: false,
   error: '',
   success: false,
-  
-  setFormData: (data) => {
+
+  setFormData: data => {
     set({ formData: { ...get().formData, ...data } });
   },
-  
-  setSelectedFile: (file) => {
+
+  setSelectedFile: file => {
     set({ selectedFile: file });
   },
-  
+
   submitForm: async () => {
     try {
       set({ loading: true, error: '', success: false });
       const { formData, selectedFile } = get();
-      
-      // Validasi form
+
       if (!formData.judul || !formData.konten) {
-        set({ 
-          error: "Judul dan konten harus diisi", 
-          loading: false 
+        set({
+          error: 'Judul dan konten harus diisi',
+          loading: false,
         });
         return false;
       }
-      
-      // Persiapkan FormData untuk dikirim
+
       const formDataToSubmit = new FormData();
       formDataToSubmit.append('judul', formData.judul);
       formDataToSubmit.append('konten', formData.konten);
       formDataToSubmit.append('status', formData.status);
       formDataToSubmit.append('kategori', formData.kategori);
-      
-      // Tambahkan tags jika ada
+
       if (formData.tags && formData.tags.length > 0) {
-        // Pastikan tags adalah array
-        const tagsArray = Array.isArray(formData.tags) ? formData.tags : [formData.tags];
-        
-        // Tambahkan setiap tag ke formData
-        tagsArray.forEach((tag) => {
+        const tagsArray = Array.isArray(formData.tags)
+          ? formData.tags
+          : [formData.tags];
+
+        tagsArray.forEach(tag => {
           if (tag && tag.trim() !== '') {
             formDataToSubmit.append('tags', tag);
           }
         });
       } else {
-        // Jika tidak ada tags, kirim array kosong
         formDataToSubmit.append('tags', '');
       }
-      
-      // Tambahkan file jika ada
+
       if (selectedFile) {
         formDataToSubmit.append('file', selectedFile);
       }
-      
+
       await createBlogPost(formDataToSubmit);
-      
+
       try {
         localStorage.removeItem('blog_draft_new');
       } catch (e) {
-        console.error("Gagal menghapus draft dari localStorage:", e);
+        console.error('Gagal menghapus draft dari localStorage:', e);
       }
-      
-      set({ 
+
+      set({
         loading: false,
-        success: true
+        success: true,
       });
-      
+
       return true;
     } catch (error) {
-      console.error("Gagal menambahkan blog:", error);
-      set({ 
-        error: "Gagal menambahkan blog", 
-        loading: false 
+      console.error('Gagal menambahkan blog:', error);
+      set({
+        error: 'Gagal menambahkan blog',
+        loading: false,
       });
       return false;
     }
   },
-  
+
   updateForm: async (id: string) => {
     try {
       set({ loading: true, error: '', success: false });
       const { formData, selectedFile } = get();
-      
-      // Validasi form
+
       if (!formData.judul || !formData.konten) {
-        set({ 
-          error: "Judul dan konten harus diisi", 
-          loading: false 
+        set({
+          error: 'Judul dan konten harus diisi',
+          loading: false,
         });
         return false;
       }
-      
-      // Persiapkan FormData untuk dikirim
+
       const formDataToSubmit = new FormData();
       formDataToSubmit.append('judul', formData.judul);
       formDataToSubmit.append('konten', formData.konten);
       formDataToSubmit.append('status', formData.status);
       formDataToSubmit.append('kategori', formData.kategori);
-      
-      // Tambahkan tags jika ada
+
       if (formData.tags && formData.tags.length > 0) {
-        // Pastikan tags adalah array
-        const tagsArray = Array.isArray(formData.tags) ? formData.tags : [formData.tags];
-        
-        // Tambahkan setiap tag ke formData
+        const tagsArray = Array.isArray(formData.tags)
+          ? formData.tags
+          : [formData.tags];
+
         tagsArray.forEach(tag => {
-          // Jika tag adalah string kosong, lewati
           if (tag && tag.trim() !== '') {
             formDataToSubmit.append('tags', tag);
           }
         });
       } else {
-        // Jika tidak ada tags, kirim array kosong untuk menghapus semua tags
         formDataToSubmit.append('tags', '');
       }
-      
-      // Tambahkan file jika ada
+
       if (selectedFile) {
         formDataToSubmit.append('file', selectedFile);
       }
-      
+
       await updateBlogPost(id, formDataToSubmit);
-      
-      // Hapus draft dari localStorage setelah berhasil disimpan
+
       try {
         localStorage.removeItem(`blog_draft_${id}`);
       } catch (e) {
-        console.error("Gagal menghapus draft dari localStorage:", e);
+        console.error('Gagal menghapus draft dari localStorage:', e);
       }
-      
-      set({ 
+
+      set({
         loading: false,
-        success: true
+        success: true,
       });
-      
+
       return true;
     } catch (error) {
-      console.error("Gagal memperbarui blog:", error);
-      set({ 
-        error: "Gagal memperbarui blog", 
-        loading: false 
+      console.error('Gagal memperbarui blog:', error);
+      set({
+        error: 'Gagal memperbarui blog',
+        loading: false,
       });
       return false;
     }
   },
-  
+
   resetForm: () => {
     set({
       formData: initialFormData,
       selectedFile: null,
       loading: false,
       error: '',
-      success: false
+      success: false,
     });
-  }
-})); 
+  },
+}));

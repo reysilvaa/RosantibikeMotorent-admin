@@ -1,6 +1,6 @@
+import { toast } from 'sonner';
 import { create } from 'zustand';
 import { createAdmin } from '@/lib/auth';
-import { toast } from 'sonner';
 
 interface AdminFormData {
   nama: string;
@@ -13,7 +13,7 @@ interface AdminFormState {
   loading: boolean;
   error: string;
   success: string;
-  
+
   setFormData: (data: Partial<AdminFormData>) => void;
   resetForm: () => void;
   resetMessages: () => void;
@@ -31,13 +31,13 @@ export const useAdminFormStore = create<AdminFormState>((set, get) => ({
   loading: false,
   error: '',
   success: '',
-  
-  setFormData: (data) => {
-    set((state) => ({
+
+  setFormData: data => {
+    set(state => ({
       formData: { ...state.formData, ...data },
     }));
   },
-  
+
   resetForm: () => {
     set({
       formData: initialFormData,
@@ -45,55 +45,55 @@ export const useAdminFormStore = create<AdminFormState>((set, get) => ({
       success: '',
     });
   },
-  
+
   resetMessages: () => {
     set({ error: '', success: '' });
   },
-  
+
   submitForm: async () => {
     const { formData } = get();
-    
-    // Validasi form
+
     if (!formData.nama.trim()) {
-      set({ error: "Nama harus diisi" });
+      set({ error: 'Nama harus diisi' });
       return false;
     }
-    
+
     if (!formData.username.trim()) {
-      set({ error: "Username harus diisi" });
+      set({ error: 'Username harus diisi' });
       return false;
     }
-    
+
     if (!formData.password.trim()) {
-      set({ error: "Password harus diisi" });
+      set({ error: 'Password harus diisi' });
       return false;
     }
 
     try {
       set({ loading: true, error: '', success: '' });
-      
+
       await createAdmin({
         nama: formData.nama,
         username: formData.username,
-        password: formData.password
+        password: formData.password,
       });
 
-      set({ 
+      set({
         loading: false,
-        success: "Admin berhasil ditambahkan",
-        formData: initialFormData
+        success: 'Admin berhasil ditambahkan',
+        formData: initialFormData,
       });
-      
-      toast.success("Admin berhasil ditambahkan");
+
+      toast.success('Admin berhasil ditambahkan');
       return true;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Gagal menambahkan admin";
-      console.error("Gagal menambahkan admin:", error);
-      set({ 
-        loading: false, 
-        error: errorMessage
+      const errorMessage =
+        error instanceof Error ? error.message : 'Gagal menambahkan admin';
+      console.error('Gagal menambahkan admin:', error);
+      set({
+        loading: false,
+        error: errorMessage,
       });
       return false;
     }
   },
-})); 
+}));

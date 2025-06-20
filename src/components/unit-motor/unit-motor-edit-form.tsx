@@ -1,13 +1,19 @@
-import React, { useEffect } from "react";
-import { useUnitMotorEditStore } from "@/lib/store/unit-motor/unit-motor-edit-store";
-import { getJenisMotor } from "@/lib/api/jenis-motor";
-import { formatRupiahInput } from "@/lib/helper";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { StatusMessage } from "@/components/ui/status-message";
-import { FormActions } from "@/components/ui/form-actions";
-import { LoadingIndicator } from "@/components/ui/loading-indicator";
+import React, { useEffect } from 'react';
+import { FormActions } from '@/components/ui/form-actions';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { StatusMessage } from '@/components/ui/status-message';
+import { getJenisMotor } from '@/lib/api/jenis-motor';
+import { formatRupiahInput } from '@/lib/helper';
+import { useUnitMotorEditStore } from '@/lib/store/unit-motor/unit-motor-edit-store';
 
 interface UnitMotorEditFormProps {
   id: string;
@@ -15,7 +21,11 @@ interface UnitMotorEditFormProps {
   onSuccess?: () => void;
 }
 
-export function UnitMotorEditForm({ id, onCancel, onSuccess }: UnitMotorEditFormProps) {
+export function UnitMotorEditForm({
+  id,
+  onCancel,
+  onSuccess,
+}: UnitMotorEditFormProps) {
   const {
     formData,
     loading,
@@ -27,19 +37,18 @@ export function UnitMotorEditForm({ id, onCancel, onSuccess }: UnitMotorEditForm
     setFormData,
     setJenisMotorOptions,
     resetMessages,
-    updateUnitMotor
+    updateUnitMotor,
   } = useUnitMotorEditStore();
 
-  // Ambil data unit motor dan jenis motor
   useEffect(() => {
     fetchUnitMotor(id);
-    
+
     const fetchJenisMotorOptions = async () => {
       try {
         const data = await getJenisMotor();
         setJenisMotorOptions(data);
       } catch (error) {
-        console.error("Gagal mengambil data jenis motor:", error);
+        console.error('Gagal mengambil data jenis motor:', error);
       }
     };
 
@@ -50,7 +59,7 @@ export function UnitMotorEditForm({ id, onCancel, onSuccess }: UnitMotorEditForm
     e.preventDefault();
     resetMessages();
     const success = await updateUnitMotor(id);
-    
+
     if (success && onSuccess) {
       setTimeout(() => {
         onSuccess();
@@ -59,24 +68,23 @@ export function UnitMotorEditForm({ id, onCancel, onSuccess }: UnitMotorEditForm
   };
 
   const handleHargaSewaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, "");
+    const value = e.target.value.replace(/\D/g, '');
     if (value) {
       setFormData({ hargaSewa: formatRupiahInput(parseInt(value)) });
     } else {
-      setFormData({ hargaSewa: "" });
+      setFormData({ hargaSewa: '' });
     }
   };
 
   const currentYear = new Date().getFullYear();
-  const yearOptions = Array.from(
-    { length: 20 },
-    (_, i) => (currentYear - i).toString()
+  const yearOptions = Array.from({ length: 20 }, (_, i) =>
+    (currentYear - i).toString()
   );
 
   const statusOptions = [
-    { value: "TERSEDIA", label: "Tersedia" },
-    { value: "DISEWA", label: "Disewa" },
-    { value: "PERBAIKAN", label: "Perbaikan" },
+    { value: 'TERSEDIA', label: 'Tersedia' },
+    { value: 'DISEWA', label: 'Disewa' },
+    { value: 'PERBAIKAN', label: 'Perbaikan' },
   ];
 
   if (loading) {
@@ -85,15 +93,18 @@ export function UnitMotorEditForm({ id, onCancel, onSuccess }: UnitMotorEditForm
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <StatusMessage error={error ? error : undefined} success={success ? success : undefined} />
-      
+      <StatusMessage
+        error={error ? error : undefined}
+        success={success ? success : undefined}
+      />
+
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="plat">Plat Nomor</Label>
           <Input
             id="plat"
             value={formData.plat}
-            onChange={(e) => setFormData({ plat: e.target.value })}
+            onChange={e => setFormData({ plat: e.target.value })}
             disabled={saving}
           />
         </div>
@@ -102,14 +113,14 @@ export function UnitMotorEditForm({ id, onCancel, onSuccess }: UnitMotorEditForm
           <Label htmlFor="status">Status</Label>
           <Select
             value={formData.status}
-            onValueChange={(value) => setFormData({ status: value })}
+            onValueChange={value => setFormData({ status: value })}
             disabled={saving}
           >
             <SelectTrigger id="status">
               <SelectValue placeholder="Pilih status unit" />
             </SelectTrigger>
             <SelectContent>
-              {statusOptions.map((option) => (
+              {statusOptions.map(option => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -124,14 +135,14 @@ export function UnitMotorEditForm({ id, onCancel, onSuccess }: UnitMotorEditForm
           <Label htmlFor="tahunPembuatan">Tahun Pembuatan</Label>
           <Select
             value={formData.tahunPembuatan}
-            onValueChange={(value) => setFormData({ tahunPembuatan: value })}
+            onValueChange={value => setFormData({ tahunPembuatan: value })}
             disabled={saving}
           >
             <SelectTrigger id="tahunPembuatan">
               <SelectValue placeholder="Pilih tahun pembuatan" />
             </SelectTrigger>
             <SelectContent>
-              {yearOptions.map((year) => (
+              {yearOptions.map(year => (
                 <SelectItem key={year} value={year}>
                   {year}
                 </SelectItem>
@@ -155,14 +166,14 @@ export function UnitMotorEditForm({ id, onCancel, onSuccess }: UnitMotorEditForm
         <Label htmlFor="jenisMotor">Jenis Motor</Label>
         <Select
           value={formData.jenisMotorId}
-          onValueChange={(value) => setFormData({ jenisMotorId: value })}
+          onValueChange={value => setFormData({ jenisMotorId: value })}
           disabled={saving}
         >
           <SelectTrigger id="jenisMotor">
             <SelectValue placeholder="Pilih jenis motor" />
           </SelectTrigger>
           <SelectContent>
-            {jenisMotorOptions.map((jenis) => (
+            {jenisMotorOptions.map(jenis => (
               <SelectItem key={jenis.id} value={jenis.id}>
                 {jenis.merk} {jenis.model} ({jenis.cc} CC)
               </SelectItem>

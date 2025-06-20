@@ -2,14 +2,19 @@ import axios from '../axios';
 import { PaginationResponse } from '../types/common';
 import { FilterTransaksi, Transaksi } from '../types/transaksi';
 
-export const getTransaksi = async (filter: FilterTransaksi = {}): Promise<PaginationResponse<Transaksi>> => {
+export const getTransaksi = async (
+  filter: FilterTransaksi = {}
+): Promise<PaginationResponse<Transaksi>> => {
   try {
     const response = await axios.get(`/transaksi`, {
       params: filter,
     });
     return response.data;
   } catch (error: unknown) {
-    console.error('Error response:', axios.isAxiosError(error) ? error.response?.data : error);
+    console.error(
+      'Error response:',
+      axios.isAxiosError(error) ? error.response?.data : error
+    );
     if (axios.isAxiosError(error) && error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
@@ -41,7 +46,10 @@ export const selesaikanTransaksi = async (id: string): Promise<Transaksi> => {
   }
 };
 
-export const getLaporanDenda = async (startDate: string, endDate: string): Promise<Record<string, unknown>> => {
+export const getLaporanDenda = async (
+  startDate: string,
+  endDate: string
+): Promise<Record<string, unknown>> => {
   try {
     const response = await axios.get(`/transaksi/laporan/denda`, {
       params: { startDate, endDate },
@@ -55,7 +63,10 @@ export const getLaporanDenda = async (startDate: string, endDate: string): Promi
   }
 };
 
-export const getLaporanFasilitas = async (startDate: string, endDate: string): Promise<Record<string, unknown>> => {
+export const getLaporanFasilitas = async (
+  startDate: string,
+  endDate: string
+): Promise<Record<string, unknown>> => {
   try {
     const response = await axios.get(`/transaksi/laporan/fasilitas`, {
       params: { startDate, endDate },
@@ -69,15 +80,22 @@ export const getLaporanFasilitas = async (startDate: string, endDate: string): P
   }
 };
 
-export const createTransaksi = async (data: Partial<Transaksi>): Promise<Transaksi> => {
+export const createTransaksi = async (
+  data: Partial<Transaksi>
+): Promise<Transaksi> => {
   try {
     const response = await axios.post(`/transaksi`, data);
     return response.data.data;
   } catch (error: unknown) {
-    console.error('Error response:', axios.isAxiosError(error) ? error.response?.data : error);
+    console.error(
+      'Error response:',
+      axios.isAxiosError(error) ? error.response?.data : error
+    );
     if (axios.isAxiosError(error) && error.response?.data?.message) {
-      throw new Error(`Gagal membuat transaksi: ${error.response.data.message}`);
+      throw new Error(
+        `Gagal membuat transaksi: ${error.response.data.message}`
+      );
     }
     throw new Error('Gagal membuat transaksi baru');
   }
-}; 
+};

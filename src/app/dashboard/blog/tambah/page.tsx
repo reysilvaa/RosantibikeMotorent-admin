@@ -1,20 +1,28 @@
-"use client";
+'use client';
 
-import React, { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useBlogFormStore } from "@/lib/store/blog/blog-form-store";
-import { PageHeader } from "@/components/ui/page-header";
-import { BlogForm } from "@/components/blog/blog-form";
-import DashboardLayout from "@/components/layout/dashboard-layout";
-import { BlogStatus } from "@/lib/types/blog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock } from "lucide-react";
+import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Clock } from 'lucide-react';
+import { BlogForm } from '@/components/blog/blog-form';
+import DashboardLayout from '@/components/layout/dashboard-layout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { useBlogFormStore } from '@/lib/store/blog/blog-form-store';
+import { BlogStatus } from '@/lib/types/blog';
 
 export default function TambahBlogPage() {
   const router = useRouter();
   const initialLoadComplete = useRef(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const { loading, error, success, submitForm, resetForm, setFormData, setSelectedFile } = useBlogFormStore();
+  const {
+    loading,
+    error,
+    success,
+    submitForm,
+    resetForm,
+    setFormData,
+    setSelectedFile,
+  } = useBlogFormStore();
 
   useEffect(() => {
     resetForm();
@@ -26,7 +34,7 @@ export default function TambahBlogPage() {
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => {
-        router.push("/dashboard/blog");
+        router.push('/dashboard/blog');
       }, 1500);
 
       return () => clearTimeout(timer);
@@ -34,32 +42,32 @@ export default function TambahBlogPage() {
   }, [success, router]);
 
   const handleCancel = () => {
-    router.push("/dashboard/blog");
+    router.push('/dashboard/blog');
   };
 
   const handleSubmit = async (formDataSubmit: FormData) => {
     if (!initialLoadComplete.current) {
       return;
     }
-    
+
     const judul = formDataSubmit.get('judul') as string;
     const konten = formDataSubmit.get('konten') as string;
     const status = formDataSubmit.get('status') as BlogStatus;
     const kategori = formDataSubmit.get('kategori') as string;
     const file = formDataSubmit.get('file') as File;
-    
+
     setFormData({
       judul,
       konten,
       status,
       kategori,
-      tags: Array.from(formDataSubmit.getAll('tags') as string[])
+      tags: Array.from(formDataSubmit.getAll('tags') as string[]),
     });
-    
+
     if (file) {
       setSelectedFile(file);
     }
-    
+
     await submitForm();
   };
 
@@ -79,8 +87,11 @@ export default function TambahBlogPage() {
 
         {lastSaved && (
           <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-            <Clock className="h-4 w-4 mr-1" />
-            <span>Perubahan terakhir disimpan sementara: {lastSaved.toLocaleTimeString()}</span>
+            <Clock className="mr-1 h-4 w-4" />
+            <span>
+              Perubahan terakhir disimpan sementara:{' '}
+              {lastSaved.toLocaleTimeString()}
+            </span>
           </div>
         )}
 
@@ -102,4 +113,4 @@ export default function TambahBlogPage() {
       </div>
     </DashboardLayout>
   );
-} 
+}

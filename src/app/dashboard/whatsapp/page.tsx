@@ -1,8 +1,18 @@
-"use client";
+'use client';
 
-import React, { useEffect } from "react";
-import DashboardLayout from "@/components/layout/dashboard-layout";
-import { Button } from "@/components/ui/button";
+import React, { useEffect } from 'react';
+import {
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  Info,
+  LogOut,
+  MessageSquare,
+  RefreshCcw,
+  XCircle,
+} from 'lucide-react';
+import DashboardLayout from '@/components/layout/dashboard-layout';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -10,55 +20,49 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { CheckCircle, Info, LogOut, MessageSquare, RefreshCcw, XCircle, AlertTriangle, Clock } from "lucide-react";
-import { LoadingIndicator } from "@/components/ui/loading-indicator";
-import { useWhatsAppStore } from "@/lib/store/whatsapp/whatsapp-store";
+} from '@/components/ui/card';
+import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import { useWhatsAppStore } from '@/lib/store/whatsapp/whatsapp-store';
 
 export default function WhatsappPage() {
-  const { 
-    status, 
-    qrCode, 
-    qrError, 
-    qrLoading, 
-    loading, 
-    refreshing, 
+  const {
+    status,
+    qrCode,
+    qrError,
+    qrLoading,
+    loading,
+    refreshing,
     qrLastUpdated,
     fetchStatus,
     handleRefresh,
     handleLogout,
-    handleStart
+    handleStart,
   } = useWhatsAppStore();
 
   useEffect(() => {
     fetchStatus();
-    
-    // Poll status setiap 10 detik
+
     const interval = setInterval(() => {
       fetchStatus();
     }, 10000);
-    
+
     return () => clearInterval(interval);
   }, [fetchStatus]);
 
-  // Helper untuk menampilkan pesan bantuan berdasarkan state dan error
   const getHelpMessage = () => {
-    // Jika ada error spesifik dengan format respons
-    if (status.message && status.message.includes("Invalid response format")) {
+    if (status.message && status.message.includes('Invalid response format')) {
       return (
-        <div className="mt-4 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800 border border-yellow-200">
-          <h4 className="font-medium flex items-center">
-            <AlertTriangle className="h-4 w-4 mr-2" />
+        <div className="mt-4 rounded-md border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800">
+          <h4 className="flex items-center font-medium">
+            <AlertTriangle className="mr-2 h-4 w-4" />
             Masalah dengan layanan WhatsApp
           </h4>
           <p className="mt-1">
-            Server WhatsApp mengalami masalah format respons yang tidak valid. 
-            Ini biasanya terjadi ketika ada perubahan pada API WhatsApp 
-            atau masalah dengan layanan WhatsApp pihak ketiga.
+            Server WhatsApp mengalami masalah format respons yang tidak valid.
+            Ini biasanya terjadi ketika ada perubahan pada API WhatsApp atau
+            masalah dengan layanan WhatsApp pihak ketiga.
           </p>
-          <p className="mt-2">
-            Solusi yang dapat dicoba:
-          </p>
+          <p className="mt-2">Solusi yang dapat dicoba:</p>
           <ul className="mt-1 list-disc pl-5">
             <li>Reset koneksi dan coba mulai sesi baru</li>
             <li>Pastikan layanan WhatsApp di server sedang berjalan</li>
@@ -67,37 +71,38 @@ export default function WhatsappPage() {
         </div>
       );
     }
-    
-    // Jika status koneksi sedang reconnecting
+
     if (status.state === 'RECONNECTING' || status.state === 'reconnecting') {
       return (
-        <div className="mt-4 rounded-md bg-blue-50 p-3 text-sm text-blue-800 border border-blue-200">
-          <h4 className="font-medium flex items-center">
-            <Clock className="h-4 w-4 mr-2" />
+        <div className="mt-4 rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
+          <h4 className="flex items-center font-medium">
+            <Clock className="mr-2 h-4 w-4" />
             Sedang mencoba menghubungkan kembali
           </h4>
           <p className="mt-1">
-            Sistem sedang mencoba menghubungkan kembali ke WhatsApp.
-            Harap tunggu beberapa saat atau klik tombol &quot;Reset Koneksi&quot; untuk memulai sesi baru.
+            Sistem sedang mencoba menghubungkan kembali ke WhatsApp. Harap
+            tunggu beberapa saat atau klik tombol &quot;Reset Koneksi&quot;
+            untuk memulai sesi baru.
           </p>
         </div>
       );
     }
-    
-    // Jika status disconnected
+
     if (!status.connected) {
       return (
         <div className="mt-2 text-sm text-yellow-600">
-          <Info className="inline-block h-4 w-4 mr-1" />
-          <span>Silakan klik tombol &quot;Mulai Sesi&quot; untuk memulai koneksi WhatsApp</span>
+          <Info className="mr-1 inline-block h-4 w-4" />
+          <span>
+            Silakan klik tombol &quot;Mulai Sesi&quot; untuk memulai koneksi
+            WhatsApp
+          </span>
         </div>
       );
     }
-    
+
     return null;
   };
 
-  // Helper untuk menampilkan badge status dengan warna yang sesuai
   const getStatusBadge = () => {
     if (status.connected) {
       return (
@@ -107,25 +112,25 @@ export default function WhatsappPage() {
         </div>
       );
     }
-    
+
     if (status.state === 'CONNECTING' || status.state === 'connecting') {
       return (
         <div className="flex items-center">
-          <Clock className="mr-1 h-4 w-4 text-blue-500 animate-pulse" />
+          <Clock className="mr-1 h-4 w-4 animate-pulse text-blue-500" />
           <span className="text-blue-600">Menghubungkan...</span>
         </div>
       );
     }
-    
+
     if (status.state === 'RECONNECTING' || status.state === 'reconnecting') {
       return (
         <div className="flex items-center">
-          <RefreshCcw className="mr-1 h-4 w-4 text-amber-500 animate-spin" />
+          <RefreshCcw className="mr-1 h-4 w-4 animate-spin text-amber-500" />
           <span className="text-amber-600">Menghubungkan kembali...</span>
         </div>
       );
     }
-    
+
     if (status.state === 'ERROR' || status.state === 'error') {
       return (
         <div className="flex items-center">
@@ -134,8 +139,7 @@ export default function WhatsappPage() {
         </div>
       );
     }
-    
-    // Default disconnect
+
     return (
       <div className="flex items-center">
         <XCircle className="mr-1 h-4 w-4 text-red-500" />
@@ -175,29 +179,28 @@ export default function WhatsappPage() {
     );
   };
 
-  // Helper untuk menampilkan konten QR code section
   const getQrCodeContent = () => {
     if (status.connected) {
       return (
         <div className="flex flex-col items-center justify-center py-6 text-center">
-          <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
+          <CheckCircle className="mb-4 h-16 w-16 text-green-500" />
           <h3 className="text-lg font-medium">WhatsApp Terhubung</h3>
-          <p className="text-sm text-muted-foreground mt-2">
+          <p className="text-muted-foreground mt-2 text-sm">
             Anda sudah terhubung ke WhatsApp. Tidak perlu memindai QR code.
           </p>
         </div>
       );
     }
-    
+
     if (qrLoading) {
       return (
         <div className="flex flex-col items-center justify-center py-6">
           <LoadingIndicator className="mb-4" />
-          <p className="text-sm text-center">Memuat QR code...</p>
+          <p className="text-center text-sm">Memuat QR code...</p>
         </div>
       );
     }
-    
+
     if (qrCode) {
       return (
         <div className="flex flex-col items-center">
@@ -210,34 +213,35 @@ export default function WhatsappPage() {
               className="aspect-square h-auto w-full max-w-sm object-cover"
             />
           </div>
-          <p className="text-sm text-center mt-2 text-muted-foreground">
+          <p className="text-muted-foreground mt-2 text-center text-sm">
             Pindai QR code ini dengan aplikasi WhatsApp di ponsel Anda
           </p>
         </div>
       );
     }
-    
-    // QR code tidak tersedia
+
     return (
       <div className="flex flex-col items-center justify-center py-6 text-center">
         {status.state === 'CONNECTING' || status.state === 'connecting' ? (
           <>
-            <Clock className="h-16 w-16 text-blue-500 mb-4 animate-pulse" />
+            <Clock className="mb-4 h-16 w-16 animate-pulse text-blue-500" />
             <h3 className="text-lg font-medium">Menghubungkan...</h3>
-            <p className="text-sm text-muted-foreground mt-2">
-              {qrError || "Sedang mempersiapkan QR code. Harap tunggu sebentar..."}
+            <p className="text-muted-foreground mt-2 text-sm">
+              {qrError ||
+                'Sedang mempersiapkan QR code. Harap tunggu sebentar...'}
             </p>
           </>
         ) : (
           <>
-            <Info className="h-16 w-16 text-yellow-500 mb-4" />
+            <Info className="mb-4 h-16 w-16 text-yellow-500" />
             <h3 className="text-lg font-medium">QR Code Tidak Tersedia</h3>
-            <p className="text-sm text-muted-foreground mt-2">
-              {qrError || "QR code tidak dapat dimuat. Coba reset koneksi dan mulai sesi baru."}
+            <p className="text-muted-foreground mt-2 text-sm">
+              {qrError ||
+                'QR code tidak dapat dimuat. Coba reset koneksi dan mulai sesi baru.'}
             </p>
-            <Button 
-              className="mt-4" 
-              variant="outline" 
+            <Button
+              className="mt-4"
+              variant="outline"
               onClick={handleStart}
               disabled={refreshing}
             >
@@ -262,13 +266,9 @@ export default function WhatsappPage() {
         <Card>
           <CardHeader>
             <CardTitle>Status Koneksi</CardTitle>
-            <CardDescription>
-              Status koneksi WhatsApp saat ini
-            </CardDescription>
+            <CardDescription>Status koneksi WhatsApp saat ini</CardDescription>
           </CardHeader>
-          <CardContent>
-            {getStatusDisplay()}
-          </CardContent>
+          <CardContent>{getStatusDisplay()}</CardContent>
           <CardFooter className="flex justify-between">
             <Button onClick={handleRefresh} disabled={refreshing}>
               {refreshing ? (
@@ -279,12 +279,20 @@ export default function WhatsappPage() {
               Reset Koneksi
             </Button>
             {status.connected ? (
-              <Button variant="destructive" onClick={handleLogout} disabled={refreshing}>
+              <Button
+                variant="destructive"
+                onClick={handleLogout}
+                disabled={refreshing}
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </Button>
             ) : (
-              <Button variant="default" onClick={handleStart} disabled={refreshing}>
+              <Button
+                variant="default"
+                onClick={handleStart}
+                disabled={refreshing}
+              >
                 <MessageSquare className="mr-2 h-4 w-4" />
                 Mulai Sesi
               </Button>
@@ -303,11 +311,15 @@ export default function WhatsappPage() {
             {getQrCodeContent()}
           </CardContent>
           {qrCode && (
-            <CardFooter className="text-center text-sm text-muted-foreground flex flex-col">
-              <div>QR code akan kedaluwarsa dalam beberapa menit. Jika kedaluwarsa, klik tombol Reset Koneksi.</div>
+            <CardFooter className="text-muted-foreground flex flex-col text-center text-sm">
+              <div>
+                QR code akan kedaluwarsa dalam beberapa menit. Jika kedaluwarsa,
+                klik tombol Reset Koneksi.
+              </div>
               {qrLastUpdated && (
                 <div className="mt-2">
-                  QR code terakhir diperbarui: {qrLastUpdated.toLocaleTimeString()}
+                  QR code terakhir diperbarui:{' '}
+                  {qrLastUpdated.toLocaleTimeString()}
                 </div>
               )}
             </CardFooter>
@@ -316,4 +328,4 @@ export default function WhatsappPage() {
       </div>
     </DashboardLayout>
   );
-} 
+}
