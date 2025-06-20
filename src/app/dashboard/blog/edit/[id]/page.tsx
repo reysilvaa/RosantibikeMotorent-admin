@@ -82,7 +82,6 @@ export default function EditBlogPage({
     }
 
     userInteracted.current = true;
-
     const judul = formDataSubmit.get('judul') as string;
     const konten = formDataSubmit.get('konten') as string;
     const status = formDataSubmit.get('status') as BlogStatus;
@@ -97,7 +96,7 @@ export default function EditBlogPage({
       tags: Array.from(formDataSubmit.getAll('tags') as string[]),
     });
 
-    if (file) {
+    if (file && file.size > 0) {
       setSelectedFile(file);
     }
 

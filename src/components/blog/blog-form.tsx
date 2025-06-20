@@ -24,7 +24,7 @@ interface BlogFormProps {
     tags?: string[];
     tagNames?: { [key: string]: string };
   };
-  onSubmit: () => Promise<void>;
+  onSubmit: (formData: FormData) => Promise<void>;
   onCancel?: () => void;
   isLoading?: boolean;
   error?: string;
@@ -213,7 +213,7 @@ export function BlogForm({
       formData.append('file', thumbnail);
     }
 
-    await onSubmit();
+    await onSubmit(formData);
   };
 
   const getTagDisplayName = (tagId: string) => {
