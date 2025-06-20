@@ -223,10 +223,25 @@ export const useWhatsAppStore = create<WhatsAppState>((set, get) => ({
         });
       }
 
-      setTimeout(() => {
-        get().fetchStatus();
-        set({ refreshing: false });
-      }, 3000);
+      // Polling QR code setiap 2 detik selama 10 detik
+      let attempts = 0;
+      const maxAttempts = 5;
+      const pollInterval = setInterval(() => {
+        if (attempts >= maxAttempts) {
+          clearInterval(pollInterval);
+          set({ refreshing: false });
+          return;
+        }
+        
+        attempts++;
+        console.log(`Polling QR code attempt ${attempts}/${maxAttempts}`);
+        get().fetchQrCode();
+        
+        if (attempts === maxAttempts) {
+          get().fetchStatus();
+          set({ refreshing: false });
+        }
+      }, 2000);
     } catch (error) {
       console.error('Error resetting connection:', error);
       toast({
@@ -242,28 +257,68 @@ export const useWhatsAppStore = create<WhatsAppState>((set, get) => ({
   },
 
   handleLogout: async () => {
-    if (!window.confirm('Apakah Anda yakin ingin logout dari sesi WhatsApp?')) {
-      return;
-    }
-
     set({ refreshing: true, qrError: '' });
 
     try {
-      await logoutWhatsAppSession();
-      toast({
-        title: 'Berhasil',
-        description: 'Berhasil logout dari WhatsApp',
-      });
+      const response = await logoutWhatsAppSession();
+      console.log('Logout response:', response);
+      
+      const isSuccess =
+        response &&
+        (response.status === 'success' ||
+          (typeof response.message === 'string' &&
+            (response.message.includes('berhasil') ||
+              response.message.includes('success'))));
 
-      setTimeout(() => {
+      if (isSuccess) {
+        toast({
+          title: 'Berhasil',
+          description: 'Berhasil logout dari WhatsApp',
+        });
+      } else {
+        toast({
+          title: 'Informasi',
+          description: response?.message || 'Proses logout sedang berlangsung',
+        });
+      }
+
+      // Polling status setiap 2 detik selama 10 detik
+      let attempts = 0;
+      const maxAttempts = 5;
+      const pollInterval = setInterval(() => {
+        if (attempts >= maxAttempts) {
+          clearInterval(pollInterval);
+          set({ refreshing: false });
+          return;
+        }
+        
+        attempts++;
+        console.log(`Polling status after logout attempt ${attempts}/${maxAttempts}`);
         get().fetchStatus();
-        set({ refreshing: false });
-      }, 3000);
-    } catch (error) {
+        
+        if (attempts === maxAttempts) {
+          set({ refreshing: false });
+        }
+      }, 2000);
+    } catch (error: unknown) {
       console.error('Error logging out:', error);
+      
+      let errorMessage = 'Gagal logout dari WhatsApp';
+      if (error instanceof Error) {
+        if (error.message.includes('404') || error.message.includes('Not Found')) {
+          errorMessage = 'Endpoint logout tidak ditemukan. Server mungkin belum mendukung fitur ini.';
+        } else if (error.message.includes('Network Error')) {
+          errorMessage = 'Gagal terhubung ke server WhatsApp. Periksa koneksi jaringan Anda.';
+        } else if (error.message.includes('timeout')) {
+          errorMessage = 'Permintaan timeout. Server WhatsApp mungkin sibuk, coba lagi nanti.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
         title: 'Error',
-        description: 'Gagal logout dari WhatsApp',
+        description: errorMessage,
         variant: 'destructive',
       });
       set({ refreshing: false });
@@ -297,10 +352,25 @@ export const useWhatsAppStore = create<WhatsAppState>((set, get) => ({
         });
       }
 
-      setTimeout(() => {
-        get().fetchStatus();
-        set({ refreshing: false });
-      }, 3000);
+      // Polling QR code setiap 2 detik selama 10 detik
+      let attempts = 0;
+      const maxAttempts = 5;
+      const pollInterval = setInterval(() => {
+        if (attempts >= maxAttempts) {
+          clearInterval(pollInterval);
+          set({ refreshing: false });
+          return;
+        }
+        
+        attempts++;
+        console.log(`Polling QR code attempt ${attempts}/${maxAttempts}`);
+        get().fetchQrCode();
+        
+        if (attempts === maxAttempts) {
+          get().fetchStatus();
+          set({ refreshing: false });
+        }
+      }, 2000);
     } catch (error: unknown) {
       console.error('Error starting session:', error);
       let errorMessage = 'Gagal memulai sesi WhatsApp';
