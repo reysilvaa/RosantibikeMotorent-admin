@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,96 +11,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { toast } from "@/components/ui/use-toast";
-import { 
-  getStatus, 
-  getSessionStatus, 
-  getQrCode, 
-  resetConnection, 
-  logoutSession, 
-  startAllSessions 
-} from "@/lib/whatsapp";
-import { CheckCircle, Info, LogOut, MessageSquare, RefreshCcw, XCircle } from "lucide-react";
+import { CheckCircle, Info, LogOut, MessageSquare, RefreshCcw, XCircle, AlertTriangle, Clock } from "lucide-react";
 import { LoadingIndicator } from "@/components/ui/loading-indicator";
+import { useWhatsAppStore } from "@/lib/store/whatsapp/whatsapp-store";
 
 export default function WhatsappPage() {
-  const [status, setStatus] = useState({
-    connected: false,
-    state: "DISCONNECTED",
-    message: "",
-  });
-  const [qrCode, setQrCode] = useState("");
-  const [qrLoading, setQrLoading] = useState(false);
-  const [qrError, setQrError] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const fetchStatus = async () => {
-    try {
-      // Ambil status koneksi dari endpoint status
-      const statusResponse = await getStatus();
-      
-      // Ambil status sesi yang lebih detail dari endpoint session-status
-      const sessionResponse = await getSessionStatus();
-      
-      // Gabungkan informasi dari kedua endpoint untuk status yang lebih akurat
-      const mergedStatus = {
-        connected: statusResponse.connected || 
-                  (sessionResponse?.data?.status === 'CONNECTED' || 
-                   sessionResponse?.data?.state === 'CONNECTED'),
-        state: sessionResponse?.data?.state || statusResponse.state || 'UNKNOWN',
-        message: sessionResponse?.data?.message || statusResponse.message || '',
-      };
-      
-      setStatus(mergedStatus);
-      if (!mergedStatus.connected) {
-        fetchQrCode();
-      } else {
-        // Jika terhubung, hapus QR code
-        setQrCode("");
-        setQrError("");
-      }
-    } catch (error) {
-      console.error("Error fetching status:", error);
-      toast({
-        title: "Error",
-        description: "Gagal mengambil status WhatsApp",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchQrCode = async () => {
-    try {
-      setQrLoading(true);
-      setQrError("");
-      
-      const response = await getQrCode();
-      if (response && response.qrCode) {
-        setQrCode(response.qrCode);
-      } else if (response && response.status === "success") {
-        setQrCode("");
-        setQrError("QR code tidak tersedia. Kemungkinan backend sudah terhubung.");
-      } else {
-        setQrCode("");
-        setQrError("QR code belum siap. Coba lagi dalam beberapa saat.");
-      }
-    } catch (error: any) {
-      console.error("Error fetching QR code:", error);
-      setQrCode("");
-      
-      // Tangani pesan error secara khusus
-      if (error.message && error.message.includes("QR code tidak tersedia")) {
-        setQrError("QR code tidak tersedia. WhatsApp mungkin sudah terhubung atau sedang mempersiapkan koneksi.");
-      } else {
-        setQrError("Gagal memuat QR code. Coba reset koneksi atau mulai sesi baru.");
-      }
-    } finally {
-      setQrLoading(false);
-    }
-  };
+  const { 
+    status, 
+    qrCode, 
+    qrError, 
+    qrLoading, 
+    loading, 
+    refreshing, 
+    qrLastUpdated,
+    fetchStatus,
+    handleRefresh,
+    handleLogout,
+    handleStart
+  } = useWhatsAppStore();
 
   useEffect(() => {
     fetchStatus();
@@ -111,107 +39,18 @@ export default function WhatsappPage() {
     }, 10000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchStatus]);
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    setQrError("");
-    
-    try {
-      await resetConnection();
-      toast({
-        title: "Berhasil",
-        description: "Koneksi WhatsApp sedang di-reset",
-      });
-      
-      // Tunggu sedikit sebelum memeriksa status baru
-      setTimeout(() => {
-        fetchStatus();
-        setRefreshing(false);
-      }, 3000);
-    } catch (error) {
-      console.error("Error resetting connection:", error);
-      toast({
-        title: "Error",
-        description: "Gagal mereset koneksi WhatsApp",
-        variant: "destructive",
-      });
-      setRefreshing(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    if (!window.confirm("Apakah Anda yakin ingin logout dari sesi WhatsApp?")) {
-      return;
-    }
-    
-    setRefreshing(true);
-    setQrError("");
-    
-    try {
-      await logoutSession();
-      toast({
-        title: "Berhasil",
-        description: "Berhasil logout dari WhatsApp",
-      });
-      
-      setTimeout(() => {
-        fetchStatus();
-        setRefreshing(false);
-      }, 3000);
-    } catch (error) {
-      console.error("Error logging out:", error);
-      toast({
-        title: "Error",
-        description: "Gagal logout dari WhatsApp",
-        variant: "destructive",
-      });
-      setRefreshing(false);
-    }
-  };
-
-  const handleStart = async () => {
-    setRefreshing(true);
-    setQrError("");
-    
-    try {
-      await startAllSessions();
-      toast({
-        title: "Berhasil",
-        description: "Berhasil memulai sesi WhatsApp",
-      });
-      
-      setTimeout(() => {
-        fetchStatus();
-        setRefreshing(false);
-      }, 3000);
-    } catch (error: any) {
-      console.error("Error starting session:", error);
-      let errorMessage = "Gagal memulai sesi WhatsApp";
-      
-      // Cek pesan error khusus
-      if (error.message && error.message.includes("Invalid response format")) {
-        errorMessage = "Format respons dari server WhatsApp tidak valid. Kemungkinan ada masalah dengan layanan WhatsApp. Silakan coba lagi nanti.";
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-      
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      setRefreshing(false);
-    }
-  };
-
-  // Helper untuk menampilkan pesan bantuan berdasarkan state
+  // Helper untuk menampilkan pesan bantuan berdasarkan state dan error
   const getHelpMessage = () => {
     // Jika ada error spesifik dengan format respons
     if (status.message && status.message.includes("Invalid response format")) {
       return (
         <div className="mt-4 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800 border border-yellow-200">
-          <h4 className="font-medium">Masalah dengan layanan WhatsApp</h4>
+          <h4 className="font-medium flex items-center">
+            <AlertTriangle className="h-4 w-4 mr-2" />
+            Masalah dengan layanan WhatsApp
+          </h4>
           <p className="mt-1">
             Server WhatsApp mengalami masalah format respons yang tidak valid. 
             Ini biasanya terjadi ketika ada perubahan pada API WhatsApp 
@@ -229,12 +68,28 @@ export default function WhatsappPage() {
       );
     }
     
+    // Jika status koneksi sedang reconnecting
+    if (status.state === 'RECONNECTING' || status.state === 'reconnecting') {
+      return (
+        <div className="mt-4 rounded-md bg-blue-50 p-3 text-sm text-blue-800 border border-blue-200">
+          <h4 className="font-medium flex items-center">
+            <Clock className="h-4 w-4 mr-2" />
+            Sedang mencoba menghubungkan kembali
+          </h4>
+          <p className="mt-1">
+            Sistem sedang mencoba menghubungkan kembali ke WhatsApp.
+            Harap tunggu beberapa saat atau klik tombol &quot;Reset Koneksi&quot; untuk memulai sesi baru.
+          </p>
+        </div>
+      );
+    }
+    
     // Jika status disconnected
     if (!status.connected) {
       return (
         <div className="mt-2 text-sm text-yellow-600">
           <Info className="inline-block h-4 w-4 mr-1" />
-          <span>Silakan klik tombol "Mulai Sesi" untuk memulai koneksi WhatsApp</span>
+          <span>Silakan klik tombol &quot;Mulai Sesi&quot; untuk memulai koneksi WhatsApp</span>
         </div>
       );
     }
@@ -242,54 +97,72 @@ export default function WhatsappPage() {
     return null;
   };
 
+  // Helper untuk menampilkan badge status dengan warna yang sesuai
+  const getStatusBadge = () => {
+    if (status.connected) {
+      return (
+        <div className="flex items-center">
+          <CheckCircle className="mr-1 h-4 w-4 text-green-500" />
+          <span className="text-green-600">Terhubung</span>
+        </div>
+      );
+    }
+    
+    if (status.state === 'CONNECTING' || status.state === 'connecting') {
+      return (
+        <div className="flex items-center">
+          <Clock className="mr-1 h-4 w-4 text-blue-500 animate-pulse" />
+          <span className="text-blue-600">Menghubungkan...</span>
+        </div>
+      );
+    }
+    
+    if (status.state === 'RECONNECTING' || status.state === 'reconnecting') {
+      return (
+        <div className="flex items-center">
+          <RefreshCcw className="mr-1 h-4 w-4 text-amber-500 animate-spin" />
+          <span className="text-amber-600">Menghubungkan kembali...</span>
+        </div>
+      );
+    }
+    
+    if (status.state === 'ERROR' || status.state === 'error') {
+      return (
+        <div className="flex items-center">
+          <AlertTriangle className="mr-1 h-4 w-4 text-red-500" />
+          <span className="text-red-600">Error</span>
+        </div>
+      );
+    }
+    
+    // Default disconnect
+    return (
+      <div className="flex items-center">
+        <XCircle className="mr-1 h-4 w-4 text-red-500" />
+        <span className="text-red-600">Terputus</span>
+      </div>
+    );
+  };
+
   const getStatusDisplay = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center py-6">
-          <LoadingIndicator />
+          <LoadingIndicator className="mr-2" />
           <span>Memuat status...</span>
         </div>
       );
     }
 
-    // Status terhubung
-    if (status.connected) {
-      return (
-        <div className="space-y-4">
-          <div className="flex items-center">
-            <span className="mr-2 font-medium">Status:</span>
-            <div className="flex items-center">
-              <CheckCircle className="mr-1 h-4 w-4 text-green-500" />
-              <span className="text-green-600">Terhubung</span>
-            </div>
-          </div>
-          <div>
-            <span className="mr-2 font-medium">State:</span>
-            <span>{status.state}</span>
-          </div>
-          {status.message && (
-            <div>
-              <span className="mr-2 font-medium">Pesan:</span>
-              <span>{status.message}</span>
-            </div>
-          )}
-        </div>
-      );
-    }
-
-    // Status tidak terhubung
     return (
       <div className="space-y-4">
         <div className="flex items-center">
           <span className="mr-2 font-medium">Status:</span>
-          <div className="flex items-center">
-            <XCircle className="mr-1 h-4 w-4 text-red-500" />
-            <span className="text-red-600">Terputus</span>
-          </div>
+          {getStatusBadge()}
         </div>
         <div>
           <span className="mr-2 font-medium">State:</span>
-          <span>{status.state}</span>
+          <span className="capitalize">{status.state.toLowerCase()}</span>
         </div>
         {status.message && (
           <div>
@@ -298,6 +171,80 @@ export default function WhatsappPage() {
           </div>
         )}
         {getHelpMessage()}
+      </div>
+    );
+  };
+
+  // Helper untuk menampilkan konten QR code section
+  const getQrCodeContent = () => {
+    if (status.connected) {
+      return (
+        <div className="flex flex-col items-center justify-center py-6 text-center">
+          <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
+          <h3 className="text-lg font-medium">WhatsApp Terhubung</h3>
+          <p className="text-sm text-muted-foreground mt-2">
+            Anda sudah terhubung ke WhatsApp. Tidak perlu memindai QR code.
+          </p>
+        </div>
+      );
+    }
+    
+    if (qrLoading) {
+      return (
+        <div className="flex flex-col items-center justify-center py-6">
+          <LoadingIndicator className="mb-4" />
+          <p className="text-sm text-center">Memuat QR code...</p>
+        </div>
+      );
+    }
+    
+    if (qrCode) {
+      return (
+        <div className="flex flex-col items-center">
+          <div className="overflow-hidden rounded-md border p-1">
+            <img
+              src={qrCode}
+              alt="WhatsApp QR Code"
+              width={300}
+              height={300}
+              className="aspect-square h-auto w-full max-w-sm object-cover"
+            />
+          </div>
+          <p className="text-sm text-center mt-2 text-muted-foreground">
+            Pindai QR code ini dengan aplikasi WhatsApp di ponsel Anda
+          </p>
+        </div>
+      );
+    }
+    
+    // QR code tidak tersedia
+    return (
+      <div className="flex flex-col items-center justify-center py-6 text-center">
+        {status.state === 'CONNECTING' || status.state === 'connecting' ? (
+          <>
+            <Clock className="h-16 w-16 text-blue-500 mb-4 animate-pulse" />
+            <h3 className="text-lg font-medium">Menghubungkan...</h3>
+            <p className="text-sm text-muted-foreground mt-2">
+              {qrError || "Sedang mempersiapkan QR code. Harap tunggu sebentar..."}
+            </p>
+          </>
+        ) : (
+          <>
+            <Info className="h-16 w-16 text-yellow-500 mb-4" />
+            <h3 className="text-lg font-medium">QR Code Tidak Tersedia</h3>
+            <p className="text-sm text-muted-foreground mt-2">
+              {qrError || "QR code tidak dapat dimuat. Coba reset koneksi dan mulai sesi baru."}
+            </p>
+            <Button 
+              className="mt-4" 
+              variant="outline" 
+              onClick={handleStart}
+              disabled={refreshing}
+            >
+              Mulai Sesi Baru
+            </Button>
+          </>
+        )}
       </div>
     );
   };
@@ -353,50 +300,16 @@ export default function WhatsappPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center">
-            {status.connected ? (
-              <div className="flex flex-col items-center justify-center py-6 text-center">
-                <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
-                <h3 className="text-lg font-medium">WhatsApp Terhubung</h3>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Anda sudah terhubung ke WhatsApp. Tidak perlu memindai QR code.
-                </p>
-              </div>
-            ) : qrLoading ? (
-              <div className="flex flex-col items-center justify-center py-6">
-                <LoadingIndicator />
-                <p className="text-sm text-center">Memuat QR code...</p>
-              </div>
-            ) : qrCode ? (
-              <div className="overflow-hidden rounded-md border p-1">
-                <img
-                  src={qrCode}
-                  alt="WhatsApp QR Code"
-                  width={300}
-                  height={300}
-                  className="aspect-square h-auto w-full max-w-sm object-cover"
-                />
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-6 text-center">
-                <Info className="h-16 w-16 text-yellow-500 mb-4" />
-                <h3 className="text-lg font-medium">QR Code Tidak Tersedia</h3>
-                <p className="text-sm text-muted-foreground mt-2">
-                  {qrError || "QR code tidak dapat dimuat. Coba reset koneksi dan mulai sesi baru."}
-                </p>
-                <Button 
-                  className="mt-4" 
-                  variant="outline" 
-                  onClick={handleStart}
-                  disabled={refreshing}
-                >
-                  Mulai Sesi Baru
-                </Button>
-              </div>
-            )}
+            {getQrCodeContent()}
           </CardContent>
           {qrCode && (
-            <CardFooter className="text-center text-sm text-muted-foreground">
-              QR code akan kedaluwarsa dalam beberapa menit. Jika kedaluwarsa, klik tombol Reset Koneksi.
+            <CardFooter className="text-center text-sm text-muted-foreground flex flex-col">
+              <div>QR code akan kedaluwarsa dalam beberapa menit. Jika kedaluwarsa, klik tombol Reset Koneksi.</div>
+              {qrLastUpdated && (
+                <div className="mt-2">
+                  QR code terakhir diperbarui: {qrLastUpdated.toLocaleTimeString()}
+                </div>
+              )}
             </CardFooter>
           )}
         </Card>

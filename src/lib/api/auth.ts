@@ -24,7 +24,7 @@ export const login = async (credentials: LoginCredentials): Promise<LoginRespons
           throw new Error(data.message as string);
         }
       } else if (error.request) {
-        throw new Error('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+        throw new Error('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.', { cause: error });
       }
     }
     
