@@ -5,6 +5,8 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Glassmorphism styling telah dihapus */
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -76,6 +78,10 @@
     --ring: 224 71.4% 4.1%;
  
     --radius: 0.5rem;
+    
+    /* Light mode */
+    --light-mode: initial;
+    --dark-mode: ;
   }
  
   .dark {
@@ -106,6 +112,10 @@
     --border: 215 27.9% 16.9%;
     --input: 215 27.9% 16.9%;
     --ring: 216 12.2% 83.9%;
+    
+    /* Dark mode */
+    --light-mode: ;
+    --dark-mode: initial;
   }
 }
 
@@ -116,6 +126,78 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Fix untuk komponen transparan */
+.bg-white {
+  background-color: hsl(0, 0%, 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.dark .bg-neutral-950 {
+  background-color: hsl(224, 71.4%, 4.1%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.card, 
+.rounded-xl,
+[role="dialog"],
+[role="tooltip"],
+.popover,
+.dialog {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  opacity: 1 !important;
+}
+
+/* Fix khusus untuk HoverCard */
+[data-radix-hover-card-content],
+.hover-card-content {
+  background-color: hsl(var(--popover)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  opacity: 1 !important;
+}
+
+/* Fix khusus untuk Toast */
+[data-radix-toast-root],
+.toast-root {
+  background-color: hsl(var(--background)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  opacity: 1 !important;
+}
+
+/* Fix untuk Popover */
+[data-radix-popper-content-wrapper] [role="tooltip"],
+[data-radix-popper-content-wrapper] [role="dialog"],
+.popover-content {
+  background-color: var(--light-mode, white) var(--dark-mode, hsl(224, 71.4%, 4.1%)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  opacity: 1 !important;
+}
+
+/* Fix untuk bg-popover */
+.bg-popover {
+  background-color: hsl(var(--popover)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Fix untuk bg-background */
+.bg-background {
+  background-color: hsl(var(--background)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Hapus semua backdrop-filter dari semua elemen */
+* {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 @layer utilities {
