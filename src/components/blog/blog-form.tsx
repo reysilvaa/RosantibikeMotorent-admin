@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { FormActions } from '@/components/ui/form-actions';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -44,6 +44,7 @@ export function BlogForm({
   onChange,
 }: BlogFormProps) {
   const isInitialMount = useRef(true);
+  const isUpdating = useRef(false);
   const [judul, setJudul] = useState(initialValues.judul || '');
   const [konten, setKonten] = useState(initialValues.konten || '');
   const [status, setStatus] = useState<BlogStatus>(
@@ -72,16 +73,26 @@ export function BlogForm({
     if (initialValues.tags) setTags(initialValues.tags);
     if (initialValues.tagNames) setTagNames(initialValues.tagNames);
 
-    if (isInitialMount.current) {
+    setTimeout(() => {
       isInitialMount.current = false;
+    }, 100);
+  }, []);
+
+  const notifyChange = useCallback(() => {
+    if (!isInitialMount.current && !isUpdating.current && onChange) {
+      isUpdating.current = true;
+      onChange();
+      setTimeout(() => {
+        isUpdating.current = false;
+      }, 0);
     }
-  }, [initialValues]);
+  }, [onChange]);
 
   useEffect(() => {
-    if (!isInitialMount.current && onChange) {
-      onChange();
+    if (!isInitialMount.current) {
+      notifyChange();
     }
-  }, [judul, konten, status, kategori, tags, onChange]);
+  }, [judul, konten, status, kategori, tags, notifyChange]);
 
   useEffect(() => {
     const fetchTagSuggestions = async () => {
@@ -115,10 +126,6 @@ export function BlogForm({
         }
       };
       reader.readAsDataURL(file);
-
-      if (onChange) {
-        onChange();
-      }
     }
   };
 
@@ -126,12 +133,11 @@ export function BlogForm({
     if (tagInput.trim() && !tags.includes(tagInput.trim().toLowerCase())) {
       const normalizedTag = tagInput.trim().toLowerCase();
 
-      setTags([...tags, normalizedTag]);
-
-      setTagNames({
-        ...tagNames,
+      setTags(prevTags => [...prevTags, normalizedTag]);
+      setTagNames(prevTagNames => ({
+        ...prevTagNames,
         [normalizedTag]: normalizedTag,
-      });
+      }));
 
       setTagInput('');
       setShowSuggestions(false);
@@ -145,19 +151,18 @@ export function BlogForm({
       return;
     }
 
-    setTags([...tags, tag.id]);
-
-    setTagNames({
-      ...tagNames,
+    setTags(prevTags => [...prevTags, tag.id]);
+    setTagNames(prevTagNames => ({
+      ...prevTagNames,
       [tag.id]: tag.nama,
-    });
+    }));
 
     setTagInput('');
     setShowSuggestions(false);
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
+    setTags(prevTags => prevTags.filter(tag => tag !== tagToRemove));
   };
 
   const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

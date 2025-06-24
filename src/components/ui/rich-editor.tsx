@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import Blockquote from '@tiptap/extension-blockquote';
 import Bold from '@tiptap/extension-bold';
 import BulletList from '@tiptap/extension-bullet-list';
@@ -36,7 +36,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-
+import { Editor } from '@tiptap/react';
 interface RichEditorProps {
   value: string;
   onChange: (value: string) => void;
@@ -54,6 +54,26 @@ export function RichEditor({
 }: RichEditorProps) {
   const isInitialMount = useRef(true);
   const isUpdatingFromExternalValue = useRef(false);
+  const skipNextUpdate = useRef(false);
+  const lastContent = useRef(value);
+
+  const handleUpdate = useCallback(
+    ({ editor }: { editor: Editor }) => {
+      if (skipNextUpdate.current) {
+        skipNextUpdate.current = false;
+        return;
+      }
+
+      if (!isInitialMount.current && !isUpdatingFromExternalValue.current) {
+        const content = editor.getHTML();
+        if (content !== lastContent.current) {
+          lastContent.current = content;
+          onChange(content);
+        }
+      }
+    },
+    [onChange]
+  );
 
   const editor = useEditor({
     extensions: [
@@ -106,11 +126,7 @@ export function RichEditor({
     ],
     content: value,
     editable: !disabled,
-    onUpdate: ({ editor }) => {
-      if (!isInitialMount.current && !isUpdatingFromExternalValue.current) {
-        onChange(editor.getHTML());
-      }
-    },
+    onUpdate: handleUpdate,
     editorProps: {
       attributes: {
         class: cn(
@@ -122,16 +138,21 @@ export function RichEditor({
   });
 
   useEffect(() => {
-    if (editor && editor.getHTML() !== value) {
+    if (editor && value !== lastContent.current) {
       isUpdatingFromExternalValue.current = true;
+      skipNextUpdate.current = true;
+      lastContent.current = value;
       editor.commands.setContent(value);
+      
       setTimeout(() => {
         isUpdatingFromExternalValue.current = false;
-      }, 0);
+      }, 10);
     }
 
     if (isInitialMount.current) {
-      isInitialMount.current = false;
+      setTimeout(() => {
+        isInitialMount.current = false;
+      }, 100);
     }
   }, [editor, value]);
 

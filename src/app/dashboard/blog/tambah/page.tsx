@@ -29,7 +29,7 @@ export default function TambahBlogPage() {
     setTimeout(() => {
       initialLoadComplete.current = true;
     }, 100);
-  }, [resetForm]);
+  }, []);
 
   useEffect(() => {
     if (success) {
@@ -72,7 +72,9 @@ export default function TambahBlogPage() {
   };
 
   const handleFormChange = () => {
-    setLastSaved(new Date());
+    if (initialLoadComplete.current) {
+      setLastSaved(new Date());
+    }
   };
 
   return (
