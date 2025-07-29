@@ -1,6 +1,6 @@
-import { toast } from 'sonner';
 import { create } from 'zustand';
-import { createAdmin } from '@/lib/auth';
+import axios from '../../axios';
+import { toast } from '@/components/ui/use-toast';
 
 interface AdminFormData {
   nama: string;
@@ -11,8 +11,8 @@ interface AdminFormData {
 interface AdminFormState {
   formData: AdminFormData;
   loading: boolean;
-  error: string;
-  success: string;
+  error: string | null;
+  success: string | null;
 
   setFormData: (data: Partial<AdminFormData>) => void;
   resetForm: () => void;
@@ -29,8 +29,8 @@ const initialFormData: AdminFormData = {
 export const useAdminFormStore = create<AdminFormState>((set, get) => ({
   formData: initialFormData,
   loading: false,
-  error: '',
-  success: '',
+  error: null,
+  success: null,
 
   setFormData: data => {
     set(state => ({
@@ -41,13 +41,13 @@ export const useAdminFormStore = create<AdminFormState>((set, get) => ({
   resetForm: () => {
     set({
       formData: initialFormData,
-      error: '',
-      success: '',
+      error: null,
+      success: null,
     });
   },
 
   resetMessages: () => {
-    set({ error: '', success: '' });
+    set({ error: null, success: null });
   },
 
   submitForm: async () => {
@@ -69,9 +69,9 @@ export const useAdminFormStore = create<AdminFormState>((set, get) => ({
     }
 
     try {
-      set({ loading: true, error: '', success: '' });
+      set({ loading: true, error: null, success: null });
 
-      await createAdmin({
+      await axios.post('/admin', {
         nama: formData.nama,
         username: formData.username,
         password: formData.password,
@@ -83,16 +83,28 @@ export const useAdminFormStore = create<AdminFormState>((set, get) => ({
         formData: initialFormData,
       });
 
-      toast.success('Admin berhasil ditambahkan');
+      toast({
+        title: "Berhasil",
+        description: "Admin berhasil ditambahkan",
+        variant: "default",
+      });
+      
       return true;
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Gagal menambahkan admin';
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Gagal menambahkan admin';
       console.error('Gagal menambahkan admin:', error);
+      
       set({
         loading: false,
         error: errorMessage,
       });
+      
+      toast({
+        title: "Gagal",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      
       return false;
     }
   },

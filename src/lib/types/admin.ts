@@ -9,6 +9,7 @@ export interface LoginResponse {
     username: string;
     nama: string;
   };
+  authenticated: boolean;
 }
 
 export interface Admin {

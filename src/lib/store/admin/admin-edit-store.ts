@@ -1,7 +1,7 @@
-import { toast } from 'sonner';
 import { create } from 'zustand';
-import { getAdminById, updateAdmin } from '@/lib/auth';
-import { Admin } from '@/lib/types/admin';
+import axios from '../../axios';
+import { Admin } from '../../types/admin';
+import { toast } from '@/components/ui/use-toast';
 
 interface AdminEditFormData {
   nama: string;
@@ -14,8 +14,8 @@ interface AdminEditState {
   formData: AdminEditFormData;
   loading: boolean;
   saving: boolean;
-  error: string;
-  success: string;
+  error: string | null;
+  success: string | null;
 
   fetchAdmin: (id: string) => Promise<void>;
   setFormData: (data: Partial<AdminEditFormData>) => void;
@@ -34,13 +34,14 @@ export const useAdminEditStore = create<AdminEditState>((set, get) => ({
   formData: initialFormData,
   loading: false,
   saving: false,
-  error: '',
-  success: '',
+  error: null,
+  success: null,
 
   fetchAdmin: async id => {
     try {
-      set({ loading: true, error: '' });
-      const data = await getAdminById(id);
+      set({ loading: true, error: null });
+      const response = await axios.get(`/admin/${id}`);
+      const data = response.data.data;
 
       set({
         admin: data,
@@ -51,11 +52,11 @@ export const useAdminEditStore = create<AdminEditState>((set, get) => ({
         },
         loading: false,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Gagal mengambil data admin:', error);
       set({
         loading: false,
-        error: 'Gagal mengambil data admin',
+        error: error.response?.data?.message || 'Gagal mengambil data admin',
       });
     }
   },
@@ -67,7 +68,7 @@ export const useAdminEditStore = create<AdminEditState>((set, get) => ({
   },
 
   resetMessages: () => {
-    set({ error: '', success: '' });
+    set({ error: null, success: null });
   },
 
   submitForm: async id => {
@@ -97,26 +98,39 @@ export const useAdminEditStore = create<AdminEditState>((set, get) => ({
     }
 
     try {
-      set({ saving: true, error: '', success: '' });
+      set({ saving: true, error: null, success: null });
 
-      const result = await updateAdmin(id, updateData);
+      const response = await axios.patch(`/admin/${id}`, updateData);
+      const updatedAdmin = response.data.data;
 
       set({
         saving: false,
         success: 'Admin berhasil diperbarui',
-        admin: result,
+        admin: updatedAdmin,
       });
 
-      toast.success('Admin berhasil diperbarui');
+      toast({
+        title: "Berhasil",
+        description: "Admin berhasil diperbarui",
+        variant: "default",
+      });
+      
       return true;
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Gagal memperbarui admin';
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Gagal memperbarui admin';
       console.error('Gagal memperbarui admin:', error);
+      
       set({
         saving: false,
         error: errorMessage,
       });
+      
+      toast({
+        title: "Gagal",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      
       return false;
     }
   },

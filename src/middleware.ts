@@ -2,17 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get('accessToken')?.value;
+  const isAuthenticated = request.cookies.has('adminData');
 
   const isAuthRoute = pathname.startsWith('/dashboard');
   const isLoginPage = pathname === '/auth/login';
 
-  if (isAuthRoute && !token) {
+  if (isAuthRoute && !isAuthenticated) {
     const redirectUrl = new URL('/auth/login', request.url);
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (isLoginPage && token) {
+  if (isLoginPage && isAuthenticated) {
     const redirectUrl = new URL('/dashboard', request.url);
     return NextResponse.redirect(redirectUrl);
   }

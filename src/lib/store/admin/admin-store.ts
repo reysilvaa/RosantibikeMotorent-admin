@@ -1,21 +1,21 @@
 import { create } from 'zustand';
-import { deleteAdmin, getAdmins } from '@/lib/auth';
-import { getAdminData } from '@/lib/cookies';
-import { Admin } from '@/lib/types/admin';
+import axios from '../../axios';
+import { Admin } from '../../types/admin';
+import { useAuthStore } from '../auth/auth-store';
 
 interface AdminState {
   admins: Admin[];
   currentAdmin: Admin | null;
   loading: boolean;
-  error: string;
-  success: string;
+  error: string | null;
+  success: string | null;
   searchQuery: string;
   showDialog: boolean;
   adminToDelete: string | null;
 
   fetchAdmins: () => Promise<void>;
-  handleSearch: (query: string) => void;
-  resetSearch: () => void;
+  handleSearch: (query: string) => Promise<void>;
+  resetSearch: () => Promise<void>;
   confirmDelete: (id: string) => void;
   cancelDelete: () => void;
   deleteAdmin: () => Promise<void>;
@@ -27,57 +27,67 @@ export const useAdminStore = create<AdminState>((set, get) => ({
   admins: [],
   currentAdmin: null,
   loading: false,
-  error: '',
-  success: '',
+  error: null,
+  success: null,
   searchQuery: '',
   showDialog: false,
   adminToDelete: null,
 
   fetchAdmins: async () => {
     try {
-      set({ loading: true, error: '' });
+      set({ loading: true, error: null });
+      
+      const response = await axios.get('/admin', {
+        params: {
+          search: get().searchQuery,
+        },
+      });
+      
+      // Get current logged in admin data
+      const userData = useAuthStore.getState().adminData;
+      let currentAdmin: Admin | null = null;
+      
+      const adminsData = response.data.data || response.data || [];
 
-      if (!get().currentAdmin) {
-        const adminData = getAdminData();
-        if (adminData) {
-          set({
-            currentAdmin: {
-              ...adminData,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            },
-          });
+      if (userData) {
+        // Find the current admin in the fetched admins list
+        currentAdmin = adminsData.find((admin: Admin) => admin.id === userData.id) || null;
+
+        // If not found, create a placeholder with minimal data
+        if (!currentAdmin && userData.id) {
+          currentAdmin = {
+            id: userData.id,
+            username: userData.username || '',
+            nama: userData.nama || '',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
         }
       }
 
-      const response = await getAdmins();
-      set({ admins: response, loading: false });
-    } catch (error) {
-      console.error('Gagal mengambil data admin:', error);
-      set({ error: 'Gagal mengambil data admin', loading: false });
+      set({
+        admins: adminsData,
+        currentAdmin,
+        loading: false,
+      });
+    } catch (error: any) {
+      console.error('Error fetching admins:', error);
+      set({
+        loading: false,
+        error: error.response?.data?.message || 'Gagal mengambil data admin',
+        admins: [],
+      });
     }
   },
 
-  handleSearch: (query: string) => {
-    const { admins } = get();
-
-    if (!query) {
-      get().fetchAdmins();
-      return;
-    }
-
-    const filtered = admins.filter(
-      admin =>
-        admin.nama.toLowerCase().includes(query.toLowerCase()) ||
-        admin.username.toLowerCase().includes(query.toLowerCase())
-    );
-
-    set({ admins: filtered, searchQuery: query });
+  handleSearch: async (query: string) => {
+    set({ searchQuery: query });
+    await get().fetchAdmins();
   },
 
-  resetSearch: () => {
+  resetSearch: async () => {
     set({ searchQuery: '' });
-    get().fetchAdmins();
+    await get().fetchAdmins();
   },
 
   confirmDelete: (id: string) => {
@@ -90,25 +100,28 @@ export const useAdminStore = create<AdminState>((set, get) => ({
 
   deleteAdmin: async () => {
     const { adminToDelete } = get();
+    
     if (!adminToDelete) return;
-
+    
     try {
-      set({ loading: true, error: '' });
-      await deleteAdmin(adminToDelete);
+      set({ loading: true, error: null });
+      
+      await axios.delete(`/admin/${adminToDelete}`);
+      
       set({
-        success: 'Admin berhasil dihapus',
         loading: false,
+        success: 'Admin berhasil dihapus',
         showDialog: false,
         adminToDelete: null,
       });
-      get().fetchAdmins();
-    } catch (error) {
-      console.error('Gagal menghapus admin:', error);
+      
+      await get().fetchAdmins();
+    } catch (error: any) {
+      console.error('Error deleting admin:', error);
       set({
-        error: 'Gagal menghapus admin',
         loading: false,
+        error: error.response?.data?.message || 'Gagal menghapus admin',
         showDialog: false,
-        adminToDelete: null,
       });
     }
   },
@@ -118,6 +131,6 @@ export const useAdminStore = create<AdminState>((set, get) => ({
   },
 
   clearMessages: () => {
-    set({ error: '', success: '' });
+    set({ error: null, success: null });
   },
 }));

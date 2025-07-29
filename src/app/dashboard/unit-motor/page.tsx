@@ -1,8 +1,5 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
 import DashboardLayout from '@/components/layout/dashboard-layout';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
@@ -17,6 +14,9 @@ import { StatusMessage } from '@/components/ui/status-message';
 import { deleteUnitMotor, getUnitMotor } from '@/lib/api/unit-motor';
 import { formatRupiah } from '@/lib/helper';
 import { FilterUnitMotor, UnitMotor } from '@/lib/types/unit-motor';
+import { Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 
 export default function UnitMotorPage() {
   const router = useRouter();
@@ -52,16 +52,12 @@ export default function UnitMotorPage() {
 
       const response = await getUnitMotor(params);
 
-      if (response && response.data) {
-        setUnitMotors(response.data);
+      if (response && Array.isArray(response)) {
+        setUnitMotors(response);
+        setTotalData(response.length);
+        setTotalPages(Math.ceil(response.length / limit));
       } else {
         setUnitMotors([]);
-      }
-
-      if (response && response.meta) {
-        setTotalData(response.meta.totalItems || 0);
-        setTotalPages(response.meta.totalPages || 1);
-      } else {
         setTotalData(0);
         setTotalPages(1);
       }

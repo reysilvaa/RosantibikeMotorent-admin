@@ -1,10 +1,10 @@
-import { create } from 'zustand';
 import {
-  FilterTransaksi,
-  getTransaksi,
-  StatusTransaksi,
-  Transaksi,
+    FilterTransaksi,
+    getTransaksi,
+    StatusTransaksi,
+    Transaksi,
 } from '@/lib/transaksi';
+import { create } from 'zustand';
 
 interface TransaksiListState {
   transaksi: Transaksi[];
@@ -55,9 +55,9 @@ export const useTransaksiListStore = create<TransaksiListState>((set, get) => ({
       const response = await getTransaksi(params);
 
       set({
-        transaksi: response.data,
-        totalData: response.meta.totalItems || 0,
-        totalPages: Math.ceil((response.meta.totalItems || 0) / limit),
+        transaksi: response,
+        totalData: response.length,
+        totalPages: Math.ceil(response.length / limit),
         currentPage: page,
         loading: false,
       });

@@ -1,10 +1,5 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
-import { Save } from 'lucide-react';
-import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,16 +8,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoadingIndicator } from '@/components/ui/loading-indicator';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
 } from '@/components/ui/popover';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
 import { StatusMessage } from '@/components/ui/status-message';
 import { Textarea } from '@/components/ui/textarea';
@@ -30,6 +25,11 @@ import { getUnitMotor } from '@/lib/api/unit-motor';
 import { formatRupiah } from '@/lib/helper';
 import { useTransaksiFormStore } from '@/lib/store/transaksi/transaksi-form-store';
 import { UnitMotor } from '@/lib/types/unit-motor';
+import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
+import { Save } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface TransaksiFormProps {
   onCancel: () => void;
@@ -54,7 +54,7 @@ export function TransaksiForm({ onCancel }: TransaksiFormProps) {
     try {
       setLoadingUnitMotor(true);
       const response = await getUnitMotor({ status: 'TERSEDIA' });
-      setUnitMotorList(response.data);
+      setUnitMotorList(response);
     } catch (error) {
       console.error('Gagal mengambil data unit motor:', error);
       toast.error('Gagal mengambil data unit motor');
