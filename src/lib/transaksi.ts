@@ -1,14 +1,12 @@
 export {
-  getTransaksi,
-  getTransaksiDetail,
-  selesaikanTransaksi,
-  getLaporanDenda,
-  getLaporanFasilitas,
-  createTransaksi,
+    activateTransaction, confirmPayment, createTransaksi, failTransaction, getLaporanDenda,
+    getLaporanFasilitas, getTransaksi,
+    getTransaksiDetail,
+    selesaikanTransaksi, updateTransaksi
 } from './api/transaksi';
 
 export { StatusTransaksi } from './types/transaksi';
 
-export type { Transaksi, FilterTransaksi } from './types/transaksi';
+export type { FilterTransaksi, Transaksi } from './types/transaksi';
 
 export type { PaginationResponse } from './types/common';

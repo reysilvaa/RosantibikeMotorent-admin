@@ -1,11 +1,13 @@
-import axios from '../axios';
+import axiosInstance from '../axios';
+import axios from 'axios';
 import { LoginCredentials, LoginResponse } from '../types/admin';
+import { removeAdminData } from '../cookies';
 
 export const login = async (
   credentials: LoginCredentials
 ): Promise<LoginResponse> => {
   try {
-    const response = await axios.post(`/auth/login`, credentials, {
+    const response = await axiosInstance.post(`/auth/login`, credentials, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -41,15 +43,24 @@ export const login = async (
 
 export const logout = async (): Promise<void> => {
   try {
-    await axios.post(`/auth/logout`);
+    await axiosInstance.post(`/auth/logout`);
   } catch (error) {
     console.error('Logout error:', error);
   } finally {
     if (typeof window !== 'undefined') {
-      localStorage.clear();
-      sessionStorage.clear();
+      removeAdminData();
 
       window.location.replace('/auth/login');
     }
+  }
+};
+
+export const getMe = async () => {
+  try {
+    const response = await axiosInstance.get('/auth/me');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching current user:', error);
+    throw error;
   }
 };

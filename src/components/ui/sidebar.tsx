@@ -1,19 +1,5 @@
 'use client';
 
-import React from 'react';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import {
-  Bike,
-  ChevronRight,
-  FileText,
-  LayoutDashboard,
-  LogOut,
-  MessageSquare,
-  ShoppingCart,
-  Tags,
-  Users,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -25,6 +11,20 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { getAdminData } from '@/lib/cookies';
 import { useAuthStore } from '@/lib/store/auth/auth-store';
 import { cn } from '@/lib/utils';
+import {
+  Bike,
+  ChevronRight,
+  FileText,
+  LayoutDashboard,
+  LogOut,
+  MessageSquare,
+  ShoppingCart,
+  Tags,
+  Users,
+} from 'lucide-react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import React from 'react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -126,6 +126,11 @@ export function Sidebar({ isOpen }: SidebarProps) {
       href: '/dashboard/unit-motor',
       icon: <Bike size={iconSize} />,
       title: 'Unit Motor',
+    },
+    {
+      href: '/dashboard/availability',
+      icon: <Bike size={iconSize} />,
+      title: 'Availability',
     },
     {
       href: '/dashboard/blog',

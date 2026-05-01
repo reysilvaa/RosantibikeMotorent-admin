@@ -1,6 +1,5 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
 import { getDataStatusMotor } from '@/components/dashboard/chart/status-motor-chart';
 import { getDataTransaksiBulan } from '@/components/dashboard/chart/transaction-chart';
 import { DashboardCharts } from '@/components/dashboard/dashboard-charts';
@@ -11,7 +10,8 @@ import { LoadingIndicator } from '@/components/ui/loading-indicator';
 import { PageHeader } from '@/components/ui/page-header';
 import { getTransaksi, StatusTransaksi, Transaksi } from '@/lib/transaksi';
 import { StatistikData } from '@/lib/types/stats';
-import { getUnitMotor } from '@/lib/unit-motor';
+import { getUnitMotor, UnitMotor } from '@/lib/unit-motor';
+import { useEffect, useState } from 'react';
 
 interface CustomStatistikData extends Omit<StatistikData, 'dataTransaksi'> {
   dataTransaksi: Transaksi[];
@@ -28,19 +28,43 @@ export default function DashboardPage() {
     dataTransaksiBulan: [],
     dataStatusMotor: [],
   });
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const resTransaksi = await getTransaksi({ limit: 100 });
-        const resUnitMotor = await getUnitMotor({ limit: 100 });
+        
+        // Ambil data transaksi
+        let transaksiData: Transaksi[] = [];
+        try {
+          const resTransaksi = await getTransaksi({ limit: 100 });
+          transaksiData = Array.isArray(resTransaksi) ? resTransaksi : [];
+          console.log('Data transaksi:', transaksiData.length);
+        } catch (error) {
+          console.error('Error mengambil data transaksi:', error);
+          transaksiData = [];
+        }
+        
+        // Ambil data unit motor
+        let unitMotorData: UnitMotor[] = [];
+        try {
+          const resUnitMotor = await getUnitMotor({ limit: 100 });
+          unitMotorData = Array.isArray(resUnitMotor) ? resUnitMotor : [];
+          console.log('Data unit motor:', unitMotorData.length);
+        } catch (error) {
+          console.error('Error mengambil data unit motor:', error);
+          unitMotorData = [];
+        }
 
         const tanggalSekarang = new Date();
         const bulanIni = tanggalSekarang.getMonth();
         const tahunIni = tanggalSekarang.getFullYear();
 
-        const transaksiSelesaiBulanIni = resTransaksi.data.filter(transaksi => {
+        // Filter transaksi selesai bulan ini
+        const transaksiSelesaiBulanIni = transaksiData.filter(transaksi => {
+          if (!transaksi || !transaksi.updatedAt) return false;
+          
           const tanggalTransaksi = new Date(transaksi.updatedAt);
           return (
             transaksi.status === StatusTransaksi.SELESAI &&
@@ -49,36 +73,44 @@ export default function DashboardPage() {
           );
         });
 
+        // Hitung pendapatan bulan ini
         const pendapatanBulanIni = transaksiSelesaiBulanIni.reduce(
-          (total, transaksi) => total + Number(transaksi.totalBiaya),
+          (total, transaksi) => total + Number(transaksi.totalBiaya || 0),
           0
         );
 
-        const motorTersedia = resUnitMotor.data.filter(
-          motor => motor.status === 'TERSEDIA'
+        // Hitung motor tersedia
+        const motorTersedia = unitMotorData.filter(
+          motor => motor && motor.status === 'TERSEDIA'
         ).length;
 
-        const transaksiPending = resTransaksi.data.filter(
+        // Hitung transaksi pending
+        const transaksiPending = transaksiData.filter(
           transaksi =>
-            transaksi.status === StatusTransaksi.BOOKING ||
+            transaksi &&
+            (transaksi.status === StatusTransaksi.BOOKING ||
             transaksi.status === StatusTransaksi.BERJALAN ||
-            transaksi.status === StatusTransaksi.AKTIF
+            transaksi.status === StatusTransaksi.AKTIF)
         ).length;
 
+        // Update state statistik
         setStatistik({
-          totalTransaksi: resTransaksi.meta.totalItems,
+          totalTransaksi: transaksiData.length,
           pendapatanBulanIni,
           motorTersedia,
           transaksiPending,
-          dataTransaksi: resTransaksi.data.slice(0, 5) as Transaksi[],
+          dataTransaksi: transaksiData.slice(0, 5),
           dataTransaksiBulan: getDataTransaksiBulan(
-            resTransaksi.data,
+            transaksiData,
             tahunIni
           ),
-          dataStatusMotor: getDataStatusMotor(resUnitMotor.data),
+          dataStatusMotor: getDataStatusMotor(unitMotorData),
         });
+        
+        setError(null);
       } catch (error) {
         console.error('Gagal mengambil data:', error);
+        setError('Gagal memuat data dashboard. Silakan coba lagi nanti.');
       } finally {
         setLoading(false);
       }
@@ -97,6 +129,10 @@ export default function DashboardPage() {
 
         {loading ? (
           <LoadingIndicator message="Memuat data..." />
+        ) : error ? (
+          <div className="rounded-md bg-red-50 p-4 text-sm text-red-500 dark:bg-red-900/30 dark:text-red-300">
+            {error}
+          </div>
         ) : (
           <>
             <DashboardStats

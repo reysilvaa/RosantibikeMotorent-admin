@@ -1,16 +1,17 @@
-import axios from '../axios';
+import axios from 'axios';
+import axiosInstance from '../axios';
 import { WhatsAppQrCodeResponse, WhatsAppStatus } from '../types/whatsapp';
 
 export const getWhatsAppStatus = async (): Promise<WhatsAppStatus> => {
   try {
-    const response = await axios.get('/whatsapp/session-status');
+    const response = await axiosInstance.get('/whatsapp/status');
 
     return {
       connected:
-        response.data.connected ||
-        response.data.status === 'CONNECTED' ||
-        response.data.data?.connected === true,
-      state: response.data.state || response.data.status || 'DISCONNECTED',
+        response.data.data?.isConnected === true ||
+        response.data.data?.connected === true ||
+        response.data.status === 'CONNECTED',
+      state: response.data.data?.status?.state || response.data.status || 'DISCONNECTED',
       message: response.data.message || '',
     };
   } catch (error: unknown) {
@@ -28,9 +29,10 @@ export const getWhatsAppStatus = async (): Promise<WhatsAppStatus> => {
 
 export const getWhatsAppQrCode = async (): Promise<WhatsAppQrCodeResponse> => {
   try {
-    const response = await axios.get('/whatsapp/qrcode');
+    const response = await axiosInstance.get('/whatsapp/qrcode');
 
     if (response.status === 200) {
+      // Jika respons adalah gambar langsung
       if (
         typeof response.data === 'string' &&
         response.data.startsWith('data:image')
@@ -41,20 +43,22 @@ export const getWhatsAppQrCode = async (): Promise<WhatsAppQrCodeResponse> => {
         };
       }
 
+      // Jika respons adalah objek JSON
       if (typeof response.data === 'object') {
-        if (response.data.qrCode) {
-          return { status: 'success', qrCode: response.data.qrCode };
-        }
-
+        // Cek berbagai format respons yang mungkin
         if (response.data.qrcode) {
           return { status: 'success', qrCode: response.data.qrcode };
+        }
+
+        if (response.data.qrCode) {
+          return { status: 'success', qrCode: response.data.qrCode };
         }
 
         if (response.data.data?.qrcode) {
           return { status: 'success', qrCode: response.data.data.qrcode };
         }
 
-        // Menangani format respons dari server wppconnect
+        // Menangani format respons dari server
         if (response.data.data && typeof response.data.data === 'string') {
           try {
             // Cek apakah data berisi JSON dengan property code
@@ -69,6 +73,7 @@ export const getWhatsAppQrCode = async (): Promise<WhatsAppQrCodeResponse> => {
           }
         }
 
+        // Jika WhatsApp sudah terhubung
         if (
           response.data.connected === true ||
           response.data.status === 'CONNECTED'
@@ -80,6 +85,7 @@ export const getWhatsAppQrCode = async (): Promise<WhatsAppQrCodeResponse> => {
           };
         }
 
+        // Jika ada pesan
         if (response.data.message) {
           return {
             status: 'success',
@@ -116,24 +122,23 @@ export const getWhatsAppQrCode = async (): Promise<WhatsAppQrCodeResponse> => {
 
 export const resetWhatsAppConnection = async () => {
   try {
-    // Coba reset-session terlebih dahulu (GET)
+    // Coba endpoint reset terlebih dahulu
     try {
-      const response = await axios.get('/whatsapp/reset-session');
-      console.log('Reset session berhasil:', response.data);
+      const response = await axiosInstance.post('/whatsapp/reset');
+      console.log('Reset koneksi berhasil:', response.data);
       return response.data;
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.log('Reset session gagal, mencoba metode lain...', errorMessage);
-      
-      // Jika gagal, coba start-all (POST)
+      console.log('Reset koneksi gagal, mencoba metode lain...', errorMessage);
+
+      // Jika gagal, coba connect
       try {
-        const response = await axios.post('/whatsapp/start-all', {});
-        console.log('Start all sessions berhasil:', response.data);
-        return response.data;
-      } catch {
-        const response = await axios.post('/whatsapp/connect', {});
+        const response = await axiosInstance.post('/whatsapp/connect');
         console.log('Connect berhasil:', response.data);
         return response.data;
+      } catch (connectError) {
+        console.error('Connect juga gagal:', connectError);
+        throw connectError;
       }
     }
   } catch (error: unknown) {
@@ -144,25 +149,23 @@ export const resetWhatsAppConnection = async () => {
 
 export const logoutWhatsAppSession = async () => {
   try {
-    // Mencoba endpoint logout-session terlebih dahulu
+    // Mencoba endpoint logout
     try {
-      const response = await axios.post('/whatsapp/logout-session', {});
-      console.log('Logout session berhasil:', response.data);
+      const response = await axiosInstance.post('/whatsapp/logout');
+      console.log('Logout berhasil:', response.data);
       return response.data;
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.log('Logout dengan endpoint logout-session gagal:', errorMessage);
+      console.log('Logout gagal:', errorMessage);
       
-      // Jika gagal, coba reset-session sebagai alternatif
+      // Jika gagal, coba reset sebagai alternatif
       try {
-        const response = await axios.get('/whatsapp/reset-session');
-        console.log('Reset session berhasil sebagai alternatif logout:', response.data);
+        const response = await axiosInstance.post('/whatsapp/reset');
+        console.log('Reset sebagai alternatif logout berhasil:', response.data);
         return response.data;
-      } catch {
-        // Jika masih gagal, coba closeSession dengan endpoint lain
-        const response = await axios.post('/whatsapp/close-session', {});
-        console.log('Close session berhasil:', response.data);
-        return response.data;
+      } catch (resetError) {
+        console.error('Reset juga gagal:', resetError);
+        throw resetError;
       }
     }
   } catch (error: unknown) {
@@ -173,20 +176,8 @@ export const logoutWhatsAppSession = async () => {
 
 export const startAllWhatsAppSessions = async () => {
   try {
-    try {
-      const response = await axios.post('/whatsapp/start-all', {});
-      return response.data;
-    } catch (startError) {
-      if (
-        startError instanceof Error &&
-        (startError.message.includes('404') ||
-          startError.message.includes('Not Found'))
-      ) {
-        const response = await axios.post('/whatsapp/connect', {});
-        return response.data;
-      }
-      throw startError;
-    }
+    const response = await axiosInstance.post('/whatsapp/connect');
+    return response.data;
   } catch (error: unknown) {
     console.error('Error starting WhatsApp sessions:', error);
     throw error;
@@ -210,20 +201,7 @@ export const detectPhoneNumberFormat = async (phone: string): Promise<string | n
       cleaned.startsWith('62') ? cleaned : '62' + (cleaned.startsWith('0') ? cleaned.substring(1) : cleaned), // Format dengan 62: 628123456789
     ];
     
-    // Cek format mana yang valid dengan melakukan request ke API
-    for (const format of formats) {
-      try {
-        const response = await axios.get(`/whatsapp/contact/${format}`);
-        if (response.status === 200 && response.data) {
-          console.log(`Format nomor telepon valid terdeteksi: ${format}`);
-          return format;
-        }
-      } catch (error) {
-        console.warn(`Format ${format} tidak valid:`, error);
-      }
-    }
-    
-    // Jika tidak ada format yang valid, gunakan default
+    // Default format
     return cleaned.startsWith('62') ? cleaned + '@c.us' : '62' + (cleaned.startsWith('0') ? cleaned.substring(1) : cleaned) + '@c.us';
   } catch (error) {
     console.error('Error detecting phone number format:', error);
@@ -260,7 +238,6 @@ export const sendWhatsAppMessage = async (to: string, message: string) => {
     let formats = [
       formattedNumber + '@c.us', // Format dengan @c.us: 628123456789@c.us
       formattedNumber, // Format biasa: 628123456789
-      formattedNumber.replace(/^62/, '0'), // Format dengan 0: 08123456789
     ];
     
     // Coba deteksi format yang valid
@@ -278,7 +255,7 @@ export const sendWhatsAppMessage = async (to: string, message: string) => {
       try {
         console.log(`Mencoba format: ${format}`);
         
-        const response = await axios.post('/whatsapp/send-message', {
+        const response = await axiosInstance.post('/whatsapp/send', {
           to: format,
           message,
         });
@@ -307,33 +284,23 @@ export const sendWhatsAppMessage = async (to: string, message: string) => {
     // Ekstrak informasi error yang lebih detail
     let errorMessage = 'Gagal mengirim pesan WhatsApp';
     
-    if (error instanceof Error) {
-      errorMessage = error.message;
+    if (axios.isAxiosError(error) && error.response) {
+      const responseData = error.response.data;
       
-      // Cek apakah ini error dari axios dengan respons
-      if ('response' in error && error.response) {
-        const axiosError = error as {
-          response: {
-            status: number;
-            statusText: string;
-            data: Record<string, unknown> | string | null;
-          };
-        };
-        const responseData = axiosError.response.data;
-        
-        console.error('Detail error respons:', {
-          status: axiosError.response.status,
-          data: responseData
-        });
-        
-        if (responseData && typeof responseData === 'object' && 'message' in responseData) {
-          errorMessage = `Server: ${String(responseData.message)}`;
-        } else if (responseData && typeof responseData === 'string') {
-          errorMessage = `Server: ${responseData}`;
-        } else {
-          errorMessage = `Error ${axiosError.response.status}: ${axiosError.response.statusText}`;
-        }
+      console.error('Detail error respons:', {
+        status: error.response.status,
+        data: responseData
+      });
+      
+      if (responseData && typeof responseData === 'object' && 'message' in responseData) {
+        errorMessage = `Server: ${String(responseData.message)}`;
+      } else if (responseData && typeof responseData === 'string') {
+        errorMessage = `Server: ${responseData}`;
+      } else {
+        errorMessage = `Error ${error.response.status}: ${error.response.statusText}`;
       }
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
     }
     
     throw new Error(errorMessage);
@@ -348,7 +315,7 @@ export const sendWhatsAppMessageToAdmin = async (message: string) => {
   try {
     console.log(`Mengirim pesan ke admin: ${message.substring(0, 50)}${message.length > 50 ? '...' : ''}`);
     
-    const response = await axios.post('/whatsapp/send-to-admin', { message });
+    const response = await axiosInstance.post('/whatsapp/send-admin', { message });
     
     if (response.status === 200 || response.status === 201) {
       console.log('Pesan berhasil dikirim ke admin:', response.data);
@@ -363,33 +330,23 @@ export const sendWhatsAppMessageToAdmin = async (message: string) => {
     // Ekstrak informasi error yang lebih detail
     let errorMessage = 'Gagal mengirim pesan WhatsApp ke admin';
     
-    if (error instanceof Error) {
-      errorMessage = error.message;
+    if (axios.isAxiosError(error) && error.response) {
+      const responseData = error.response.data;
       
-      // Cek apakah ini error dari axios dengan respons
-      if ('response' in error && error.response) {
-        const axiosError = error as {
-          response: {
-            status: number;
-            statusText: string;
-            data: Record<string, unknown> | string | null;
-          };
-        };
-        const responseData = axiosError.response.data;
-        
-        console.error('Detail error respons:', {
-          status: axiosError.response.status,
-          data: responseData
-        });
-        
-        if (responseData && typeof responseData === 'object' && 'message' in responseData) {
-          errorMessage = `Server: ${String(responseData.message)}`;
-        } else if (responseData && typeof responseData === 'string') {
-          errorMessage = `Server: ${responseData}`;
-        } else {
-          errorMessage = `Error ${axiosError.response.status}: ${axiosError.response.statusText}`;
-        }
+      console.error('Detail error respons:', {
+        status: error.response.status,
+        data: responseData
+      });
+      
+      if (responseData && typeof responseData === 'object' && 'message' in responseData) {
+        errorMessage = `Server: ${String(responseData.message)}`;
+      } else if (responseData && typeof responseData === 'string') {
+        errorMessage = `Server: ${responseData}`;
+      } else {
+        errorMessage = `Error ${error.response.status}: ${error.response.statusText}`;
       }
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
     }
     
     throw new Error(errorMessage);
@@ -398,23 +355,8 @@ export const sendWhatsAppMessageToAdmin = async (message: string) => {
 
 export const getAllWhatsAppSessions = async () => {
   try {
-    try {
-      const response = await axios.get('/whatsapp/all-sessions');
-      return response.data;
-    } catch (sessionError) {
-      if (
-        sessionError instanceof Error &&
-        (sessionError.message.includes('404') ||
-          sessionError.message.includes('Not Found'))
-      ) {
-        console.log(
-          'Endpoint all-sessions tidak ditemukan, menggunakan endpoint session-status'
-        );
-        const response = await axios.get('/whatsapp/session-status');
-        return response.data;
-      }
-      throw sessionError;
-    }
+    const response = await axiosInstance.get('/whatsapp/status');
+    return response.data;
   } catch (error: unknown) {
     console.error('Error getting WhatsApp sessions:', error);
     throw error;
@@ -423,7 +365,7 @@ export const getAllWhatsAppSessions = async () => {
 
 export const getWhatsAppChats = async () => {
   try {
-    const response = await axios.get('/whatsapp/chats');
+    const response = await axiosInstance.get('/whatsapp/chats');
     return response.data;
   } catch (error: unknown) {
     console.error('Error getting WhatsApp chats:', error);
@@ -436,7 +378,7 @@ export const getWhatsAppMessages = async (phone: string) => {
     if (!phone || typeof phone !== 'string') {
       throw new Error('Nomor telepon tidak valid');
     }
-    const response = await axios.get(`/whatsapp/messages/${phone}`);
+    const response = await axiosInstance.get(`/whatsapp/messages/${phone}`);
     return response.data;
   } catch (error: unknown) {
     console.error('Error getting WhatsApp messages:', error);
@@ -449,7 +391,7 @@ export const getWhatsAppContact = async (phone: string) => {
     if (!phone || typeof phone !== 'string') {
       throw new Error('Nomor telepon tidak valid');
     }
-    const response = await axios.get(`/whatsapp/contact/${phone}`);
+    const response = await axiosInstance.get(`/whatsapp/contact/${phone}`);
     return response.data;
   } catch (error: unknown) {
     console.error('Error getting WhatsApp contact:', error);

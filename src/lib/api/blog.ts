@@ -1,4 +1,5 @@
-import axios from '../axios';
+import axios from 'axios';
+import axiosInstance from '../axios';
 
 export interface BlogParams {
   page?: number;
@@ -17,7 +18,7 @@ export const getBlogPosts = async (params?: BlogParams) => {
   try {
     console.log('Fetching blog posts with params:', params);
 
-    const response = await axios.get(`/blog`, {
+    const response = await axiosInstance.get(`/blog`, {
       params,
     });
     console.log('Blog posts response:', response.data);
@@ -35,7 +36,7 @@ export const getBlogPost = async (id: string) => {
   try {
     console.log('Fetching blog post with ID:', id);
 
-    const response = await axios.get(`/blog/${id}`);
+    const response = await axiosInstance.get(`/blog/${id}`);
     console.log('Blog post detail response:', response.data);
     return response.data;
   } catch (error: unknown) {
@@ -51,7 +52,7 @@ export const getBlogPostBySlug = async (slug: string) => {
   try {
     console.log('Fetching blog post with slug:', slug);
 
-    const response = await axios.get(`/blog/by-slug/${slug}`);
+    const response = await axiosInstance.get(`/blog/by-slug/${slug}`);
     console.log('Blog post by slug response:', response.data);
     return response.data;
   } catch (error: unknown) {
@@ -67,7 +68,7 @@ export const getBlogTags = async () => {
   try {
     console.log('Fetching blog tags');
 
-    const response = await axios.get(`/blog/tags`);
+    const response = await axiosInstance.get(`/blog-tags`);
     console.log('Blog tags response:', response.data);
     return response.data;
   } catch (error: unknown) {
@@ -83,7 +84,7 @@ export const searchBlogTags = async (query: string) => {
   try {
     console.log('Searching blog tags with query:', query);
 
-    const response = await axios.get(`/blog/tags/search`, {
+    const response = await axiosInstance.get(`/blog-tags/search`, {
       params: { q: query },
     });
     console.log('Search blog tags response:', response.data);
@@ -97,11 +98,27 @@ export const searchBlogTags = async (query: string) => {
   }
 };
 
+export const getBlogKategori = async () => {
+  try {
+    console.log('Fetching blog categories');
+
+    const response = await axiosInstance.get(`/blog/kategori`);
+    console.log('Blog categories response:', response.data);
+    return response.data;
+  } catch (error: unknown) {
+    console.error('Error fetching blog categories:', error);
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Gagal mendapatkan daftar kategori');
+  }
+};
+
 export const createBlogPost = async (formData: FormData) => {
   try {
     console.log('Creating new blog post');
 
-    const response = await axios.post(`/blog`, formData, {
+    const response = await axiosInstance.post(`/blog`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -121,7 +138,7 @@ export const updateBlogPost = async (id: string, formData: FormData) => {
   try {
     console.log('Updating blog post with ID:', id);
 
-    const response = await axios.patch(`/blog/${id}`, formData, {
+    const response = await axiosInstance.patch(`/blog/${id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -141,7 +158,7 @@ export const deleteBlogPost = async (id: string) => {
   try {
     console.log('Deleting blog post with ID:', id);
 
-    const response = await axios.delete(`/blog/${id}`);
+    const response = await axiosInstance.delete(`/blog/${id}`);
     console.log('Delete blog post response:', response.data);
     return response.data;
   } catch (error: unknown) {

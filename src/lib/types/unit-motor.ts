@@ -15,6 +15,8 @@ export interface FilterUnitMotor {
   page?: number;
   limit?: number;
   search?: string;
-  status?: string;
+  status?: string; // For admin UI compatibility
+  isAvailable?: boolean; // For backend API compatibility
+  jenisId?: string;
   jenis?: JenisMotor;
 }

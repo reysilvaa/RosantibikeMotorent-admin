@@ -1,11 +1,9 @@
 export {
-  getAdmins,
-  createAdmin,
-  updateAdmin,
-  deleteAdmin,
-  getAdminById,
+    createAdmin, deleteAdmin,
+    getAdminById, getAdmins, updateAdmin
 } from './api/admin';
 
-export { login, logout } from './api/auth';
+export { getMe, login, logout } from './api/auth';
 
-export type { LoginCredentials, LoginResponse, Admin } from './types/admin';
+export type { Admin, LoginCredentials, LoginResponse } from './types/admin';
+

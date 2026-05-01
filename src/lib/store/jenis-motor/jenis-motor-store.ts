@@ -1,6 +1,6 @@
-import { create } from 'zustand';
 import { deleteJenisMotor, getJenisMotor } from '@/lib/jenis-motor';
 import { JenisMotor } from '@/lib/types/jenis-motor';
+import { create } from 'zustand';
 
 interface JenisMotorState {
   data: JenisMotor[];
@@ -34,10 +34,17 @@ export const useJenisMotorStore = create<JenisMotorState>((set, get) => ({
   fetchJenisMotor: async () => {
     try {
       set({ loading: true, error: '', success: '' });
-      const response = await getJenisMotor();
+      const jenisMotorData = await getJenisMotor();
+
+      console.log('Store received jenis motor data:', jenisMotorData);
+      console.log('Data type:', typeof jenisMotorData);
+      console.log('Is array:', Array.isArray(jenisMotorData));
+      console.log('Data length:', jenisMotorData?.length);
+
+      // getJenisMotor() returns JenisMotor[] directly
       set({
-        data: response,
-        filteredData: response,
+        data: jenisMotorData || [],
+        filteredData: jenisMotorData || [],
         loading: false,
       });
     } catch (error) {

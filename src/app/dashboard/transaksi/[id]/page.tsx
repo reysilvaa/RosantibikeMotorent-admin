@@ -60,6 +60,7 @@ export default function DetailTransaksiPage({
       case StatusTransaksi.BOOKING:
         return 'warning';
       case StatusTransaksi.BERJALAN:
+      case StatusTransaksi.AKTIF: // Add support for AKTIF status
         return 'info';
       case StatusTransaksi.SELESAI:
         return 'success';
@@ -81,17 +82,18 @@ export default function DetailTransaksiPage({
           showBackButton={true}
           backHref="/dashboard/transaksi"
           actionLabel={
-            status === StatusTransaksi.BERJALAN
+            status === StatusTransaksi.BERJALAN || status === StatusTransaksi.AKTIF // Add support for AKTIF status
               ? 'Selesaikan Transaksi'
               : undefined
           }
           actionIcon={
-            status === StatusTransaksi.BERJALAN ? (
+            status === StatusTransaksi.BERJALAN || status === StatusTransaksi.AKTIF // Add support for AKTIF status
+              ? (
               <ClipboardCheck className="mr-2 h-4 w-4" />
             ) : undefined
           }
           actionHandler={
-            status === StatusTransaksi.BERJALAN
+            status === StatusTransaksi.BERJALAN || status === StatusTransaksi.AKTIF // Add support for AKTIF status
               ? () => handleSelesaikan(React.use(params).id)
               : undefined
           }
